@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { List, FAB, Portal, Dialog, TextInput, Button, Text, Snackbar } from 'react-native-paper';
+import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
+import { Picker } from '@react-native-picker/picker';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -8,34 +9,58 @@ import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import client from '../../api/client';
 
+const STATUT_COLORS = { actif: '#388e3c', jeune: '#1976d2', inactif: '#757575' };
+
 export default function ParcellesSecteurs({ navigation }) {
-  const { secteurs, parcelles, refreshSecteurs, refreshParcelles } = useData();
+  const { secteurs, parcelles, varietes, refreshSecteurs, refreshParcelles } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const [dialogType, setDialogType] = useState(null);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ nom: '', surface: '', secteur_id: '' });
+  const [form, setForm] = useState({ nom: '', surface: '', nb_arbre: '', age_moy: '', statut: 'actif', variete_id: '', parcelle_id: '' });
   const [loading, setLoading] = useState(false);
-  const [snack, setSnack] = useState('');
   const [confirmId, setConfirmId] = useState(null);
   const [confirmType, setConfirmType] = useState(null);
+  const [snack, setSnack] = useState('');
+  const [expandedParcelle, setExpandedParcelle] = useState(null);
 
-  const openCreate = (type) => { setEditing(null); setForm({ nom: '', surface: '', secteur_id: '' }); setDialogType(type); };
-  const openEdit = (type, item) => { setEditing(item); setForm({ nom: item.nom, surface: String(item.surface ?? ''), secteur_id: String(item.secteur_id ?? '') }); setDialogType(type); };
+  const secteursOfParcelle = (parcelleId) => secteurs.filter(s => s.parcelle_id === parcelleId);
+  const getVarieteNom = (id) => varietes.find(v => v.id_variete === id)?.nom || '-';
+
+  const openCreateSecteur = (parcelleId) => {
+    setEditing(null);
+    setForm({ nom: '', surface: '', nb_arbre: '', age_moy: '', statut: 'actif', variete_id: '', parcelle_id: String(parcelleId) });
+    setDialogType('secteur');
+  };
+  const openEditSecteur = (s) => {
+    setEditing(s);
+    setForm({ nom: s.nom, surface: String(s.surface ?? ''), nb_arbre: String(s.nb_arbre ?? ''), age_moy: String(s.age_moy ?? ''), statut: s.statut || 'actif', variete_id: String(s.variete_id ?? ''), parcelle_id: String(s.parcelle_id ?? '') });
+    setDialogType('secteur');
+  };
+  const openCreateParcelle = () => {
+    setEditing(null);
+    setForm({ nom: '', surface: '', nb_arbre: '', age_moy: '', statut: 'actif', variete_id: '', parcelle_id: '' });
+    setDialogType('parcelle');
+  };
+  const openEditParcelle = (p) => {
+    setEditing(p);
+    setForm({ nom: p.nom, surface: '', nb_arbre: '', age_moy: '', statut: 'actif', variete_id: '', parcelle_id: '' });
+    setDialogType('parcelle');
+  };
 
   const save = async () => {
     setLoading(true);
     try {
-      if (dialogType === 'secteur') {
+      if (dialogType === 'parcelle') {
         const payload = { nom: form.nom };
-        if (editing) await client.put(`/secteurs/${editing.id}`, payload);
-        else await client.post('/secteurs/', payload);
-        await refreshSecteurs();
-      } else {
-        const payload = { nom: form.nom, surface: parseFloat(form.surface), secteur_id: parseInt(form.secteur_id) };
-        if (editing) await client.put(`/parcelles/${editing.id}`, payload);
+        if (editing) await client.put(`/parcelles/${editing.id_parcelle}`, payload);
         else await client.post('/parcelles/', payload);
         await refreshParcelles();
+      } else {
+        const payload = { nom: form.nom, surface: parseFloat(form.surface) || 0, nb_arbre: parseInt(form.nb_arbre) || 0, age_moy: parseInt(form.age_moy) || 0, statut: form.statut, variete_id: parseInt(form.variete_id) || null, parcelle_id: parseInt(form.parcelle_id) || null };
+        if (editing) await client.put(`/secteurs/${editing.id_secteur}`, payload);
+        else await client.post('/secteurs/', payload);
+        await refreshSecteurs();
       }
       setDialogType(null);
     } catch { setSnack('Erreur lors de la sauvegarde'); }
@@ -44,51 +69,87 @@ export default function ParcellesSecteurs({ navigation }) {
 
   const confirmDelete = async () => {
     try {
-      if (confirmType === 'secteur') { await client.delete(`/secteurs/${confirmId}`); await refreshSecteurs(); }
-      else { await client.delete(`/parcelles/${confirmId}`); await refreshParcelles(); }
+      if (confirmType === 'parcelle') { await client.delete(`/parcelles/${confirmId}`); await refreshParcelles(); await refreshSecteurs(); }
+      else { await client.delete(`/secteurs/${confirmId}`); await refreshSecteurs(); }
     } catch { setSnack('Erreur lors de la suppression'); }
     setConfirmId(null);
   };
 
-  const parcellesOf = (secteurId) => parcelles.filter(p => p.secteur_id === secteurId);
-
   return (
     <View style={{ flex: 1 }}>
       <AppHeader title="Parcelles & Secteurs" navigation={navigation} />
-      <ScrollView style={styles.container}>
-        {secteurs.length === 0 ? <EmptyState message="Aucun secteur enregistré" /> : null}
-        {secteurs.map(s => (
-          <List.Accordion key={s.id} title={s.nom} left={props => <List.Icon {...props} icon="map" />}>
-            {isAdmin && <List.Item title="Modifier secteur" left={props => <List.Icon {...props} icon="pencil" />} onPress={() => openEdit('secteur', s)} />}
+      <ScrollView style={{ backgroundColor: '#f5f5f5' }}>
+        {parcelles.length === 0 && <EmptyState message="Aucune parcelle enregistrée" />}
+        {parcelles.map(p => (
+          <List.Accordion
+            key={p.id_parcelle}
+            title={p.nom}
+            description={`${secteursOfParcelle(p.id_parcelle).length} secteur(s)`}
+            left={props => <List.Icon {...props} icon="map-marker-multiple" />}
+            expanded={expandedParcelle === p.id_parcelle}
+            onPress={() => setExpandedParcelle(expandedParcelle === p.id_parcelle ? null : p.id_parcelle)}
+          >
+            {isAdmin && (
+              <View style={{ flexDirection: 'row', padding: 8, gap: 8 }}>
+                <Button icon="pencil" mode="outlined" compact onPress={() => openEditParcelle(p)}>Modifier parcelle</Button>
+                <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>Supprimer</Button>
+              </View>
+            )}
+            {secteursOfParcelle(p.id_parcelle).map(s => (
+              <View key={s.id_secteur} style={styles.secteurCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text variant="titleSmall" style={{ color: '#2d7a4a' }}>{s.nom}</Text>
+                  <Chip compact style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{s.statut}</Chip>
+                </View>
+                <View style={styles.secteurDetails}>
+                  <Text variant="bodySmall">Surface : {s.surface} ha</Text>
+                  <Text variant="bodySmall">Arbres : {s.nb_arbre}</Text>
+                  <Text variant="bodySmall">Âge moy. : {s.age_moy} ans</Text>
+                  <Text variant="bodySmall">Variété : {getVarieteNom(s.variete_id)}</Text>
+                </View>
+                {isAdmin && (
+                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                    <Button icon="pencil" compact mode="text" onPress={() => openEditSecteur(s)}>Modifier</Button>
+                    <Button icon="delete" compact mode="text" textColor="#d32f2f" onPress={() => { setConfirmType('secteur'); setConfirmId(s.id_secteur); }}>Supprimer</Button>
+                  </View>
+                )}
+              </View>
+            ))}
             {isAdmin && (
               <List.Item
-                title="Supprimer secteur"
-                left={props => <List.Icon {...props} icon="delete" />}
-                onPress={() => { setConfirmType('secteur'); setConfirmId(s.id); }}
-                titleStyle={{ color: '#d32f2f' }}
+                title="Ajouter un secteur"
+                left={props => <List.Icon {...props} icon="plus-circle" />}
+                titleStyle={{ color: '#2d7a4a' }}
+                onPress={() => openCreateSecteur(p.id_parcelle)}
               />
             )}
-            {parcellesOf(s.id).map(p => (
-              <List.Item key={p.id} title={p.nom} description={`Surface : ${p.surface} ha`} left={props => <List.Icon {...props} icon="land-fields" />}
-                right={() => isAdmin ? (
-                  <View style={{ flexDirection: 'row' }}>
-                    <Button icon="pencil" compact onPress={() => openEdit('parcelle', p)} />
-                    <Button icon="delete" compact onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id); }} />
-                  </View>
-                ) : null} />
-            ))}
-            {isAdmin && <List.Item title="Ajouter une parcelle" left={props => <List.Icon {...props} icon="plus" />}
-              onPress={() => { setForm({ nom: '', surface: '', secteur_id: String(s.id) }); setEditing(null); setDialogType('parcelle'); }} />}
           </List.Accordion>
         ))}
       </ScrollView>
-      {isAdmin && <FAB icon="plus" label="Secteur" style={styles.fab} onPress={() => openCreate('secteur')} />}
+      {isAdmin && <FAB icon="plus" label="Parcelle" style={styles.fab} onPress={openCreateParcelle} />}
       <Portal>
         <Dialog visible={!!dialogType} onDismiss={() => setDialogType(null)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} {dialogType}</Dialog.Title>
+          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} {dialogType === 'parcelle' ? 'une parcelle' : 'un secteur'}</Dialog.Title>
           <Dialog.Content>
             <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
-            {dialogType === 'parcelle' && <TextInput label="Surface (ha)" value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" />}
+            {dialogType === 'secteur' && (
+              <>
+                <TextInput label="Surface (ha)" value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                <TextInput label="Nombre d'arbres" value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                <TextInput label="Âge moyen (ans)" value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                <Text variant="labelMedium">Statut</Text>
+                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+                  {['actif', 'jeune', 'inactif'].map(s => (
+                    <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>
+                  ))}
+                </View>
+                <Text variant="labelMedium">Variété</Text>
+                <Picker selectedValue={form.variete_id} onValueChange={v => setForm(f => ({ ...f, variete_id: v }))}>
+                  <Picker.Item label="Sélectionner..." value="" />
+                  {varietes.map(v => <Picker.Item key={v.id_variete} label={v.nom} value={String(v.id_variete)} />)}
+                </Picker>
+              </>
+            )}
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogType(null)}>Annuler</Button>
@@ -99,11 +160,7 @@ export default function ParcellesSecteurs({ navigation }) {
       <ConfirmDialog
         visible={!!confirmId}
         title="Confirmer la suppression"
-        message={
-          confirmType === 'parcelle'
-            ? "Supprimer cette parcelle supprimera aussi tous ses secteurs, travaux, récoltes et fertilisations associés."
-            : "Supprimer ce secteur supprimera aussi tous ses travaux, récoltes et fertilisations associés."
-        }
+        message={confirmType === 'parcelle' ? 'Supprimer cette parcelle et tous ses secteurs associés ?' : 'Supprimer ce secteur et tous ses travaux, récoltes et fertilisations associés ?'}
         onConfirm={confirmDelete}
         onDismiss={() => setConfirmId(null)}
         confirmLabel="Supprimer"
@@ -113,6 +170,7 @@ export default function ParcellesSecteurs({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  secteurCard: { margin: 8, padding: 12, backgroundColor: '#fff', borderRadius: 8, elevation: 1 },
+  secteurDetails: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 4 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });
