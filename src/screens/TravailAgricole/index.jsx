@@ -154,7 +154,7 @@ export default function TravailAgricole({ navigation }) {
               <Text style={[styles.th, { width: 140 }]}>Type</Text>
               <Text style={[styles.th, { width: 130 }]}>Parcelle</Text>
               <Text style={[styles.th, { width: 140 }]}>Secteur</Text>
-              <Text style={[styles.th, { width: 95, textAlign: 'right' }]}>Coût (DT)</Text>
+              <Text style={[styles.th, { width: 95 }]}>Coût (DT)</Text>
               <Text style={[styles.th, { width: 100 }]}>Statut</Text>
               <Text style={[styles.th, { width: 90 }]}>Actions</Text>
             </View>
@@ -168,7 +168,7 @@ export default function TravailAgricole({ navigation }) {
                   <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.type}</Text>
                   <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
                   <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
-                  <Text style={[styles.td, { width: 95, textAlign: 'right' }]}>{t.cout?.toLocaleString('fr-FR') || '0'}</Text>
+                  <Text style={[styles.td, { width: 95 }]}>{t.cout?.toLocaleString('fr-FR') || '0'}</Text>
                   <Text style={[styles.td, { width: 100, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
                   <View style={{ width: 90, flexDirection: 'row', alignItems: 'center' }}>
                     {isAdmin ? (
