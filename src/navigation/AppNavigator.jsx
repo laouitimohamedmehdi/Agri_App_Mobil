@@ -104,7 +104,6 @@ function TabsWithDrawer() {
 
       <Modal visible={drawerVisible} transparent animationType="none" onRequestClose={closeDrawer} statusBarTranslucent>
         <View style={styles.modalContainer}>
-          <TouchableOpacity style={styles.overlay} onPress={closeDrawer} activeOpacity={1} />
           <View style={[styles.drawerPanel, { paddingTop: insets.top, paddingBottom: insets.bottom + 8 }]}>
             <View style={styles.drawerHeader}>
               <MaterialCommunityIcons name="account-circle" size={48} color="#2d7a4a" />
@@ -126,6 +125,7 @@ function TabsWithDrawer() {
               <Text variant="bodyLarge" style={{ color: '#c0392b' }}>Déconnexion</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity style={styles.overlay} onPress={closeDrawer} activeOpacity={1} />
         </View>
       </Modal>
     </DrawerContext.Provider>
@@ -135,7 +135,7 @@ function TabsWithDrawer() {
 const styles = StyleSheet.create({
   modalContainer: { flex: 1, flexDirection: 'row' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
-  drawerPanel: { width: 280, backgroundColor: '#fff', elevation: 16, shadowColor: '#000', shadowOffset: { width: 2, height: 0 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  drawerPanel: { width: 280, backgroundColor: '#fff', elevation: 16, shadowColor: '#000', shadowOffset: { width: -2, height: 0 }, shadowOpacity: 0.3, shadowRadius: 8 },
   drawerHeader: { padding: 20, alignItems: 'center' },
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 },
 });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Appbar, Badge } from 'react-native-paper';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import client from '../api/client';
 import { DrawerContext } from '../contexts/DrawerContext';
@@ -26,6 +26,10 @@ export default function AppHeader({ title }) {
   return (
     <Appbar.Header>
       <Appbar.Action icon="menu" onPress={openDrawer} />
+      <Image
+        source={require('../../assets/logo.png')}
+        style={{ width: 32, height: 32, resizeMode: 'contain', marginRight: 8 }}
+      />
       <Appbar.Content title={title} />
       <View>
         <Appbar.Action
