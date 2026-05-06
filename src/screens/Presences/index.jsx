@@ -181,14 +181,14 @@ export default function Presences({ navigation }) {
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {isAdmin && feuille.statut !== 'validee' && (
               <>
-                <Button mode="contained" compact buttonColor="#2d7a4a" onPress={saveChanges} loading={saving} style={{ height: 34 }}>
-                  Sauvegarder
+                <Button mode="contained" icon="content-save" buttonColor="#2d7a4a" onPress={saveChanges} loading={saving}>
+                  Enregistrer
                 </Button>
-                <Button mode="outlined" compact onPress={valider} style={{ height: 34 }}>Valider</Button>
+                <Button mode="outlined" icon="check-circle" onPress={valider}>Valider</Button>
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
-              <Button mode="outlined" compact onPress={deverrouiller} style={{ height: 34 }}>Déverrouiller</Button>
+              <Button mode="outlined" icon="lock-open" onPress={deverrouiller}>Déverrouiller</Button>
             )}
           </View>
         </View>
