@@ -87,10 +87,10 @@ export default function DashboardScreen({ navigation }) {
         {/* KPIs */}
         <SectionHeader icon="chart-box" title="Vue d'ensemble" />
         <View style={styles.kpiRow}>
-          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`}  color="#2d7a4a" borderColor="#2d7a4a" icon="map-marker-radius" />
-          <KpiCard label="Arbres"         value={nbArbres.toLocaleString()} color="#2d7a4a" borderColor="#2d7a4a" icon="tree" />
-          <KpiCard label="Production"     value={`${productionTotale.toLocaleString()} kg`} color="#fa8c16" borderColor="#fa8c16" icon="basket" />
-          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} color="#fa8c16" borderColor="#fa8c16" icon="water" />}
+          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`}               color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
+          <KpiCard label="Arbres"         value={nbArbres.toLocaleString()}            color="#389e0d" borderColor="#52c41a" icon="tree"              bg="#f6fff0" />
+          <KpiCard label="Production"     value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket"      bg="#fff7e6" />
+          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water"          bg="#e6fffb" />}
         </View>
 
         {/* Résumé financier */}
@@ -218,9 +218,9 @@ function SectionHeader({ icon, title }) {
   );
 }
 
-function KpiCard({ label, value, color, borderColor, icon }) {
+function KpiCard({ label, value, color, borderColor, icon, bg }) {
   return (
-    <Card style={[styles.kpiCard, { borderTopColor: borderColor }]}>
+    <Card style={[styles.kpiCard, { borderTopColor: borderColor, backgroundColor: bg || '#fff' }]}>
       <Card.Content style={{ padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <MaterialCommunityIcons name={icon} size={20} color={color} />
         <View style={{ flex: 1 }}>
