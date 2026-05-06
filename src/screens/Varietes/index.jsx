@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DataTable, FAB, Portal, Dialog, TextInput, Button, Snackbar } from 'react-native-paper';
+import { DataTable, FAB, Portal, Dialog, TextInput, Button, Snackbar, Card, Text } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -31,8 +32,7 @@ export default function Varietes({ navigation }) {
     try {
       if (editing) await client.put(`/varietes/${editing.id_variete}`, { nom: form.nom });
       else await client.post('/varietes/', { nom: form.nom });
-      await refreshVarietes();
-      setDialogVisible(false);
+      await refreshVarietes(); setDialogVisible(false);
     } catch { setSnack('Erreur lors de la sauvegarde'); }
     finally { setSaving(false); }
   };
@@ -52,35 +52,46 @@ export default function Varietes({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.screen}>
       <AppHeader title="Variétés" navigation={navigation} />
-      {varietes.length === 0 ? <EmptyState message="Aucune variété enregistrée" /> : (
-        <ScrollView>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title style={{ flex: 2 }}>Nom</DataTable.Title>
-              <DataTable.Title>Actions</DataTable.Title>
-            </DataTable.Header>
-            {varietes.map(v => (
-              <DataTable.Row key={v.id_variete}>
-                <DataTable.Cell style={{ flex: 2 }}>{v.nom}</DataTable.Cell>
-                <DataTable.Cell>
-                  {isAdmin ? (
-                    <View style={{ flexDirection: 'row' }}>
-                      <Button icon="pencil" compact onPress={() => openEdit(v)} />
-                      <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} />
+      <ScrollView style={styles.container}>
+        <View style={styles.sectionHeader}>
+          <MaterialCommunityIcons name="leaf" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
+          <Text variant="titleSmall" style={styles.sectionTitle}>Liste des variétés ({varietes.length})</Text>
+        </View>
+        {varietes.length === 0 ? <EmptyState message="Aucune variété enregistrée" /> : (
+          <Card style={styles.tableCard}>
+            <DataTable>
+              <DataTable.Header style={styles.tableHeader}>
+                <DataTable.Title style={{ flex: 2 }}><Text style={styles.headerText}>Nom</Text></DataTable.Title>
+                <DataTable.Title><Text style={styles.headerText}>Actions</Text></DataTable.Title>
+              </DataTable.Header>
+              {varietes.map((v, i) => (
+                <DataTable.Row key={v.id_variete} style={i % 2 === 0 ? {} : styles.rowAlt}>
+                  <DataTable.Cell style={{ flex: 2 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <View style={styles.dot} />
+                      <Text>{v.nom}</Text>
                     </View>
-                  ) : (
-                    <Button compact icon="file-send" onPress={() => { setDemandeId(v.id_variete); setMotif(''); }}>
-                      Demander suppr.
-                    </Button>
-                  )}
-                </DataTable.Cell>
-              </DataTable.Row>
-            ))}
-          </DataTable>
-        </ScrollView>
-      )}
+                  </DataTable.Cell>
+                  <DataTable.Cell>
+                    {isAdmin ? (
+                      <View style={{ flexDirection: 'row' }}>
+                        <Button icon="pencil" compact onPress={() => openEdit(v)} textColor="#1677ff" />
+                        <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} textColor="#ff4d4f" />
+                      </View>
+                    ) : (
+                      <Button compact icon="file-send" onPress={() => { setDemandeId(v.id_variete); setMotif(''); }} textColor="#fa8c16">
+                        Demander
+                      </Button>
+                    )}
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </DataTable>
+          </Card>
+        )}
+      </ScrollView>
       {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreate} />}
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
@@ -109,4 +120,15 @@ export default function Varietes({ navigation }) {
     </View>
   );
 }
-const styles = StyleSheet.create({ fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' } });
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#f0f4f0' },
+  container: { flex: 1, padding: 12 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 4 },
+  sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
+  tableCard: { elevation: 2, overflow: 'hidden' },
+  tableHeader: { backgroundColor: '#e8f5e9' },
+  headerText: { color: '#2d7a4a', fontWeight: 'bold', fontSize: 13 },
+  rowAlt: { backgroundColor: '#f9fbe7' },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2d7a4a' },
+  fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
+});

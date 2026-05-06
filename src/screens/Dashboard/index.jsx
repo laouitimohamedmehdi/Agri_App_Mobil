@@ -47,6 +47,8 @@ export default function DashboardScreen({ navigation }) {
   const revenuBrut = (data?.analyses || []).reduce((s, a) => s + ((a.huile || 0) * (a.prix || 0)), 0);
   const fraisTraitement = (data?.analyses || []).reduce((s, a) => s + (a.frais || 0), 0);
   const chargesFertilisation = (data?.fertilisations || []).reduce((s, f) => s + ((f.quantite || 0) * (f.cout_unitaire || 0)), 0);
+  const totalCoutTravaux = (data?.travaux || []).reduce((s, t) => s + (t.cout || 0), 0);
+  const totalSalaires = (data?.feuille?.lignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
   const totalCharges = fraisTraitement + chargesFertilisation;
   const margeNette = revenuBrut - totalCharges;
   const rendementHa = parseFloat(surfaceTotale) > 0 ? (productionTotale / parseFloat(surfaceTotale)).toFixed(0) : 0;
@@ -59,8 +61,10 @@ export default function DashboardScreen({ navigation }) {
   ).map(([label, value]) => ({ label, value, frontColor: '#2d7a4a' }));
 
   const pieData = [
-    { value: fraisTraitement, color: '#fa8c16', text: 'Traitement' },
+    { value: fraisTraitement, color: '#fa8c16', text: 'Frais récolte' },
+    { value: totalCoutTravaux, color: '#ff4d4f', text: 'Travaux' },
     { value: chargesFertilisation, color: '#13c2c2', text: 'Fertilisation' },
+    { value: totalSalaires, color: '#722ed1', text: 'Salaires' },
   ].filter(d => d.value > 0);
 
   const getEmployeNom = (l) => {

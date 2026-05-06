@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DataTable, FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons } from 'react-native-paper';
+import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons, Card } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import client from '../../api/client';
+
+const ROLE_COLOR = { admin: '#722ed1', user: '#1677ff' };
+const ROLE_BG    = { admin: '#f9f0ff', user: '#e6f4ff' };
 
 export default function Utilisateurs({ navigation }) {
   const [users, setUsers] = useState([]);
@@ -63,46 +67,49 @@ export default function Utilisateurs({ navigation }) {
   if (loading) return <LoadingOverlay />;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.screen}>
       <AppHeader title="Utilisateurs" navigation={navigation} />
-      <View style={styles.filters}>
-        <SegmentedButtons
-          value={filterRole}
-          onValueChange={setFilterRole}
-          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]}
-          style={{ marginBottom: 8 }}
-        />
-        <SegmentedButtons
-          value={filterActif}
-          onValueChange={setFilterActif}
-          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'actif', label: 'Actifs' }, { value: 'inactif', label: 'Inactifs' }]}
-        />
-      </View>
-      {filtered.length === 0 ? <EmptyState message="Aucun utilisateur" /> : (
-        <ScrollView horizontal>
-          <DataTable style={{ minWidth: 500 }}>
-            <DataTable.Header>
-              <DataTable.Title style={{ flex: 2 }}>Email</DataTable.Title>
-              <DataTable.Title>Nom</DataTable.Title>
-              <DataTable.Title>Rôle</DataTable.Title>
-              <DataTable.Title>Actif</DataTable.Title>
-              <DataTable.Title>Actions</DataTable.Title>
-            </DataTable.Header>
-            {filtered.map(u => (
-              <DataTable.Row key={u.id}>
-                <DataTable.Cell style={{ flex: 2 }}>{u.email}</DataTable.Cell>
-                <DataTable.Cell>{u.nom}</DataTable.Cell>
-                <DataTable.Cell><Chip compact>{u.role}</Chip></DataTable.Cell>
-                <DataTable.Cell><Switch value={u.is_active} onValueChange={() => toggleActif(u)} /></DataTable.Cell>
-                <DataTable.Cell>
-                  <Button icon="pencil" compact onPress={() => openEdit(u)} />
-                  <Button icon="delete" compact onPress={() => setConfirmId(u.id)} />
-                </DataTable.Cell>
-              </DataTable.Row>
-            ))}
-          </DataTable>
-        </ScrollView>
-      )}
+      <ScrollView style={styles.container}>
+        <View style={styles.filtersBox}>
+          <SegmentedButtons value={filterRole} onValueChange={setFilterRole} style={{ marginBottom: 8 }}
+            buttons={[{ value: 'tous', label: 'Tous' }, { value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
+          <SegmentedButtons value={filterActif} onValueChange={setFilterActif}
+            buttons={[{ value: 'tous', label: 'Tous' }, { value: 'actif', label: 'Actifs' }, { value: 'inactif', label: 'Inactifs' }]} />
+        </View>
+
+        <View style={styles.sectionHeader}>
+          <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
+          <Text variant="titleSmall" style={styles.sectionTitle}>{filtered.length} utilisateur(s)</Text>
+        </View>
+
+        {filtered.length === 0 ? <EmptyState message="Aucun utilisateur" /> : (
+          filtered.map((u, i) => (
+            <Card key={u.id} style={[styles.userCard, i > 0 && { marginTop: 8 }]}>
+              <View style={styles.userRow}>
+                <View style={[styles.avatar, { backgroundColor: ROLE_BG[u.role] }]}>
+                  <MaterialCommunityIcons name={u.role === 'admin' ? 'shield-account' : 'account'} size={24} color={ROLE_COLOR[u.role]} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{u.nom}</Text>
+                  <Text variant="bodySmall" style={{ color: '#888' }}>{u.email}</Text>
+                  <Chip compact style={{ marginTop: 4, alignSelf: 'flex-start', backgroundColor: ROLE_BG[u.role] }}
+                    textStyle={{ color: ROLE_COLOR[u.role], fontSize: 10 }}>{u.role}</Chip>
+                </View>
+                <View style={{ alignItems: 'center', gap: 4 }}>
+                  <Switch value={u.is_active} onValueChange={() => toggleActif(u)} color="#2d7a4a" />
+                  <Text variant="bodySmall" style={{ color: u.is_active ? '#52c41a' : '#aaa', fontSize: 10 }}>
+                    {u.is_active ? 'Actif' : 'Inactif'}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.cardActions}>
+                <Button icon="pencil" compact onPress={() => openEdit(u)} textColor="#1677ff">Modifier</Button>
+                <Button icon="delete" compact onPress={() => setConfirmId(u.id)} textColor="#ff4d4f">Supprimer</Button>
+              </View>
+            </Card>
+          ))
+        )}
+      </ScrollView>
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
@@ -113,11 +120,11 @@ export default function Utilisateurs({ navigation }) {
             <TextInput label={editing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry style={{ marginBottom: 8 }} />
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <Text>Rôle admin</Text>
-              <Switch value={form.role === 'admin'} onValueChange={v => setForm(f => ({ ...f, role: v ? 'admin' : 'user' }))} />
+              <Switch value={form.role === 'admin'} onValueChange={v => setForm(f => ({ ...f, role: v ? 'admin' : 'user' }))} color="#722ed1" />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text>Compte actif</Text>
-              <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} />
+              <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} color="#2d7a4a" />
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -132,6 +139,14 @@ export default function Utilisateurs({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
-  filters: { padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee' },
+  screen: { flex: 1, backgroundColor: '#f0f4f0' },
+  container: { flex: 1, padding: 12 },
+  filtersBox: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 12, elevation: 1 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
+  userCard: { elevation: 2 },
+  userRow: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 },
+  avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  cardActions: { flexDirection: 'row', borderTopWidth: 1, borderColor: '#f0f0f0', paddingHorizontal: 8 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });
