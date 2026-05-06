@@ -49,7 +49,7 @@ export default function DashboardScreen({ navigation }) {
   const chargesFertilisation = (data?.fertilisations || []).reduce((s, f) => s + ((f.quantite || 0) * (f.cout_unitaire || 0)), 0);
   const totalCoutTravaux = (data?.travaux || []).reduce((s, t) => s + (t.cout || 0), 0);
   const totalSalaires = (data?.feuille?.lignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
-  const totalCharges = fraisTraitement + chargesFertilisation;
+  const totalCharges = fraisTraitement + chargesFertilisation + totalCoutTravaux + totalSalaires;
   const margeNette = revenuBrut - totalCharges;
   const rendementHa = parseFloat(surfaceTotale) > 0 ? (productionTotale / parseFloat(surfaceTotale)).toFixed(0) : 0;
   const coutKg = productionTotale > 0 ? (totalCharges / productionTotale).toFixed(2) : 0;
@@ -98,7 +98,7 @@ export default function DashboardScreen({ navigation }) {
           <>
             <SectionHeader icon="cash-multiple" title="Résumé financier" />
             <FinanceRow icon="trending-up"   label="Revenu brut"    formule="Σ (Huile × Prix)"     value={`${revenuBrut.toFixed(0)} DH`}  accent="#2d7a4a" />
-            <FinanceRow icon="trending-down"  label="Total charges"  formule="Frais + Fertilisation" value={`${totalCharges.toFixed(0)} DH`} accent="#ff4d4f" />
+            <FinanceRow icon="trending-down"  label="Total charges"  formule="Frais + Fertilisation + Travaux + Salaires" value={`${totalCharges.toFixed(0)} DH`} accent="#ff4d4f" />
             <FinanceRow icon="finance"        label="Marge nette"    formule="Revenu − Charges"      value={`${margeNette.toFixed(0)} DH`}  accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
             <FinanceRow icon="sprout"         label="Rendement/ha"   formule="Production ÷ Surface"  value={`${rendementHa} kg`}            accent="#fa8c16" />
             <FinanceRow icon="calculator"     label="Coût/kg"        formule="Charges ÷ Production"  value={`${coutKg} DH`}                 accent="#ff4d4f" />
