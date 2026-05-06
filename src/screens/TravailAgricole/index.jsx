@@ -37,9 +37,17 @@ export default function TravailAgricole({ navigation }) {
   useEffect(() => { fetchTravaux(); }, []);
 
   const fetchTravaux = async () => {
-    try { const res = await client.get('/travaux/'); setTravaux(res.data); }
-    catch { setSnack('Erreur de chargement'); }
-    finally { setLoading(false); }
+    try {
+      const res = await client.get('/travaux/');
+      setTravaux(res.data);
+    } catch (e) {
+      const msg = e?.response?.status
+        ? `Erreur ${e.response.status}: ${JSON.stringify(e.response.data)}`
+        : e?.message || 'Erreur de chargement';
+      setSnack(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const secteursOfParcelle = filterParcelle ? secteurs.filter(s => String(s.parcelle_id) === filterParcelle) : secteurs;
@@ -213,7 +221,7 @@ export default function TravailAgricole({ navigation }) {
         </Dialog>
       </Portal>
       <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer ce travail ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
-      <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
+      <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={8000}>{snack}</Snackbar>
     </View>
   );
 }
