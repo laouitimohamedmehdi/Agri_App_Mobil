@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { DataTable, FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -101,7 +102,7 @@ export default function TravailAgricole({ navigation }) {
   if (loading) return <LoadingOverlay />;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Travaux Agricoles" navigation={navigation} />
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -122,10 +123,14 @@ export default function TravailAgricole({ navigation }) {
           ))}
         </ScrollView>
       </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
+        <MaterialCommunityIcons name="shovel" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} travaux</Text>
+      </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView horizontal style={{ flex: 1 }}>
           <DataTable style={{ minWidth: 750 }}>
-            <DataTable.Header>
+            <DataTable.Header style={{ backgroundColor: '#e8f5e9' }}>
               <DataTable.Title style={{ flex: 2 }}>Nom</DataTable.Title>
               <DataTable.Title>Type</DataTable.Title>
               <DataTable.Title>Parcelle</DataTable.Title>
@@ -136,8 +141,8 @@ export default function TravailAgricole({ navigation }) {
               <DataTable.Title>Statut</DataTable.Title>
               <DataTable.Title>Actions</DataTable.Title>
             </DataTable.Header>
-            {filtered.map(t => (
-              <DataTable.Row key={t.id_travail}>
+            {filtered.map((t, idx) => (
+              <DataTable.Row key={t.id_travail} style={idx % 2 !== 0 ? { backgroundColor: '#f9fbe7' } : {}}>
                 <DataTable.Cell style={{ flex: 2 }}>{t.nom}</DataTable.Cell>
                 <DataTable.Cell>{t.type}</DataTable.Cell>
                 <DataTable.Cell>{getParcelleNom(t.secteur_id)}</DataTable.Cell>

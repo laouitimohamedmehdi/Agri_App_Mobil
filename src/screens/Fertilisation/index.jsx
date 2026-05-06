@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { DataTable, FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -93,7 +94,7 @@ export default function Fertilisation({ navigation }) {
   if (loading) return <LoadingOverlay />;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Fertilisation" navigation={navigation} />
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -113,10 +114,14 @@ export default function Fertilisation({ navigation }) {
           </ScrollView>
         )}
       </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
+        <MaterialCommunityIcons name="sprout" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} fertilisation(s)</Text>
+      </View>
       {filtered.length === 0 ? <EmptyState message="Aucune fertilisation" /> : (
         <ScrollView horizontal style={{ flex: 1 }}>
           <DataTable style={{ minWidth: 650 }}>
-            <DataTable.Header>
+            <DataTable.Header style={{ backgroundColor: '#e8f5e9' }}>
               <DataTable.Title style={{ flex: 2 }}>Produit</DataTable.Title>
               <DataTable.Title>Parcelle</DataTable.Title>
               <DataTable.Title>Secteur</DataTable.Title>
@@ -125,8 +130,8 @@ export default function Fertilisation({ navigation }) {
               <DataTable.Title>Date</DataTable.Title>
               <DataTable.Title>Actions</DataTable.Title>
             </DataTable.Header>
-            {filtered.map(item => (
-              <DataTable.Row key={item.id_fertilisation}>
+            {filtered.map((item, idx) => (
+              <DataTable.Row key={item.id_fertilisation} style={idx % 2 !== 0 ? { backgroundColor: '#f9fbe7' } : {}}>
                 <DataTable.Cell style={{ flex: 2 }}>{item.produit}</DataTable.Cell>
                 <DataTable.Cell>{getParcelleNom(item.secteur_id)}</DataTable.Cell>
                 <DataTable.Cell>{getSecteurNom(item.secteur_id)}</DataTable.Cell>

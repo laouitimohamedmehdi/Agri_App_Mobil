@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar, Chip } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -105,10 +106,10 @@ export default function Recoltes({ navigation }) {
   if (loading) return <LoadingOverlay />;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Récoltes" navigation={navigation} />
       {recoltes.length === 0 ? <EmptyState message="Aucune récolte enregistrée" /> : (
-        <ScrollView style={{ backgroundColor: '#f5f5f5' }}>
+        <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
           {Object.entries(byCampagne).map(([campagne, items]) => {
             const stats = campagneStats(items);
             return (
@@ -119,6 +120,8 @@ export default function Recoltes({ navigation }) {
                 expanded={expandedCampagne === campagne}
                 onPress={() => setExpandedCampagne(expandedCampagne === campagne ? null : campagne)}
                 left={props => <List.Icon {...props} icon="basket" />}
+                style={{ backgroundColor: '#f6faf3', marginBottom: 8, borderRadius: 8 }}
+                titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
               >
                 <View style={styles.financeRow}>
                   <StatBadge label="Production" value={`${stats.production.toLocaleString()} kg`} />
@@ -209,7 +212,7 @@ function StatBadge({ label, value, color = '#2d7a4a' }) {
 }
 
 const styles = StyleSheet.create({
-  financeRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', padding: 8, backgroundColor: '#f9fbe7' },
+  financeRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', padding: 8, backgroundColor: '#e8f5e9' },
   recolteRow: { flexDirection: 'row', alignItems: 'center', padding: 12, borderBottomWidth: 1, borderColor: '#eee' },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });

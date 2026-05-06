@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -75,9 +76,9 @@ export default function ParcellesSecteurs({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Parcelles & Secteurs" navigation={navigation} />
-      <ScrollView style={{ backgroundColor: '#f5f5f5' }}>
+      <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
         {parcelles.length === 0 && <EmptyState message="Aucune parcelle enregistrée" />}
         {parcelles.map(p => (
           <List.Accordion
@@ -87,6 +88,8 @@ export default function ParcellesSecteurs({ navigation }) {
             left={props => <List.Icon {...props} icon="map-marker-multiple" />}
             expanded={expandedParcelle === p.id_parcelle}
             onPress={() => setExpandedParcelle(expandedParcelle === p.id_parcelle ? null : p.id_parcelle)}
+            style={{ backgroundColor: '#f6faf3' }}
+            titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
           >
             {isAdmin && (
               <View style={{ flexDirection: 'row', padding: 8, gap: 8 }}>
@@ -170,7 +173,7 @@ export default function ParcellesSecteurs({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
-  secteurCard: { margin: 8, padding: 12, backgroundColor: '#fff', borderRadius: 8, elevation: 1 },
-  secteurDetails: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 4 },
+  secteurCard: { margin: 8, padding: 12, backgroundColor: '#fff', borderRadius: 8, elevation: 1, borderLeftWidth: 3, borderLeftColor: '#2d7a4a' },
+  secteurDetails: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 4, backgroundColor: '#f9fbe7', borderRadius: 6, padding: 8 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });

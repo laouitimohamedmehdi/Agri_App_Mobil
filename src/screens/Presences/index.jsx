@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Button, Chip, Snackbar, ActivityIndicator } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import AppHeader from '../../components/AppHeader';
@@ -116,7 +117,7 @@ export default function Presences({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Présences" navigation={navigation} />
 
       <View style={styles.header}>
@@ -128,9 +129,12 @@ export default function Presences({ navigation }) {
 
       {feuille && (
         <View style={styles.statusBar}>
-          <Chip compact style={{ backgroundColor: feuille.statut === 'validee' ? '#e8f5e9' : '#fff8e1' }}>
-            {feuille.statut === 'validee' ? 'Validée ✓' : 'Brouillon'}
-          </Chip>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <MaterialCommunityIcons name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'} size={16} color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'} />
+            <Chip compact style={{ backgroundColor: feuille.statut === 'validee' ? '#e8f5e9' : '#fff8e1' }}>
+              {feuille.statut === 'validee' ? 'Validée ✓' : 'Brouillon'}
+            </Chip>
+          </View>
           {isAdmin && feuille.statut !== 'validee' && (
             <>
               <Button mode="contained" compact buttonColor="#2d7a4a" onPress={saveChanges} loading={saving}>Sauvegarder</Button>
@@ -202,7 +206,7 @@ export default function Presences({ navigation }) {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee' },
-  statusBar: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, backgroundColor: '#fafafa', borderBottomWidth: 1, borderColor: '#eee' },
+  statusBar: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, backgroundColor: '#f6faf3', borderBottomWidth: 1, borderColor: '#eee' },
   gridRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderColor: '#eee' },
   nameCell: { width: 120, padding: 6, backgroundColor: '#fff' },
   dayCell: { width: 28, height: 36, alignItems: 'center', justifyContent: 'center', borderLeftWidth: 1, borderColor: '#eee' },
