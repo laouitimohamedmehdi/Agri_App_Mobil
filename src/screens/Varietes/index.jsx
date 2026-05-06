@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DataTable, FAB, Portal, Dialog, TextInput, Button, Snackbar, Card, Text } from 'react-native-paper';
+import { FAB, Portal, Dialog, TextInput, Button, Snackbar, Card, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -60,35 +60,33 @@ export default function Varietes({ navigation }) {
           <Text variant="titleSmall" style={styles.sectionTitle}>Liste des variétés ({varietes.length})</Text>
         </View>
         {varietes.length === 0 ? <EmptyState message="Aucune variété enregistrée" /> : (
-          <Card style={styles.tableCard}>
-            <DataTable>
-              <DataTable.Header style={styles.tableHeader}>
-                <DataTable.Title style={{ flex: 2 }}><Text style={styles.headerText}>Nom</Text></DataTable.Title>
-                <DataTable.Title><Text style={styles.headerText}>Actions</Text></DataTable.Title>
-              </DataTable.Header>
-              {varietes.map((v, i) => (
-                <DataTable.Row key={v.id_variete} style={i % 2 === 0 ? {} : styles.rowAlt}>
-                  <DataTable.Cell style={{ flex: 2 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <View style={styles.dot} />
-                      <Text>{v.nom}</Text>
-                    </View>
-                  </DataTable.Cell>
-                  <DataTable.Cell>
-                    {isAdmin ? (
-                      <View style={{ flexDirection: 'row' }}>
-                        <Button icon="pencil" compact onPress={() => openEdit(v)} textColor="#1677ff" />
-                        <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} textColor="#ff4d4f" />
-                      </View>
-                    ) : (
-                      <Button compact icon="file-send" onPress={() => { setDemandeId(v.id_variete); setMotif(''); }} textColor="#fa8c16">
-                        Demander
-                      </Button>
-                    )}
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
-            </DataTable>
+          <Card style={{ elevation: 2, overflow: 'hidden' }}>
+            {/* Header */}
+            <View style={styles.tableHeader}>
+              <Text style={[styles.th, { flex: 2 }]}>Nom de la variété</Text>
+              <Text style={[styles.th, { width: 120 }]}>Actions</Text>
+            </View>
+            {/* Rows */}
+            {varietes.map((v, i) => (
+              <View key={v.id_variete} style={[styles.tableRow, i % 2 !== 0 && styles.tableRowAlt]}>
+                <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={styles.dot} />
+                  <Text style={styles.td}>{v.nom}</Text>
+                </View>
+                <View style={{ width: 120, flexDirection: 'row' }}>
+                  {isAdmin ? (
+                    <>
+                      <Button icon="pencil" compact onPress={() => openEdit(v)} textColor="#1677ff" />
+                      <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} textColor="#ff4d4f" />
+                    </>
+                  ) : (
+                    <Button compact icon="file-send" onPress={() => { setDemandeId(v.id_variete); setMotif(''); }} textColor="#fa8c16">
+                      Demander
+                    </Button>
+                  )}
+                </View>
+              </View>
+            ))}
           </Card>
         )}
       </ScrollView>
@@ -125,10 +123,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 12 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 4 },
   sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
-  tableCard: { elevation: 2, overflow: 'hidden' },
-  tableHeader: { backgroundColor: '#e8f5e9' },
-  headerText: { color: '#2d7a4a', fontWeight: 'bold', fontSize: 13 },
-  rowAlt: { backgroundColor: '#f9fbe7' },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 2, borderColor: '#2d7a4a' },
+  tableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
+  tableRowAlt: { backgroundColor: '#f0f7f0' },
+  th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a' },
+  td: { fontSize: 12, color: '#333' },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2d7a4a' },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });

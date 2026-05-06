@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DataTable, FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
+import { FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -128,48 +128,46 @@ export default function TravailAgricole({ navigation }) {
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} travaux</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
-        <ScrollView horizontal style={{ flex: 1 }}>
-          <DataTable style={{ minWidth: 750 }}>
-            <DataTable.Header style={{ backgroundColor: '#e8f5e9' }}>
-              <DataTable.Title style={{ flex: 2 }}>Nom</DataTable.Title>
-              <DataTable.Title>Type</DataTable.Title>
-              <DataTable.Title>Parcelle</DataTable.Title>
-              <DataTable.Title>Secteur</DataTable.Title>
-              <DataTable.Title numeric>Coût</DataTable.Title>
-              <DataTable.Title numeric>M.O.</DataTable.Title>
-              <DataTable.Title>Date</DataTable.Title>
-              <DataTable.Title>Statut</DataTable.Title>
-              <DataTable.Title>Actions</DataTable.Title>
-            </DataTable.Header>
+        <ScrollView horizontal style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
+          <View style={{ width: 820 }}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.th, { width: 140 }]}>Nom</Text>
+              <Text style={[styles.th, { width: 100 }]}>Type</Text>
+              <Text style={[styles.th, { width: 90 }]}>Parcelle</Text>
+              <Text style={[styles.th, { width: 90 }]}>Secteur</Text>
+              <Text style={[styles.th, { width: 70, textAlign: 'right' }]}>Coût</Text>
+              <Text style={[styles.th, { width: 50, textAlign: 'right' }]}>M.O.</Text>
+              <Text style={[styles.th, { width: 90 }]}>Date</Text>
+              <Text style={[styles.th, { width: 80 }]}>Statut</Text>
+              <Text style={[styles.th, { width: 110 }]}>Actions</Text>
+            </View>
             {filtered.map((t, idx) => (
-              <DataTable.Row key={t.id_travail} style={idx % 2 !== 0 ? { backgroundColor: '#f9fbe7' } : {}}>
-                <DataTable.Cell style={{ flex: 2 }}>{t.nom}</DataTable.Cell>
-                <DataTable.Cell>{t.type}</DataTable.Cell>
-                <DataTable.Cell>{getParcelleNom(t.secteur_id)}</DataTable.Cell>
-                <DataTable.Cell>{getSecteurNom(t.secteur_id)}</DataTable.Cell>
-                <DataTable.Cell numeric>{t.cout} DH</DataTable.Cell>
-                <DataTable.Cell numeric>{t.m_o}j</DataTable.Cell>
-                <DataTable.Cell>{t.date}</DataTable.Cell>
-                <DataTable.Cell>
-                  <Chip compact style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '22' }}>
+              <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
+                <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.nom}</Text>
+                <Text style={[styles.td, { width: 100 }]} numberOfLines={1}>{t.type}</Text>
+                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
+                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                <Text style={[styles.td, { width: 70, textAlign: 'right' }]}>{t.cout} DH</Text>
+                <Text style={[styles.td, { width: 50, textAlign: 'right' }]}>{t.m_o}j</Text>
+                <Text style={[styles.td, { width: 90 }]}>{t.date}</Text>
+                <View style={{ width: 80, justifyContent: 'center' }}>
+                  <Chip compact textStyle={{ fontSize: 9 }} style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '33' }}>
                     {t.statut}
                   </Chip>
-                </DataTable.Cell>
-                <DataTable.Cell>
+                </View>
+                <View style={{ width: 110, flexDirection: 'row', alignItems: 'center' }}>
                   {isAdmin ? (
-                    <View style={{ flexDirection: 'row' }}>
-                      <Button icon="pencil" compact onPress={() => openEdit(t)} />
-                      <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} />
-                    </View>
+                    <>
+                      <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
+                      <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
+                    </>
                   ) : (
-                    <Button compact icon="file-send" onPress={() => { setDemandeItem(t); setMotif(''); }}>
-                      Demande
-                    </Button>
+                    <Button compact icon="file-send" onPress={() => { setDemandeItem(t); setMotif(''); }} textColor="#fa8c16" />
                   )}
-                </DataTable.Cell>
-              </DataTable.Row>
+                </View>
+              </View>
             ))}
-          </DataTable>
+          </View>
         </ScrollView>
       )}
       {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreate} />}
@@ -221,4 +219,9 @@ const styles = StyleSheet.create({
   filtersContainer: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8 },
   chip: { marginRight: 6 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 8, borderBottomWidth: 2, borderColor: '#2d7a4a' },
+  tableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
+  tableRowAlt: { backgroundColor: '#f0f7f0' },
+  th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a' },
+  td: { fontSize: 12, color: '#333' },
 });

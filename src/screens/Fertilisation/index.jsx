@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DataTable, FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
+import { FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -119,40 +119,40 @@ export default function Fertilisation({ navigation }) {
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} fertilisation(s)</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucune fertilisation" /> : (
-        <ScrollView horizontal style={{ flex: 1 }}>
-          <DataTable style={{ minWidth: 650 }}>
-            <DataTable.Header style={{ backgroundColor: '#e8f5e9' }}>
-              <DataTable.Title style={{ flex: 2 }}>Produit</DataTable.Title>
-              <DataTable.Title>Parcelle</DataTable.Title>
-              <DataTable.Title>Secteur</DataTable.Title>
-              <DataTable.Title numeric>Qté</DataTable.Title>
-              <DataTable.Title numeric>Coût/u</DataTable.Title>
-              <DataTable.Title>Date</DataTable.Title>
-              <DataTable.Title>Actions</DataTable.Title>
-            </DataTable.Header>
+        <ScrollView horizontal style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
+          <View style={{ width: 640 }}>
+            {/* Header */}
+            <View style={styles.tableHeader}>
+              <Text style={[styles.th, { width: 130 }]}>Produit</Text>
+              <Text style={[styles.th, { width: 90 }]}>Parcelle</Text>
+              <Text style={[styles.th, { width: 90 }]}>Secteur</Text>
+              <Text style={[styles.th, { width: 60, textAlign: 'right' }]}>Qté</Text>
+              <Text style={[styles.th, { width: 75, textAlign: 'right' }]}>Coût/u</Text>
+              <Text style={[styles.th, { width: 90 }]}>Date</Text>
+              <Text style={[styles.th, { width: 105 }]}>Actions</Text>
+            </View>
+            {/* Rows */}
             {filtered.map((item, idx) => (
-              <DataTable.Row key={item.id_fertilisation} style={idx % 2 !== 0 ? { backgroundColor: '#f9fbe7' } : {}}>
-                <DataTable.Cell style={{ flex: 2 }}>{item.produit}</DataTable.Cell>
-                <DataTable.Cell>{getParcelleNom(item.secteur_id)}</DataTable.Cell>
-                <DataTable.Cell>{getSecteurNom(item.secteur_id)}</DataTable.Cell>
-                <DataTable.Cell numeric>{item.quantite}</DataTable.Cell>
-                <DataTable.Cell numeric>{item.cout_unitaire} DH</DataTable.Cell>
-                <DataTable.Cell>{item.date}</DataTable.Cell>
-                <DataTable.Cell>
+              <View key={item.id_fertilisation} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
+                <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{item.produit}</Text>
+                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getParcelleNom(item.secteur_id)}</Text>
+                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getSecteurNom(item.secteur_id)}</Text>
+                <Text style={[styles.td, { width: 60, textAlign: 'right' }]}>{item.quantite}</Text>
+                <Text style={[styles.td, { width: 75, textAlign: 'right' }]}>{item.cout_unitaire} DH</Text>
+                <Text style={[styles.td, { width: 90 }]}>{item.date}</Text>
+                <View style={{ width: 105, justifyContent: 'center', flexDirection: 'row' }}>
                   {isAdmin ? (
-                    <View style={{ flexDirection: 'row' }}>
-                      <Button icon="pencil" compact onPress={() => openEdit(item)} />
-                      <Button icon="delete" compact onPress={() => setConfirmId(item.id_fertilisation)} />
-                    </View>
+                    <>
+                      <Button icon="pencil" compact onPress={() => openEdit(item)} textColor="#1677ff" />
+                      <Button icon="delete" compact onPress={() => setConfirmId(item.id_fertilisation)} textColor="#ff4d4f" />
+                    </>
                   ) : (
-                    <Button compact icon="file-send" onPress={() => { setDemandeItem(item); setMotif(''); }}>
-                      Demande
-                    </Button>
+                    <Button compact icon="file-send" onPress={() => { setDemandeItem(item); setMotif(''); }} textColor="#fa8c16" />
                   )}
-                </DataTable.Cell>
-              </DataTable.Row>
+                </View>
+              </View>
             ))}
-          </DataTable>
+          </View>
         </ScrollView>
       )}
       {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreate} />}
@@ -198,4 +198,9 @@ const styles = StyleSheet.create({
   filtersContainer: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8 },
   chip: { marginRight: 6 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 8, borderBottomWidth: 2, borderColor: '#2d7a4a' },
+  tableRow: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
+  tableRowAlt: { backgroundColor: '#f0f7f0' },
+  th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a' },
+  td: { fontSize: 12, color: '#333' },
 });
