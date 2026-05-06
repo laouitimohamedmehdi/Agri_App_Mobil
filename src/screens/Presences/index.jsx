@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput } from 'react-native-paper';
+import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -14,6 +14,9 @@ const DAYS_IN_MONTH = (mois) => {
   const [y, m] = mois.split('-').map(Number);
   return new Date(y, m, 0).getDate();
 };
+
+const MOIS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
 export default function Presences({ navigation }) {
   const { user } = useAuth();
@@ -31,6 +34,7 @@ export default function Presences({ navigation }) {
 
   const fetchFeuille = async () => {
     setLoading(true);
+    setFilterNom('');
     try {
       const res = await client.get(`/feuilles/?mois=${mois}`);
       setFeuille(res.data);
@@ -52,8 +56,7 @@ export default function Presences({ navigation }) {
     if (!isAdmin || feuille?.statut === 'validee') return;
     setLignes(prev => prev.map((l, i) => {
       if (i !== ligneIdx) return l;
-      const newJours = { ...l.jours, [jour]: l.jours[jour] === 1 ? 0 : 1 };
-      return { ...l, jours: newJours };
+      return { ...l, jours: { ...l.jours, [jour]: l.jours[jour] === 1 ? 0 : 1 } };
     }));
   };
 
@@ -61,7 +64,7 @@ export default function Presences({ navigation }) {
     if (!feuille) return;
     setSaving(true);
     try {
-      const payload = {
+      await client.put(`/feuilles/${feuille.id}`, {
         lignes: lignes.map(l => ({
           employe_id: l.employe_id || null,
           nom_temp: l.nom_temp || null,
@@ -69,16 +72,15 @@ export default function Presences({ navigation }) {
           jours_json: JSON.stringify(l.jours),
           remarque: l.remarque || '',
         })),
-      };
-      await client.put(`/feuilles/${feuille.id}`, payload);
+      });
       await fetchFeuille();
-      setSnack('Sauvegardé');
+      setSnack('Sauvegardé ✓');
     } catch { setSnack('Erreur lors de la sauvegarde'); }
     finally { setSaving(false); }
   };
 
   const valider = async () => {
-    try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack('Feuille validée'); }
+    try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack('Feuille validée ✓'); }
     catch { setSnack('Erreur lors de la validation'); }
   };
 
@@ -99,140 +101,219 @@ export default function Presences({ navigation }) {
     const rows = lignes.map(l => {
       const emp = employes.find(e => e.id_employe === l.employe_id);
       const nom = l.nom_temp || (emp ? `${emp.nom} ${emp.prenom ?? ''}` : `Emp ${l.employe_id}`);
-      const cells = Array.from({ length: nbJours }, (_, i) => `<td>${l.jours[String(i + 1)] === 1 ? '1' : ''}</td>`).join('');
+      const cells = Array.from({ length: nbJours }, (_, i) => `<td style="text-align:center">${l.jours[String(i + 1)] === 1 ? '✓' : ''}</td>`).join('');
       const total = Object.values(l.jours).filter(v => v === 1).length;
-      return `<tr><td>${nom}</td>${cells}<td><b>${total}</b></td></tr>`;
+      return `<tr><td>${nom}</td>${cells}<td style="text-align:center;font-weight:bold">${total}</td></tr>`;
     }).join('');
-    const html = `<html><head><style>table{border-collapse:collapse;font-size:10px}td,th{border:1px solid #ccc;padding:2px 4px}th{background:#2d7a4a;color:#fff}</style></head><body><h2>Présences — ${mois}</h2><table><tr><th>Employé</th>${joursHeader}<th>Total</th></tr>${rows}</table></body></html>`;
+    const html = `<html><head><style>
+      body{font-family:Arial,sans-serif}
+      table{border-collapse:collapse;width:100%;font-size:9px}
+      td,th{border:1px solid #ccc;padding:3px 4px}
+      th{background:#2d7a4a;color:#fff;text-align:center}
+      tr:nth-child(even){background:#f9fbe7}
+    </style></head><body>
+      <h3 style="color:#2d7a4a;margin-bottom:8px">Feuille de présences — ${moisLabel}</h3>
+      <table><tr><th>Employé</th>${joursHeader}<th>Total</th></tr>${rows}</table>
+    </body></html>`;
     const { uri } = await Print.printToFileAsync({ html, width: 842, height: 595 });
     await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: '.pdf' });
   };
 
-  const nbJours = DAYS_IN_MONTH(mois);
-  const days = Array.from({ length: nbJours }, (_, i) => i + 1);
-
   const getEmployeNom = (l) => {
     if (l.nom_temp) return l.nom_temp;
     const emp = employes.find(e => e.id_employe === l.employe_id);
-    return emp ? `${emp.nom} ${emp.prenom ?? ''}` : `Emp ${l.employe_id}`;
+    return emp ? `${emp.nom} ${emp.prenom ?? ''}`.trim() : `Employé ${l.employe_id}`;
   };
+
+  const getEmployePoste = (l) => {
+    const emp = employes.find(e => e.id_employe === l.employe_id);
+    return emp?.poste || '';
+  };
+
+  const [year, month] = mois.split('-').map(Number);
+  const moisLabel = `${MOIS_FR[month - 1]} ${year}`;
+  const nbJours = DAYS_IN_MONTH(mois);
+  const days = Array.from({ length: nbJours }, (_, i) => i + 1);
+  const canEdit = isAdmin && feuille?.statut !== 'validee';
 
   const lignesFiltrees = lignes
     .map((l, originalIdx) => ({ ...l, _originalIdx: originalIdx }))
-    .filter(l => {
-      if (!filterNom) return true;
-      const nom = getEmployeNom(l).toLowerCase();
-      return nom.includes(filterNom.toLowerCase());
-    });
+    .filter(l => !filterNom || getEmployeNom(l).toLowerCase().includes(filterNom.toLowerCase()));
+
+  const totalPresents = lignesFiltrees.reduce((s, l) => s + Object.values(l.jours).filter(v => v === 1).length, 0);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Présences" navigation={navigation} />
 
-      <View style={styles.header}>
-        <Button icon="chevron-left" onPress={() => changeMonth(-1)} compact />
-        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'center' }}>{mois}</Text>
-        <Button icon="chevron-right" onPress={() => changeMonth(1)} compact />
-        <Button icon="file-pdf-box" onPress={exportPDF} compact>PDF</Button>
+      {/* Navigation mois */}
+      <View style={styles.monthNav}>
+        <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.navBtn}>
+          <MaterialCommunityIcons name="chevron-left" size={28} color="#2d7a4a" />
+        </TouchableOpacity>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text variant="titleMedium" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{moisLabel}</Text>
+          <Text variant="bodySmall" style={{ color: '#888' }}>{nbJours} jours ouvrables</Text>
+        </View>
+        <TouchableOpacity onPress={() => changeMonth(1)} style={styles.navBtn}>
+          <MaterialCommunityIcons name="chevron-right" size={28} color="#2d7a4a" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={exportPDF} style={[styles.navBtn, { backgroundColor: '#fff7e6', borderRadius: 8, paddingHorizontal: 8 }]}>
+          <MaterialCommunityIcons name="file-pdf-box" size={22} color="#fa8c16" />
+          <Text style={{ fontSize: 11, color: '#fa8c16', marginLeft: 2 }}>PDF</Text>
+        </TouchableOpacity>
       </View>
 
+      {/* Barre statut + actions */}
       {feuille && (
-        <>
-          <View style={styles.statusBar}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <MaterialCommunityIcons name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'} size={16} color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'} />
-              <Chip compact style={{ backgroundColor: feuille.statut === 'validee' ? '#e8f5e9' : '#fff8e1' }}>
-                {feuille.statut === 'validee' ? 'Validée ✓' : 'Brouillon'}
-              </Chip>
-            </View>
+        <View style={styles.statusBar}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <MaterialCommunityIcons
+              name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'}
+              size={18}
+              color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'}
+            />
+            <Text style={{ fontSize: 13, fontWeight: '600', color: feuille.statut === 'validee' ? '#52c41a' : '#fa8c16' }}>
+              {feuille.statut === 'validee' ? 'Validée' : 'Brouillon'}
+            </Text>
+            <Text style={{ fontSize: 11, color: '#888' }}>· {totalPresents} présences</Text>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
             {isAdmin && feuille.statut !== 'validee' && (
               <>
-                <Button mode="contained" compact buttonColor="#2d7a4a" onPress={saveChanges} loading={saving}>Sauvegarder</Button>
-                <Button mode="outlined" compact onPress={valider}>Valider</Button>
+                <Button mode="contained" compact buttonColor="#2d7a4a" onPress={saveChanges} loading={saving} style={{ height: 34 }}>
+                  Sauvegarder
+                </Button>
+                <Button mode="outlined" compact onPress={valider} style={{ height: 34 }}>Valider</Button>
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
-              <Button mode="outlined" compact onPress={deverrouiller}>Déverrouiller</Button>
+              <Button mode="outlined" compact onPress={deverrouiller} style={{ height: 34 }}>Déverrouiller</Button>
             )}
           </View>
-          <TextInput
-            placeholder="Rechercher employé..."
-            value={filterNom}
-            onChangeText={setFilterNom}
-            left={<TextInput.Icon icon="magnify" />}
-            right={filterNom ? <TextInput.Icon icon="close" onPress={() => setFilterNom('')} /> : null}
-            mode="outlined"
-            dense
-            style={{ margin: 8, backgroundColor: '#fff' }}
-          />
-        </>
+        </View>
       )}
 
+      {/* Recherche */}
+      <TextInput
+        placeholder="Rechercher un employé..."
+        value={filterNom}
+        onChangeText={setFilterNom}
+        left={<TextInput.Icon icon="magnify" />}
+        right={filterNom ? <TextInput.Icon icon="close" onPress={() => setFilterNom('')} /> : null}
+        mode="outlined"
+        dense
+        style={{ marginHorizontal: 12, marginTop: 8, backgroundColor: '#fff' }}
+      />
+
+      {/* Contenu */}
       {loading ? (
-        <ActivityIndicator style={{ marginTop: 32 }} />
+        <ActivityIndicator size="large" color="#2d7a4a" style={{ marginTop: 48 }} />
       ) : lignes.length === 0 ? (
         <EmptyState message="Aucune présence ce mois" />
       ) : (
-        <ScrollView horizontal>
-          <View>
-            <View style={[styles.gridRow, { backgroundColor: '#2d7a4a' }]}>
-              <View style={styles.nameCell}>
-                <Text style={[styles.headerText, { color: '#fff' }]}>Employé</Text>
-              </View>
-              {days.map(d => (
-                <View key={d} style={styles.dayCell}>
-                  <Text style={[styles.headerText, { color: '#fff' }]}>{d}</Text>
+        <ScrollView style={{ flex: 1, marginTop: 8 }} showsVerticalScrollIndicator={false}>
+          {lignesFiltrees.map((l, idx) => {
+            const total = Object.values(l.jours).filter(v => v === 1).length;
+            const poste = getEmployePoste(l);
+            return (
+              <Card key={idx} style={styles.empCard}>
+                {/* En-tête carte employé */}
+                <View style={styles.empHeader}>
+                  <View style={styles.empAvatar}>
+                    <MaterialCommunityIcons name="account" size={22} color="#2d7a4a" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.empName} numberOfLines={1}>{getEmployeNom(l)}</Text>
+                    {poste ? <Text style={styles.empPoste}>{poste}</Text> : null}
+                  </View>
+                  <View style={styles.totalBadge}>
+                    <Text style={styles.totalNum}>{total}</Text>
+                    <Text style={styles.totalLabel}>jours</Text>
+                  </View>
                 </View>
-              ))}
-              <View style={styles.totalCell}>
-                <Text style={[styles.headerText, { color: '#fff' }]}>Total</Text>
-              </View>
-            </View>
-            <ScrollView>
-              {lignesFiltrees.map((l, idx) => {
-                const total = Object.values(l.jours).filter(v => v === 1).length;
-                return (
-                  <View key={idx} style={[styles.gridRow, idx % 2 === 0 ? {} : { backgroundColor: '#f5f5f5' }]}>
-                    <View style={styles.nameCell}>
-                      <Text numberOfLines={1} style={{ fontSize: 12 }}>{getEmployeNom(l)}</Text>
-                    </View>
+
+                {/* Grille jours */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daysScroll}>
+                  <View style={{ flexDirection: 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
                     {days.map(d => {
                       const val = l.jours[String(d)] === 1;
-                      const canEdit = isAdmin && feuille?.statut !== 'validee';
                       return (
                         <TouchableOpacity
                           key={d}
-                          style={[styles.dayCell, val ? styles.present : styles.absent]}
+                          style={[styles.dayBtn, val ? styles.dayPresent : styles.dayAbsent]}
                           onPress={() => canEdit && toggleJour(l._originalIdx, String(d))}
-                          activeOpacity={canEdit ? 0.6 : 1}
+                          activeOpacity={canEdit ? 0.65 : 1}
                         >
-                          <Text style={{ color: val ? '#fff' : '#ccc', fontSize: 11 }}>{val ? '1' : '·'}</Text>
+                          <Text style={[styles.dayNum, { color: val ? '#fff' : '#aaa' }]}>{d}</Text>
+                          <MaterialCommunityIcons
+                            name={val ? 'check' : 'minus'}
+                            size={14}
+                            color={val ? '#fff' : '#ddd'}
+                          />
                         </TouchableOpacity>
                       );
                     })}
-                    <View style={styles.totalCell}>
-                      <Text style={{ fontWeight: 'bold', color: '#2d7a4a' }}>{total}</Text>
-                    </View>
                   </View>
-                );
-              })}
-            </ScrollView>
-          </View>
+                </ScrollView>
+
+                {/* Remarque si présente */}
+                {l.remarque ? (
+                  <Text style={styles.remarque}>
+                    <Text style={{ fontWeight: '600' }}>Remarque : </Text>{l.remarque}
+                  </Text>
+                ) : null}
+              </Card>
+            );
+          })}
+          <View style={{ height: 24 }} />
         </ScrollView>
       )}
+
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee' },
-  statusBar: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, backgroundColor: '#f6faf3', borderBottomWidth: 1, borderColor: '#eee' },
-  gridRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderColor: '#eee' },
-  nameCell: { width: 120, padding: 6, backgroundColor: '#fff' },
-  dayCell: { width: 28, height: 36, alignItems: 'center', justifyContent: 'center', borderLeftWidth: 1, borderColor: '#eee' },
-  totalCell: { width: 40, padding: 6, alignItems: 'center', backgroundColor: '#f9f9f9' },
-  headerText: { fontSize: 11, fontWeight: 'bold' },
-  present: { backgroundColor: '#2d7a4a' },
-  absent: { backgroundColor: '#fff' },
+  monthNav: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#fff', paddingHorizontal: 8, paddingVertical: 10,
+    borderBottomWidth: 1, borderColor: '#e0ece0',
+  },
+  navBtn: { flexDirection: 'row', alignItems: 'center', padding: 4 },
+  statusBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#f6faf3', paddingHorizontal: 12, paddingVertical: 8,
+    borderBottomWidth: 1, borderColor: '#e0ece0',
+  },
+  empCard: { marginHorizontal: 12, marginBottom: 10, elevation: 2, overflow: 'hidden' },
+  empHeader: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 12, paddingTop: 12, paddingBottom: 8, gap: 10,
+  },
+  empAvatar: {
+    width: 38, height: 38, borderRadius: 19,
+    backgroundColor: '#e8f5e9', alignItems: 'center', justifyContent: 'center',
+  },
+  empName: { fontSize: 14, fontWeight: '700', color: '#333' },
+  empPoste: { fontSize: 11, color: '#888', marginTop: 1 },
+  totalBadge: {
+    backgroundColor: '#2d7a4a', borderRadius: 10,
+    paddingHorizontal: 10, paddingVertical: 4, alignItems: 'center', minWidth: 48,
+  },
+  totalNum: { color: '#fff', fontWeight: 'bold', fontSize: 16, lineHeight: 20 },
+  totalLabel: { color: '#b8e6c1', fontSize: 9 },
+  daysScroll: { borderTopWidth: 1, borderColor: '#f0f0f0' },
+  dayBtn: {
+    width: 36, height: 48, borderRadius: 8,
+    alignItems: 'center', justifyContent: 'center', gap: 2,
+  },
+  dayPresent: { backgroundColor: '#2d7a4a' },
+  dayAbsent: { backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0' },
+  dayNum: { fontSize: 12, fontWeight: '600' },
+  remarque: {
+    fontSize: 12, color: '#666', fontStyle: 'italic',
+    paddingHorizontal: 12, paddingBottom: 10,
+  },
 });
