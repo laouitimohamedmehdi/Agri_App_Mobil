@@ -98,7 +98,7 @@ function TabsWithDrawer() {
         <Tab.Screen
           name="Extra"
           component={ExtraScreens}
-          options={{ tabBarButton: () => null }}
+          options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }}
         />
       </Tab.Navigator>
 

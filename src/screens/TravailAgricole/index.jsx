@@ -97,7 +97,7 @@ export default function TravailAgricole({ navigation }) {
     <View style={{ flex: 1 }}>
       <AppHeader title="Travaux Agricoles" navigation={navigation} />
       <View style={styles.filtersContainer}>
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
           <View style={styles.pickerWrap}>
             <Picker selectedValue={filterParcelle} onValueChange={v => { setFilterParcelle(v); setFilterSecteur(''); }} style={styles.picker}>
               <Picker.Item label="Toutes parcelles" value="" />
@@ -110,6 +110,8 @@ export default function TravailAgricole({ navigation }) {
               {secteursOfParcelle.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
             </Picker>
           </View>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
           <View style={styles.pickerWrap}>
             <Picker selectedValue={filterAnnee} onValueChange={setFilterAnnee} style={styles.picker}>
               <Picker.Item label="Toutes années" value="" />
@@ -125,7 +127,7 @@ export default function TravailAgricole({ navigation }) {
         </View>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
-        <ScrollView horizontal>
+        <ScrollView horizontal style={{ flex: 1 }}>
           <DataTable style={{ minWidth: 750 }}>
             <DataTable.Header>
               <DataTable.Title style={{ flex: 2 }}>Nom</DataTable.Title>
@@ -217,7 +219,7 @@ export default function TravailAgricole({ navigation }) {
 }
 const styles = StyleSheet.create({
   filtersContainer: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8 },
-  pickerWrap: { flex: 1, minWidth: 140, borderWidth: 1, borderColor: '#ccc', borderRadius: 4 },
+  pickerWrap: { width: '49%', borderWidth: 1, borderColor: '#ccc', borderRadius: 4 },
   picker: { height: 44 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });
