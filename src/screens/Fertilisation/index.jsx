@@ -145,7 +145,7 @@ export default function Fertilisation({ navigation }) {
                 <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getParcelleNom(item.secteur_id)}</Text>
                 <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getSecteurNom(item.secteur_id)}</Text>
                 <Text style={[styles.td, { width: 60, textAlign: 'right' }]}>{item.quantite}</Text>
-                <Text style={[styles.td, { width: 75, textAlign: 'right' }]}>{item.cout_unitaire} DH</Text>
+                <Text style={[styles.td, { width: 75, textAlign: 'right' }]}>{item.cout_unitaire} DT</Text>
                 <Text style={[styles.td, { width: 90 }]}>{item.date}</Text>
                 <View style={{ width: 105, justifyContent: 'center', flexDirection: 'row' }}>
                   {isAdmin ? (

@@ -104,7 +104,7 @@ export default function RH({ navigation }) {
           {employesFiltres.length === 0 && employes.length > 0 ? <EmptyState message="Aucun employé pour ces filtres" /> : employesFiltres.length === 0 ? <EmptyState message="Aucun employé enregistré" /> : (
             employesFiltres.map((e, i) => {
               const sc = SALAIRE_CONFIG[e.type_salaire] || SALAIRE_CONFIG.journalier;
-              const salaire = e.type_salaire === 'journalier' ? `${e.tarif_journalier ?? 0} DH/j` : `${e.salaire_fixe ?? 0} DH/mois`;
+              const salaire = e.type_salaire === 'journalier' ? `${e.tarif_journalier ?? 0} DT/j` : `${e.salaire_fixe ?? 0} DT/mois`;
               return (
                 <Card key={e.id_employe} style={[styles.empCard, i > 0 && { marginTop: 8 }]}>
                   <View style={styles.empRow}>

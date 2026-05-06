@@ -164,7 +164,7 @@ export default function Recoltes({ navigation }) {
               <List.Accordion
                 key={campagne}
                 title={campagne}
-                description={`${stats.production.toLocaleString()} kg • Marge : ${stats.marge.toFixed(0)} DH`}
+                description={`${stats.production.toLocaleString()} kg • Marge : ${stats.marge.toFixed(0)} DT`}
                 expanded={expandedCampagne === campagne}
                 onPress={() => setExpandedCampagne(expandedCampagne === campagne ? null : campagne)}
                 left={props => <List.Icon {...props} icon="basket" />}
@@ -174,9 +174,9 @@ export default function Recoltes({ navigation }) {
                 <View style={styles.financeRow}>
                   <StatBadge label="Production" value={`${stats.production.toLocaleString()} kg`} />
                   <StatBadge label="Huile" value={`${stats.huile.toLocaleString()} L`} />
-                  <StatBadge label="Revenu brut" value={`${stats.revenu.toFixed(0)} DH`} />
-                  <StatBadge label="Frais" value={`${stats.frais.toFixed(0)} DH`} color="#c0392b" />
-                  <StatBadge label="Marge nette" value={`${stats.marge.toFixed(0)} DH`} color={stats.marge >= 0 ? '#2d7a4a' : '#c0392b'} />
+                  <StatBadge label="Revenu brut" value={`${stats.revenu.toFixed(0)} DT`} />
+                  <StatBadge label="Frais" value={`${stats.frais.toFixed(0)} DT`} color="#c0392b" />
+                  <StatBadge label="Marge nette" value={`${stats.marge.toFixed(0)} DT`} color={stats.marge >= 0 ? '#2d7a4a' : '#c0392b'} />
                 </View>
                 <Divider />
                 {items.map(r => {
@@ -187,7 +187,7 @@ export default function Recoltes({ navigation }) {
                         <Text variant="bodyMedium">{getSecteurNom(r.secteur_id)}</Text>
                         <Text variant="bodySmall" style={{ color: '#666' }}>
                           {r.production?.toLocaleString()} kg
-                          {a ? ` • Huile : ${a.huile} L • Prix : ${a.prix} DH/L` : ''}
+                          {a ? ` • Huile : ${a.huile} L • Prix : ${a.prix} DT/L` : ''}
                         </Text>
                       </View>
                       {isAdmin ? (

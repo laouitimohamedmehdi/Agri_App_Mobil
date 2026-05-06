@@ -93,11 +93,11 @@ export default function DashboardScreen({ navigation }) {
         {isAdmin && (
           <>
             <SectionHeader icon="cash-multiple" title="Résumé financier" />
-            <FinanceRow icon="trending-up"   label="Revenu brut"    formule="Σ (Huile × Prix)"     value={`${revenuBrut.toFixed(0)} DH`}  accent="#2d7a4a" />
-            <FinanceRow icon="trending-down"  label="Total charges"  formule="Frais + Fertilisation + Travaux + Salaires" value={`${totalCharges.toFixed(0)} DH`} accent="#ff4d4f" />
-            <FinanceRow icon="finance"        label="Marge nette"    formule="Revenu − Charges"      value={`${margeNette.toFixed(0)} DH`}  accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
+            <FinanceRow icon="trending-up"   label="Revenu brut"    formule="Σ (Huile × Prix)"     value={`${revenuBrut.toFixed(0)} DT`}  accent="#2d7a4a" />
+            <FinanceRow icon="trending-down"  label="Total charges"  formule="Frais + Fertilisation + Travaux + Salaires" value={`${totalCharges.toFixed(0)} DT`} accent="#ff4d4f" />
+            <FinanceRow icon="finance"        label="Marge nette"    formule="Revenu − Charges"      value={`${margeNette.toFixed(0)} DT`}  accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
             <FinanceRow icon="sprout"         label="Rendement/ha"   formule="Production ÷ Surface"  value={`${rendementHa} kg`}            accent="#fa8c16" />
-            <FinanceRow icon="calculator"     label="Coût/kg"        formule="Charges ÷ Production"  value={`${coutKg} DH`}                 accent="#ff4d4f" />
+            <FinanceRow icon="calculator"     label="Coût/kg"        formule="Charges ÷ Production"  value={`${coutKg} DT`}                 accent="#ff4d4f" />
           </>
         )}
 
@@ -144,7 +144,7 @@ export default function DashboardScreen({ navigation }) {
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }}>{d.label}</Text>
                           <Text style={{ fontSize: 10, color: '#595959' }}>
-                            {d.value.toFixed(0)} DH
+                            {d.value.toFixed(0)} DT
                             <Text style={{ fontWeight: 'bold', color: d.color }}> · {pct}%</Text>
                           </Text>
                         </View>
