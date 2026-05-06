@@ -46,14 +46,53 @@ export default function Presences({ navigation }) {
   const initLignes = (rawLignes) => rawLignes.map(l => ({
     ...l,
     jours: parseJours(l.jours_json),
+    confirmed: l.employe_id ? undefined : true,
   }));
 
   const parseJours = (jsonStr) => {
     try { return JSON.parse(jsonStr || '{}'); } catch { return {}; }
   };
 
+  const setRemarque = (idx, val) => {
+    setLignes(prev => prev.map((l, i) => i === idx ? { ...l, remarque: val } : l));
+  };
+
+  const addTemp = () => {
+    setLignes(prev => [...prev, { employe_id: null, nom_temp: '', tarif_temp: 0, jours: {}, remarque: '', confirmed: false }]);
+  };
+
+  const updateTemp = (idx, field, val) => {
+    setLignes(prev => prev.map((l, i) => {
+      if (i !== idx) return l;
+      if (field === 'tarif_temp') return { ...l, tarif_temp: parseFloat(val) || 0 };
+      return { ...l, [field]: val };
+    }));
+  };
+
+  const removeTemp = (idx) => setLignes(prev => prev.filter((_, i) => i !== idx));
+
+  const toggleConfirmTemp = (idx, value) => {
+    if (value) {
+      const ligne = lignes[idx];
+      if (!ligne.nom_temp?.trim() || !(ligne.tarif_temp > 0)) {
+        setSnack('Nom et tarif obligatoires avant de confirmer');
+        return;
+      }
+    }
+    setLignes(prev => prev.map((l, i) => i === idx ? { ...l, confirmed: value } : l));
+  };
+
+  const validerTemporaires = () => {
+    const invalides = lignes.filter(l => !l.employe_id && (!l.nom_temp?.trim() || !(l.tarif_temp > 0)));
+    if (invalides.length > 0) {
+      setSnack('Nom et tarif obligatoires pour tous les temporaires');
+      return false;
+    }
+    return true;
+  };
+
   const toggleJour = (ligneIdx, jour) => {
-    if (!isAdmin || feuille?.statut === 'validee') return;
+    if (feuille?.statut === 'validee') return;
     setLignes(prev => prev.map((l, i) => {
       if (i !== ligneIdx) return l;
       return { ...l, jours: { ...l.jours, [jour]: l.jours[jour] === 1 ? 0 : 1 } };
@@ -62,6 +101,7 @@ export default function Presences({ navigation }) {
 
   const saveChanges = async () => {
     if (!feuille) return;
+    if (!validerTemporaires()) return;
     setSaving(true);
     try {
       await client.put(`/feuilles/${feuille.id}`, {
@@ -80,6 +120,7 @@ export default function Presences({ navigation }) {
   };
 
   const valider = async () => {
+    if (!validerTemporaires()) return;
     try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack('Feuille validée ✓'); }
     catch { setSnack('Erreur lors de la validation'); }
   };
@@ -181,18 +222,20 @@ export default function Presences({ navigation }) {
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {feuille.statut !== 'validee' && (
               <>
+                <TouchableOpacity style={[styles.actionBtn, { borderColor: '#fa8c16' }]} onPress={addTemp}>
+                  <MaterialCommunityIcons name="account-plus" size={16} color="#fa8c16" />
+                  <Text style={[styles.actionBtnTxt, { color: '#fa8c16' }]}>Temp</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.actionBtn} onPress={saveChanges}>
                   <MaterialCommunityIcons name="content-save" size={16} color="#2d7a4a" />
                   <Text style={[styles.actionBtnTxt, { color: '#2d7a4a' }]}>
                     {saving ? '...' : 'Sauver'}
                   </Text>
                 </TouchableOpacity>
-                {isAdmin && (
-                  <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
-                    <MaterialCommunityIcons name="check" size={16} color="#fff" />
-                    <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>Valider</Text>
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
+                  <MaterialCommunityIcons name="check" size={16} color="#fff" />
+                  <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>Valider</Text>
+                </TouchableOpacity>
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
@@ -225,22 +268,66 @@ export default function Presences({ navigation }) {
       ) : (
         <ScrollView style={{ flex: 1, marginTop: 8 }} showsVerticalScrollIndicator={false}>
           {lignesFiltrees.map((l, idx) => {
+            const isTemp = !l.employe_id;
             const total = Object.values(l.jours).filter(v => v === 1).length;
             const poste = getEmployePoste(l);
             return (
-              <Card key={idx} style={styles.empCard}>
+              <Card key={idx} style={[styles.empCard, isTemp && { borderLeftWidth: 3, borderLeftColor: '#fa8c16' }]}>
                 {/* En-tête carte employé */}
                 <View style={styles.empHeader}>
-                  <View style={styles.empAvatar}>
-                    <MaterialCommunityIcons name="account" size={22} color="#2d7a4a" />
+                  <View style={[styles.empAvatar, isTemp && { backgroundColor: '#fff7e6' }]}>
+                    <MaterialCommunityIcons name={isTemp ? 'account-clock' : 'account'} size={22} color={isTemp ? '#fa8c16' : '#2d7a4a'} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.empName} numberOfLines={1}>{getEmployeNom(l)}</Text>
-                    {poste ? <Text style={styles.empPoste}>{poste}</Text> : null}
+                    {isTemp && canEdit && !l.confirmed ? (
+                      <>
+                        <TextInput
+                          label="Nom prénom *"
+                          value={l.nom_temp || ''}
+                          onChangeText={v => updateTemp(l._originalIdx, 'nom_temp', v)}
+                          dense
+                          style={{ marginBottom: 4 }}
+                        />
+                        <TextInput
+                          label="Tarif (DT/j) *"
+                          value={l.tarif_temp ? String(l.tarif_temp) : ''}
+                          onChangeText={v => updateTemp(l._originalIdx, 'tarif_temp', v)}
+                          keyboardType="numeric"
+                          dense
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Text style={styles.empName} numberOfLines={1}>{getEmployeNom(l)}</Text>
+                        {isTemp ? (
+                          <Text style={[styles.empPoste, { color: '#fa8c16' }]}>
+                            {l.tarif_temp > 0 ? `${l.tarif_temp} DT/j · ` : ''}Temporaire
+                          </Text>
+                        ) : poste ? <Text style={styles.empPoste}>{poste}</Text> : null}
+                      </>
+                    )}
                   </View>
-                  <View style={styles.totalBadge}>
-                    <Text style={styles.totalNum}>{total}</Text>
-                    <Text style={styles.totalLabel}>jours</Text>
+                  <View style={{ alignItems: 'center', gap: 4 }}>
+                    <View style={styles.totalBadge}>
+                      <Text style={styles.totalNum}>{total}</Text>
+                      <Text style={styles.totalLabel}>jours</Text>
+                    </View>
+                    {isTemp && canEdit && (
+                      <View style={{ flexDirection: 'row', gap: 4, marginTop: 4 }}>
+                        {!l.confirmed ? (
+                          <TouchableOpacity onPress={() => toggleConfirmTemp(l._originalIdx, true)} style={{ padding: 4, borderRadius: 4, backgroundColor: '#e8f5e9' }}>
+                            <MaterialCommunityIcons name="check" size={16} color="#2d7a4a" />
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity onPress={() => toggleConfirmTemp(l._originalIdx, false)} style={{ padding: 4, borderRadius: 4, backgroundColor: '#e8f0ff' }}>
+                            <MaterialCommunityIcons name="pencil" size={16} color="#1677ff" />
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity onPress={() => removeTemp(l._originalIdx)} style={{ padding: 4, borderRadius: 4, backgroundColor: '#fff1f0' }}>
+                          <MaterialCommunityIcons name="delete" size={16} color="#ff4d4f" />
+                        </TouchableOpacity>
+                      </View>
+                    )}
                   </View>
                 </View>
 
@@ -268,8 +355,16 @@ export default function Presences({ navigation }) {
                   </View>
                 </ScrollView>
 
-                {/* Remarque si présente */}
-                {l.remarque ? (
+                {/* Remarque */}
+                {canEdit ? (
+                  <TextInput
+                    label="Remarque"
+                    value={l.remarque || ''}
+                    onChangeText={v => setRemarque(l._originalIdx, v)}
+                    dense
+                    style={{ marginHorizontal: 12, marginBottom: 8 }}
+                  />
+                ) : l.remarque ? (
                   <Text style={styles.remarque}>
                     <Text style={{ fontWeight: '600' }}>Remarque : </Text>{l.remarque}
                   </Text>

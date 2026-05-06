@@ -74,15 +74,11 @@ export default function Varietes({ navigation }) {
                   <Text style={styles.td}>{v.nom}</Text>
                 </View>
                 <View style={{ width: 120, flexDirection: 'row' }}>
+                  <Button icon="pencil" compact onPress={() => openEdit(v)} textColor="#1677ff" />
                   {isAdmin ? (
-                    <>
-                      <Button icon="pencil" compact onPress={() => openEdit(v)} textColor="#1677ff" />
-                      <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} textColor="#ff4d4f" />
-                    </>
+                    <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} textColor="#ff4d4f" />
                   ) : (
-                    <Button compact icon="file-send" onPress={() => { setDemandeId(v.id_variete); setMotif(''); }} textColor="#fa8c16">
-                      Demander
-                    </Button>
+                    <Button icon="delete" compact onPress={() => { setDemandeId(v.id_variete); setMotif(''); }} textColor="#ff4d4f" />
                   )}
                 </View>
               </View>

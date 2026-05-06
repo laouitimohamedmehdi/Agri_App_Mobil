@@ -106,10 +106,12 @@ export default function Recoltes({ navigation }) {
         const res = await client.post('/recoltes/', payload);
         recolteId = res.data.id_recolte;
       }
-      const analysePayload = { huile: parseFloat(form.huile) || 0, prix: parseFloat(form.prix) || 0, frais: parseFloat(form.frais) || 0, recolte_id: recolteId };
-      const existingAnalyse = getAnalyse(recolteId);
-      if (existingAnalyse) await client.put(`/recolte-analyse/${existingAnalyse.id}`, analysePayload);
-      else await client.post('/recolte-analyse/', analysePayload);
+      if (isAdmin) {
+        const analysePayload = { huile: parseFloat(form.huile) || 0, prix: parseFloat(form.prix) || 0, frais: parseFloat(form.frais) || 0, recolte_id: recolteId };
+        const existingAnalyse = getAnalyse(recolteId);
+        if (existingAnalyse) await client.put(`/recolte-analyse/${existingAnalyse.id}`, analysePayload);
+        else await client.post('/recolte-analyse/', analysePayload);
+      }
       await fetchAll(); setDialogVisible(false);
     } catch { setSnack('Erreur lors de la sauvegarde'); }
     finally { setSaving(false); }
@@ -286,11 +288,15 @@ export default function Recoltes({ navigation }) {
 
               <TextInput label="Production (kg)" value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
 
-              <Divider style={{ marginBottom: 12 }} />
-              <Text variant="labelMedium" style={{ marginBottom: 8 }}>Analyse</Text>
-              <TextInput label="Huile (L)" value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Prix (DT/L)" value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Frais de traitement (DT)" value={form.frais} onChangeText={v => setForm(f => ({ ...f, frais: v }))} keyboardType="numeric" />
+              {isAdmin && (
+                <>
+                  <Divider style={{ marginBottom: 12 }} />
+                  <Text variant="labelMedium" style={{ marginBottom: 8 }}>Analyse</Text>
+                  <TextInput label="Huile (L)" value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Prix (DT/L)" value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Frais de traitement (DT)" value={form.frais} onChangeText={v => setForm(f => ({ ...f, frais: v }))} keyboardType="numeric" />
+                </>
+              )}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>

@@ -10,7 +10,7 @@ export default function LoginScreen() {
   const [secure, setSecure] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [snack, setSnack] = useState(false);
+  const [snack, setSnack] = useState('');
 
   const handleLogin = async () => {
     if (!email || !password) { setError('Email et mot de passe requis'); return; }
@@ -19,7 +19,11 @@ export default function LoginScreen() {
     try {
       await login(email, password);
     } catch (e) {
-      setSnack(true);
+      if (e.response?.status === 401 || e.response?.status === 400) {
+        setSnack('auth');
+      } else {
+        setSnack('network');
+      }
     } finally {
       setLoading(false);
     }
@@ -53,8 +57,10 @@ export default function LoginScreen() {
           Connexion
         </Button>
       </ScrollView>
-      <Snackbar visible={snack} onDismiss={() => setSnack(false)} duration={3000}>
-        Email ou mot de passe incorrect
+      <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={4000}>
+        {snack === 'network'
+          ? 'Impossible de contacter le serveur — vérifiez votre connexion'
+          : 'Email ou mot de passe incorrect'}
       </Snackbar>
     </KeyboardAvoidingView>
   );
