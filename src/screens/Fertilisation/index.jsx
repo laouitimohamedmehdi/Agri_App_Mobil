@@ -11,6 +11,7 @@ import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
+import DatePickerInput from '../../components/DatePickerInput';
 
 export default function Fertilisation({ navigation }) {
   const { secteurs, parcelles } = useData();
@@ -236,7 +237,7 @@ export default function Fertilisation({ navigation }) {
 
                     <TextInput label="Quantité (kg)" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                     <TextInput label="Coût unitaire (DT/kg)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                    <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} />
+                    <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} />
                   </>
                 );
               })()}
@@ -258,7 +259,7 @@ export default function Fertilisation({ navigation }) {
               </View>
               <TextInput label="Quantité (kg)" value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               <TextInput label="Coût unitaire (DT/kg)" value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Date (YYYY-MM-DD)" value={demandeForm.date} onChangeText={v => setDemandeForm(f => ({ ...f, date: v }))} />
+              <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} />
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>

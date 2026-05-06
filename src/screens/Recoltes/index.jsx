@@ -11,6 +11,7 @@ import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
+import DatePickerInput from '../../components/DatePickerInput';
 
 export default function Recoltes({ navigation }) {
   const { secteurs, parcelles } = useData();
@@ -259,7 +260,7 @@ export default function Recoltes({ navigation }) {
             <ScrollView keyboardShouldPersistTaps="handled">
               <TextInput label="Campagne (ex: 25/26)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 12 }} />
 
-              <TextInput label="Date (YYYY-MM-DD)" value={form.date ?? ''} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Parcelle *</Text>
               <View style={{ marginBottom: 12 }}>

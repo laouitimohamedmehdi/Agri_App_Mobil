@@ -11,6 +11,7 @@ import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
+import DatePickerInput from '../../components/DatePickerInput';
 
 const TYPES = ['Taille', 'Labour mécanique', 'Nettoyage', 'Ramassage', 'Transport', 'Fertilisation', 'Traitement', 'Irrigation', 'Loyer', 'Autre'];
 const STATUTS = ['planifie', 'actif', 'termine'];
@@ -249,7 +250,7 @@ export default function TravailAgricole({ navigation }) {
                 />
               </View>
 
-              <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
               <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" />
             </ScrollView>
@@ -275,7 +276,7 @@ export default function TravailAgricole({ navigation }) {
               </View>
               <TextInput label="Coût (DT)" value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Date (YYYY-MM-DD)" value={demandeForm.date} onChangeText={v => setDemandeForm(f => ({ ...f, date: v }))} />
+              <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} />
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>

@@ -8,6 +8,7 @@ import EmptyState from '../../components/EmptyState';
 import SelectFilter from '../../components/SelectFilter';
 import { useData } from '../../contexts/DataContext';
 import client from '../../api/client';
+import DatePickerInput from '../../components/DatePickerInput';
 
 const SALAIRE_CONFIG = {
   journalier: { color: '#fa8c16', bg: '#fff7e6', icon: 'calendar-today' },
@@ -176,8 +177,8 @@ export default function RH({ navigation }) {
                 />
               </View>
 
-              <TextInput label="Date d'embauche (YYYY-MM-DD)" value={form.date_embauche} onChangeText={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 12 }} />
-              <TextInput label="Date fin contrat (YYYY-MM-DD)" value={form.date_fin_contrat ?? ''} onChangeText={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label="Date d'embauche" value={form.date_embauche} onChange={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label="Date fin contrat" value={form.date_fin_contrat} onChange={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
 
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <Text>Actif</Text>
