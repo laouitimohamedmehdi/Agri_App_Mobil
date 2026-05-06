@@ -154,7 +154,7 @@ export default function TravailAgricole({ navigation }) {
               <Text style={[styles.th, { width: 140 }]}>Type</Text>
               <Text style={[styles.th, { width: 130 }]}>Parcelle</Text>
               <Text style={[styles.th, { width: 140 }]}>Secteur</Text>
-              <Text style={[styles.th, { width: 95, textAlign: 'right' }]}>Coût (DH)</Text>
+              <Text style={[styles.th, { width: 95, textAlign: 'right' }]}>Coût (DT)</Text>
               <Text style={[styles.th, { width: 100 }]}>Statut</Text>
               <Text style={[styles.th, { width: 90 }]}>Actions</Text>
             </View>
@@ -202,7 +202,7 @@ export default function TravailAgricole({ navigation }) {
                   options={TYPES.map(t => ({ value: t, label: t }))}
                 />
               </View>
-              <TextInput label="Coût (DH)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+              <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
               <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
               <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
