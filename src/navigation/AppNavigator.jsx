@@ -19,7 +19,6 @@ import Varietes from '../screens/Varietes';
 import RH from '../screens/RH';
 import Utilisateurs from '../screens/Utilisateurs';
 import Notifications from '../screens/Notifications';
-import Dashboard from '../screens/Dashboard';
 
 const Tab = createBottomTabNavigator();
 const ExtraStack = createStackNavigator();

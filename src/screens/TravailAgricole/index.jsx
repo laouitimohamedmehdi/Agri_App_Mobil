@@ -174,23 +174,25 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
-            <Text variant="labelMedium">Type</Text>
-            <Picker selectedValue={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
-              {TYPES.map(t => <Picker.Item key={t} label={t} value={t} />)}
-            </Picker>
-            <TextInput label="Coût (DH)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
-            <Text variant="labelMedium">Statut</Text>
-            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-              {STATUTS.map(s => <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>)}
-            </View>
-            <Text variant="labelMedium">Secteur</Text>
-            <Picker selectedValue={form.secteur_id} onValueChange={v => setForm(f => ({ ...f, secteur_id: v }))}>
-              <Picker.Item label="Sélectionner..." value="" />
-              {secteurs.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
-            </Picker>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
+              <Text variant="labelMedium">Type</Text>
+              <Picker selectedValue={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
+                {TYPES.map(t => <Picker.Item key={t} label={t} value={t} />)}
+              </Picker>
+              <TextInput label="Coût (DH)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+              <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+              <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
+              <Text variant="labelMedium">Statut</Text>
+              <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                {STATUTS.map(s => <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>)}
+              </View>
+              <Text variant="labelMedium">Secteur</Text>
+              <Picker selectedValue={form.secteur_id} onValueChange={v => setForm(f => ({ ...f, secteur_id: v }))}>
+                <Picker.Item label="Sélectionner..." value="" />
+                {secteurs.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
+              </Picker>
+            </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
