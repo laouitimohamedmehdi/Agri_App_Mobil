@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Snackbar, SegmentedButtons, Chip, Card, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -9,6 +9,8 @@ import SelectFilter from '../../components/SelectFilter';
 import { useData } from '../../contexts/DataContext';
 import client from '../../api/client';
 import DatePickerInput from '../../components/DatePickerInput';
+
+const SCREEN_H = Dimensions.get('window').height;
 
 const SALAIRE_CONFIG = {
   journalier: { color: '#fa8c16', bg: '#fff7e6', icon: 'calendar-today' },
@@ -142,7 +144,7 @@ export default function RH({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un employé</Dialog.Title>
           <Dialog.Content>
-            <ScrollView>
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <TextInput label="Nom *" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
               <TextInput label="Prénom *" value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} style={{ marginBottom: 12 }} />
 

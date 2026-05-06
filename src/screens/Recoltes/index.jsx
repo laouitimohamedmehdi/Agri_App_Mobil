@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -12,6 +12,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 import DatePickerInput from '../../components/DatePickerInput';
+
+const SCREEN_H = Dimensions.get('window').height;
 
 export default function Recoltes({ navigation }) {
   const { secteurs, parcelles } = useData();
@@ -257,7 +259,7 @@ export default function Recoltes({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une récolte</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <TextInput label="Campagne (ex: 25/26)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 12 }} />
 
               <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />

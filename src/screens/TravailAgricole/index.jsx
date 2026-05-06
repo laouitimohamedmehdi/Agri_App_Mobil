@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
@@ -13,6 +13,7 @@ import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 import DatePickerInput from '../../components/DatePickerInput';
 
+const SCREEN_H = Dimensions.get('window').height;
 const TYPES = ['Taille', 'Labour mécanique', 'Nettoyage', 'Ramassage', 'Transport', 'Fertilisation', 'Traitement', 'Irrigation', 'Loyer', 'Autre'];
 const STATUTS = ['planifie', 'actif', 'termine'];
 const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c' };
@@ -214,7 +215,7 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type *</Text>
@@ -263,7 +264,7 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
           <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
               <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>

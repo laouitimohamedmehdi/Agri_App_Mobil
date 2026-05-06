@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
@@ -12,6 +12,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 import DatePickerInput from '../../components/DatePickerInput';
+
+const SCREEN_H = Dimensions.get('window').height;
 
 export default function Fertilisation({ navigation }) {
   const { secteurs, parcelles } = useData();
@@ -190,7 +192,7 @@ export default function Fertilisation({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} fertilisation</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               {(() => {
                 const secteursForForm = formParcelle
                   ? secteurs.filter(s => String(s.parcelle_id) === formParcelle)
@@ -251,7 +253,7 @@ export default function Fertilisation({ navigation }) {
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
           <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit</Text>
               <View style={{ marginBottom: 12 }}>
