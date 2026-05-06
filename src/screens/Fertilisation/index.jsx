@@ -28,6 +28,7 @@ export default function Fertilisation({ navigation }) {
   const [confirmId, setConfirmId] = useState(null);
   const [demandeItem, setDemandeItem] = useState(null);
   const [motif, setMotif] = useState('');
+  const [formParcelle, setFormParcelle] = useState('');
   const [snack, setSnack] = useState('');
 
   useEffect(() => { fetchData(); }, []);
@@ -58,9 +59,10 @@ export default function Fertilisation({ navigation }) {
     return parcelles.find(p => p.id_parcelle === sec?.parcelle_id)?.nom || '-';
   };
 
-  const openCreate = () => { setEditing(null); setForm({ produit: '', quantite: '', cout_unitaire: '', date: '', secteur_id: '' }); setDialogVisible(true); };
+  const openCreate = () => { setEditing(null); setFormParcelle(''); setForm({ produit: '', quantite: '', cout_unitaire: '', date: '', secteur_id: '' }); setDialogVisible(true); };
   const openEdit = (item) => {
     setEditing(item);
+    setFormParcelle('');
     setForm({ produit: item.produit, quantite: String(item.quantite ?? ''), cout_unitaire: String(item.cout_unitaire ?? ''), date: item.date ?? '', secteur_id: String(item.secteur_id ?? '') });
     setDialogVisible(true);
   };
@@ -166,16 +168,56 @@ export default function Fertilisation({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} fertilisation</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled">
-              <TextInput label="Produit" value={form.produit} onChangeText={v => setForm(f => ({ ...f, produit: v }))} style={{ marginBottom: 8 }} />
-              <TextInput label="Quantité (kg)" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-              <TextInput label="Coût unitaire (DH)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-              <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {secteurs.map(s => (
-                  <Chip key={s.id_secteur} selected={form.secteur_id === String(s.id_secteur)} onPress={() => setForm(f => ({ ...f, secteur_id: String(s.id_secteur) }))} style={{ marginRight: 6 }}>{s.nom}</Chip>
-                ))}
-              </ScrollView>
+              {(() => {
+                const secteursForForm = formParcelle
+                  ? secteurs.filter(s => String(s.parcelle_id) === formParcelle)
+                  : secteurs;
+                return (
+                  <>
+                    <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit *</Text>
+                    <View style={{ marginBottom: 12 }}>
+                      <SelectFilter
+                        label="Choisir un produit"
+                        value={form.produit}
+                        onChange={v => setForm(f => ({ ...f, produit: v }))}
+                        options={[
+                          { value: 'Fumier de ferme', label: 'Fumier de ferme' },
+                          { value: 'D.A.P', label: 'D.A.P' },
+                          { value: 'Super 45', label: 'Super 45' },
+                          { value: 'Urée', label: 'Urée' },
+                          { value: 'NPK', label: 'NPK' },
+                          { value: 'Compost', label: 'Compost' },
+                          { value: 'Autre', label: 'Autre' },
+                        ]}
+                      />
+                    </View>
+
+                    <Text variant="labelMedium" style={{ marginBottom: 4 }}>Parcelle *</Text>
+                    <View style={{ marginBottom: 12 }}>
+                      <SelectFilter
+                        label="Choisir une parcelle"
+                        value={formParcelle}
+                        onChange={v => { setFormParcelle(v); setForm(f => ({ ...f, secteur_id: '' })); }}
+                        options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
+                      />
+                    </View>
+
+                    <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
+                    <View style={{ marginBottom: 12 }}>
+                      <SelectFilter
+                        label="Choisir un secteur"
+                        value={form.secteur_id}
+                        onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
+                        options={secteursForForm.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+                      />
+                    </View>
+
+                    <TextInput label="Quantité (kg)" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                    <TextInput label="Coût unitaire (DT/kg)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                    <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} />
+                  </>
+                );
+              })()}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>

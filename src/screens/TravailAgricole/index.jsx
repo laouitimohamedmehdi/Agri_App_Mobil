@@ -192,9 +192,10 @@ export default function TravailAgricole({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled">
-              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
-              <View style={{ marginBottom: 8 }}>
+              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
+
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type *</Text>
+              <View style={{ marginBottom: 12 }}>
                 <SelectFilter
                   label="Choisir un type"
                   value={form.type}
@@ -202,17 +203,34 @@ export default function TravailAgricole({ navigation }) {
                   options={TYPES.map(t => ({ value: t, label: t }))}
                 />
               </View>
-              <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-              <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-              <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
+
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
-              <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-                {STATUTS.map(s => <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>)}
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir un statut"
+                  value={form.statut}
+                  onChange={v => setForm(f => ({ ...f, statut: v }))}
+                  options={[
+                    { value: 'planifie', label: 'Planifié' },
+                    { value: 'actif', label: 'En cours' },
+                    { value: 'termine', label: 'Terminé' },
+                  ]}
+                />
               </View>
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {secteurs.map(s => <Chip key={s.id_secteur} selected={form.secteur_id === String(s.id_secteur)} onPress={() => setForm(f => ({ ...f, secteur_id: String(s.id_secteur) }))} style={{ marginRight: 6 }}>{s.nom}</Chip>)}
-              </ScrollView>
+
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir un secteur"
+                  value={form.secteur_id}
+                  onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
+                  options={secteurs.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+                />
+              </View>
+
+              <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" />
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
