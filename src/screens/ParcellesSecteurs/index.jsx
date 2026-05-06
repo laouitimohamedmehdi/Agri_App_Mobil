@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -143,11 +142,12 @@ export default function ParcellesSecteurs({ navigation }) {
                     <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>
                   ))}
                 </View>
-                <Text variant="labelMedium">Variété</Text>
-                <Picker selectedValue={form.variete_id} onValueChange={v => setForm(f => ({ ...f, variete_id: v }))}>
-                  <Picker.Item label="Sélectionner..." value="" />
-                  {varietes.map(v => <Picker.Item key={v.id_variete} label={v.nom} value={String(v.id_variete)} />)}
-                </Picker>
+                <Text variant="labelMedium" style={{ marginBottom: 4 }}>Variété</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {varietes.map(v => (
+                    <Chip key={v.id_variete} selected={form.variete_id === String(v.id_variete)} onPress={() => setForm(f => ({ ...f, variete_id: String(v.id_variete) }))} style={{ marginRight: 6 }}>{v.nom}</Chip>
+                  ))}
+                </ScrollView>
               </>
             )}
           </Dialog.Content>

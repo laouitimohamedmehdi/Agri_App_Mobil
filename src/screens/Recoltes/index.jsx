@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar, Chip } from 'react-native-paper';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -166,11 +165,12 @@ export default function Recoltes({ navigation }) {
           <Dialog.Content>
             <TextInput label="Campagne (ex: 24/25)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 8 }} />
             <TextInput label="Production (kg)" value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <Text variant="labelMedium">Secteur</Text>
-            <Picker selectedValue={form.secteur_id} onValueChange={v => setForm(f => ({ ...f, secteur_id: v }))}>
-              <Picker.Item label="Sélectionner..." value="" />
-              {secteurs.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
-            </Picker>
+            <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {secteurs.map(s => (
+                <Chip key={s.id_secteur} selected={form.secteur_id === String(s.id_secteur)} onPress={() => setForm(f => ({ ...f, secteur_id: String(s.id_secteur) }))} style={{ marginRight: 6 }}>{s.nom}</Chip>
+              ))}
+            </ScrollView>
             <Divider style={{ marginVertical: 8 }} />
             <Text variant="labelMedium" style={{ marginBottom: 4 }}>Analyse</Text>
             <TextInput label="Huile (L)" value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />

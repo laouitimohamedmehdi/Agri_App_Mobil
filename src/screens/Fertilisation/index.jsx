@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DataTable, FAB, Portal, Dialog, TextInput, Button, Snackbar, Text } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import { DataTable, FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -97,29 +96,25 @@ export default function Fertilisation({ navigation }) {
     <View style={{ flex: 1 }}>
       <AppHeader title="Fertilisation" navigation={navigation} />
       <View style={styles.filtersContainer}>
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterParcelle} onValueChange={v => { setFilterParcelle(v); setFilterSecteur(''); }} style={styles.picker}>
-              <Picker.Item label="Toutes parcelles" value="" />
-              {parcelles.map(p => <Picker.Item key={p.id_parcelle} label={p.nom} value={String(p.id_parcelle)} />)}
-            </Picker>
-          </View>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterSecteur} onValueChange={setFilterSecteur} style={styles.picker}>
-              <Picker.Item label="Tous secteurs" value="" />
-              {secteursOfParcelle.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
-            </Picker>
-          </View>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterAnnee} onValueChange={setFilterAnnee} style={styles.picker}>
-              <Picker.Item label="Toutes années" value="" />
-              {annees.map(a => <Picker.Item key={a} label={a} value={a} />)}
-            </Picker>
-          </View>
-        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <Chip selected={!filterParcelle} onPress={() => { setFilterParcelle(''); setFilterSecteur(''); }} style={styles.chip}>Toutes parcelles</Chip>
+          {parcelles.map(p => (
+            <Chip key={p.id_parcelle} selected={filterParcelle === String(p.id_parcelle)} onPress={() => { setFilterParcelle(String(p.id_parcelle)); setFilterSecteur(''); }} style={styles.chip}>{p.nom}</Chip>
+          ))}
+          {secteursOfParcelle.map(s => (
+            <Chip key={s.id_secteur} selected={filterSecteur === String(s.id_secteur)} onPress={() => setFilterSecteur(filterSecteur === String(s.id_secteur) ? '' : String(s.id_secteur))} style={styles.chip}>{s.nom}</Chip>
+          ))}
+        </ScrollView>
+        {annees.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}>
+            {annees.map(a => (
+              <Chip key={a} selected={filterAnnee === a} onPress={() => setFilterAnnee(filterAnnee === a ? '' : a)} style={styles.chip}>{a}</Chip>
+            ))}
+          </ScrollView>
+        )}
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucune fertilisation" /> : (
-        <ScrollView horizontal>
+        <ScrollView horizontal style={{ flex: 1 }}>
           <DataTable style={{ minWidth: 650 }}>
             <DataTable.Header>
               <DataTable.Title style={{ flex: 2 }}>Produit</DataTable.Title>
@@ -160,15 +155,18 @@ export default function Fertilisation({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} fertilisation</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Produit" value={form.produit} onChangeText={v => setForm(f => ({ ...f, produit: v }))} style={{ marginBottom: 8 }} />
-            <TextInput label="Quantité (kg)" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <TextInput label="Coût unitaire (DH)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
-            <Text variant="labelMedium">Secteur</Text>
-            <Picker selectedValue={form.secteur_id} onValueChange={v => setForm(f => ({ ...f, secteur_id: v }))}>
-              <Picker.Item label="Sélectionner..." value="" />
-              {secteurs.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
-            </Picker>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <TextInput label="Produit" value={form.produit} onChangeText={v => setForm(f => ({ ...f, produit: v }))} style={{ marginBottom: 8 }} />
+              <TextInput label="Quantité (kg)" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+              <TextInput label="Coût unitaire (DH)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+              <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {secteurs.map(s => (
+                  <Chip key={s.id_secteur} selected={form.secteur_id === String(s.id_secteur)} onPress={() => setForm(f => ({ ...f, secteur_id: String(s.id_secteur) }))} style={{ marginRight: 6 }}>{s.nom}</Chip>
+                ))}
+              </ScrollView>
+            </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
@@ -193,7 +191,6 @@ export default function Fertilisation({ navigation }) {
 }
 const styles = StyleSheet.create({
   filtersContainer: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8 },
-  pickerWrap: { flex: 1, minWidth: 140, borderWidth: 1, borderColor: '#ccc', borderRadius: 4 },
-  picker: { height: 44 },
+  chip: { marginRight: 6 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });
