@@ -19,7 +19,7 @@ export default function RH({ navigation }) {
   const [tab, setTab] = useState('employes');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'CDI', date_embauche: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' });
+  const [form, setForm] = useState({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'saisonnier', date_embauche: '', date_fin_contrat: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' });
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [snack, setSnack] = useState('');
@@ -36,13 +36,13 @@ export default function RH({ navigation }) {
     return true;
   });
 
-  const openCreate = () => { setEditing(null); setForm({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'CDI', date_embauche: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' }); setDialogVisible(true); };
-  const openEdit = (e) => { setEditing(e); setForm({ nom: e.nom, prenom: e.prenom ?? '', poste: e.poste ?? '', telephone: e.telephone ?? '', type_contrat: e.type_contrat ?? 'CDI', date_embauche: e.date_embauche ?? '', is_active: e.is_active ?? true, type_salaire: e.type_salaire ?? 'journalier', tarif_journalier: String(e.tarif_journalier ?? ''), salaire_fixe: String(e.salaire_fixe ?? '') }); setDialogVisible(true); };
+  const openCreate = () => { setEditing(null); setForm({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'saisonnier', date_embauche: '', date_fin_contrat: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' }); setDialogVisible(true); };
+  const openEdit = (e) => { setEditing(e); setForm({ nom: e.nom, prenom: e.prenom ?? '', poste: e.poste ?? '', telephone: e.telephone ?? '', type_contrat: e.type_contrat ?? 'saisonnier', date_embauche: e.date_embauche ?? '', date_fin_contrat: e.date_fin_contrat ?? '', is_active: e.is_active ?? true, type_salaire: e.type_salaire ?? 'journalier', tarif_journalier: String(e.tarif_journalier ?? ''), salaire_fixe: String(e.salaire_fixe ?? '') }); setDialogVisible(true); };
 
   const save = async () => {
     setSaving(true);
     try {
-      const payload = { nom: form.nom, prenom: form.prenom, poste: form.poste, telephone: form.telephone, type_contrat: form.type_contrat, date_embauche: form.date_embauche || null, is_active: form.is_active, type_salaire: form.type_salaire, tarif_journalier: parseFloat(form.tarif_journalier) || null, salaire_fixe: parseFloat(form.salaire_fixe) || null };
+      const payload = { nom: form.nom, prenom: form.prenom, poste: form.poste, telephone: form.telephone, type_contrat: form.type_contrat, date_embauche: form.date_embauche || null, date_fin_contrat: form.date_fin_contrat || null, is_active: form.is_active, type_salaire: form.type_salaire, tarif_journalier: parseFloat(form.tarif_journalier) || null, salaire_fixe: parseFloat(form.salaire_fixe) || null };
       if (editing) await client.put(`/rh/employes/${editing.id_employe}`, payload);
       else await client.post('/rh/employes/', payload);
       await refreshEmployes(); setDialogVisible(false);
@@ -142,24 +142,64 @@ export default function RH({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un employé</Dialog.Title>
           <Dialog.Content>
             <ScrollView>
-              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
-              <TextInput label="Prénom" value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} style={{ marginBottom: 8 }} />
-              <TextInput label="Poste" value={form.poste} onChangeText={v => setForm(f => ({ ...f, poste: v }))} style={{ marginBottom: 8 }} />
-              <TextInput label="Téléphone" value={form.telephone} onChangeText={v => setForm(f => ({ ...f, telephone: v }))} keyboardType="phone-pad" style={{ marginBottom: 8 }} />
-              <TextInput label="Date d'embauche (YYYY-MM-DD)" value={form.date_embauche} onChangeText={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 8 }} />
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <TextInput label="Nom *" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Prénom *" value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} style={{ marginBottom: 12 }} />
+
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Poste *</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir un poste"
+                  value={form.poste}
+                  onChange={v => setForm(f => ({ ...f, poste: v }))}
+                  options={[
+                    { value: 'Ouvrier', label: 'Ouvrier' },
+                    { value: "Chef d'équipe", label: "Chef d'équipe" },
+                    { value: 'Technicien', label: 'Technicien' },
+                    { value: 'Chauffeur', label: 'Chauffeur' },
+                    { value: 'Autre', label: 'Autre' },
+                  ]}
+                />
+              </View>
+
+              <TextInput label="Téléphone" value={form.telephone} onChangeText={v => setForm(f => ({ ...f, telephone: v }))} keyboardType="phone-pad" style={{ marginBottom: 12 }} />
+
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de contrat</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir un type"
+                  value={form.type_contrat}
+                  onChange={v => setForm(f => ({ ...f, type_contrat: v }))}
+                  options={[
+                    { value: 'permanent', label: 'Permanent' },
+                    { value: 'saisonnier', label: 'Saisonnier' },
+                  ]}
+                />
+              </View>
+
+              <TextInput label="Date d'embauche (YYYY-MM-DD)" value={form.date_embauche} onChangeText={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Date fin contrat (YYYY-MM-DD)" value={form.date_fin_contrat ?? ''} onChangeText={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <Text>Actif</Text>
                 <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} color="#2d7a4a" />
               </View>
+
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de salaire</Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
-                {['journalier', 'fixe'].map(t => (
-                  <Chip key={t} selected={form.type_salaire === t} onPress={() => setForm(f => ({ ...f, type_salaire: t }))}>{t}</Chip>
-                ))}
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir un type"
+                  value={form.type_salaire}
+                  onChange={v => setForm(f => ({ ...f, type_salaire: v }))}
+                  options={[
+                    { value: 'journalier', label: 'Tarif journalier (DT/jour)' },
+                    { value: 'fixe', label: 'Salaire fixe (DT/mois)' },
+                  ]}
+                />
               </View>
+
               {form.type_salaire === 'journalier'
-                ? <TextInput label="Tarif journalier (DH)" value={form.tarif_journalier} onChangeText={v => setForm(f => ({ ...f, tarif_journalier: v }))} keyboardType="numeric" />
-                : <TextInput label="Salaire fixe (DH/mois)" value={form.salaire_fixe} onChangeText={v => setForm(f => ({ ...f, salaire_fixe: v }))} keyboardType="numeric" />
+                ? <TextInput label="Tarif journalier (DT/jour)" value={form.tarif_journalier} onChangeText={v => setForm(f => ({ ...f, tarif_journalier: v }))} keyboardType="numeric" />
+                : <TextInput label="Salaire fixe (DT/mois)" value={form.salaire_fixe} onChangeText={v => setForm(f => ({ ...f, salaire_fixe: v }))} keyboardType="numeric" />
               }
             </ScrollView>
           </Dialog.Content>
