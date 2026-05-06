@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
+import SelectFilter from '../../components/SelectFilter';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
 import { useData } from '../../contexts/DataContext';
@@ -139,18 +140,28 @@ export default function ParcellesSecteurs({ navigation }) {
                 <TextInput label="Surface (ha)" value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                 <TextInput label="Nombre d'arbres" value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                 <TextInput label="Âge moyen (ans)" value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                <Text variant="labelMedium">Statut</Text>
-                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
-                  {['actif', 'jeune', 'inactif'].map(s => (
-                    <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>
-                  ))}
+                <Text variant="labelMedium" style={{ marginBottom: 4 }}>Variété *</Text>
+                <View style={{ marginBottom: 12 }}>
+                  <SelectFilter
+                    label="Choisir une variété"
+                    value={form.variete_id}
+                    onChange={v => setForm(f => ({ ...f, variete_id: v }))}
+                    options={varietes.map(v => ({ value: String(v.id_variete), label: v.nom }))}
+                  />
                 </View>
-                <Text variant="labelMedium" style={{ marginBottom: 4 }}>Variété</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {varietes.map(v => (
-                    <Chip key={v.id_variete} selected={form.variete_id === String(v.id_variete)} onPress={() => setForm(f => ({ ...f, variete_id: String(v.id_variete) }))} style={{ marginRight: 6 }}>{v.nom}</Chip>
-                  ))}
-                </ScrollView>
+                <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+                <View style={{ marginBottom: 8 }}>
+                  <SelectFilter
+                    label="Choisir un statut"
+                    value={form.statut}
+                    onChange={v => setForm(f => ({ ...f, statut: v }))}
+                    options={[
+                      { value: 'actif', label: 'En production' },
+                      { value: 'jeune', label: 'Jeune' },
+                      { value: 'inactif', label: 'Inactif' },
+                    ]}
+                  />
+                </View>
               </>
             )}
           </Dialog.Content>

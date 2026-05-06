@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar, Chip } from 'react-native-paper';
+import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import SelectFilter from '../../components/SelectFilter';
@@ -21,7 +21,8 @@ export default function Recoltes({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ campagne: '', production: '', secteur_id: '', huile: '', prix: '', frais: '' });
+  const [form, setForm] = useState({ campagne: '', date: '', production: '', secteur_id: '', huile: '', prix: '', frais: '' });
+  const [formParcelle, setFormParcelle] = useState('');
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [expandedCampagne, setExpandedCampagne] = useState(null);
@@ -78,18 +79,19 @@ export default function Recoltes({ navigation }) {
     return { production, huile, revenu, frais, marge: revenu - frais };
   };
 
-  const openCreate = () => { setEditing(null); setForm({ campagne: '', production: '', secteur_id: '', huile: '', prix: '', frais: '' }); setDialogVisible(true); };
+  const openCreate = () => { setEditing(null); setFormParcelle(''); setForm({ campagne: '', date: '', production: '', secteur_id: '', huile: '', prix: '', frais: '' }); setDialogVisible(true); };
   const openEdit = (r) => {
     const a = getAnalyse(r.id_recolte);
     setEditing(r);
-    setForm({ campagne: r.campagne, production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), huile: String(a?.huile ?? ''), prix: String(a?.prix ?? ''), frais: String(a?.frais ?? '') });
+    setFormParcelle('');
+    setForm({ campagne: r.campagne, date: r.date ?? '', production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), huile: String(a?.huile ?? ''), prix: String(a?.prix ?? ''), frais: String(a?.frais ?? '') });
     setDialogVisible(true);
   };
 
   const save = async () => {
     setSaving(true);
     try {
-      const payload = { campagne: form.campagne, production: parseFloat(form.production) || 0, secteur_id: parseInt(form.secteur_id) || null };
+      const payload = { campagne: form.campagne, date: form.date || null, production: parseFloat(form.production) || 0, secteur_id: parseInt(form.secteur_id) || null };
       let recolteId;
       if (editing) {
         await client.put(`/recoltes/${editing.id_recolte}`, payload);
@@ -120,6 +122,10 @@ export default function Recoltes({ navigation }) {
     } catch { setSnack("Erreur lors de l'envoi"); }
     setDemandeItem(null); setMotif('');
   };
+
+  const secteursForForm = formParcelle
+    ? secteurs.filter(s => String(s.parcelle_id) === formParcelle)
+    : secteurs;
 
   if (loading) return <LoadingOverlay />;
 
@@ -208,19 +214,39 @@ export default function Recoltes({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une récolte</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Campagne (ex: 24/25)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 8 }} />
-            <TextInput label="Production (kg)" value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {secteurs.map(s => (
-                <Chip key={s.id_secteur} selected={form.secteur_id === String(s.id_secteur)} onPress={() => setForm(f => ({ ...f, secteur_id: String(s.id_secteur) }))} style={{ marginRight: 6 }}>{s.nom}</Chip>
-              ))}
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <TextInput label="Campagne (ex: 25/26)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 12 }} />
+
+              <TextInput label="Date (YYYY-MM-DD)" value={form.date ?? ''} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Parcelle *</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir une parcelle"
+                  value={formParcelle}
+                  onChange={v => { setFormParcelle(v); setForm(f => ({ ...f, secteur_id: '' })); }}
+                  options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
+                />
+              </View>
+
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter
+                  label="Choisir un secteur"
+                  value={form.secteur_id}
+                  onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
+                  options={secteursForForm.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+                />
+              </View>
+
+              <TextInput label="Production (kg)" value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+
+              <Divider style={{ marginBottom: 12 }} />
+              <Text variant="labelMedium" style={{ marginBottom: 8 }}>Analyse</Text>
+              <TextInput label="Huile (L)" value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label="Prix (DT/L)" value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label="Frais de traitement (DT)" value={form.frais} onChangeText={v => setForm(f => ({ ...f, frais: v }))} keyboardType="numeric" />
             </ScrollView>
-            <Divider style={{ marginVertical: 8 }} />
-            <Text variant="labelMedium" style={{ marginBottom: 4 }}>Analyse</Text>
-            <TextInput label="Huile (L)" value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <TextInput label="Prix (DH/L)" value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-            <TextInput label="Frais de traitement (DH)" value={form.frais} onChangeText={v => setForm(f => ({ ...f, frais: v }))} keyboardType="numeric" />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
