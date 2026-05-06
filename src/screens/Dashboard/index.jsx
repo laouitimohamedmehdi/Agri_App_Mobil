@@ -12,7 +12,7 @@ const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
-  const { secteurs } = useData();
+  const { secteurs, employes } = useData();
   const isAdmin = user?.role === 'admin';
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -157,7 +157,11 @@ export default function DashboardScreen({ navigation }) {
             {data.feuille.lignes.map((l, i) => (
               <List.Item
                 key={i}
-                title={l.nom_temp || `Employé ${l.employe_id}`}
+                title={(() => {
+                  if (l.nom_temp) return l.nom_temp;
+                  const emp = employes.find(e => e.id_employe === l.employe_id);
+                  return emp ? `${emp.nom} ${emp.prenom ?? ''}`.trim() : `Employé ${l.employe_id}`;
+                })()}
                 description={`${l.nb_jours_present ?? 0} jours`}
                 left={props => <List.Icon {...props} icon="account-clock" />}
               />
