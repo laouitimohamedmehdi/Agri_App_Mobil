@@ -221,7 +221,7 @@ export default function Recoltes({ navigation }) {
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Parcelle *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir une parcelle"
                   value={formParcelle}
                   onChange={v => { setFormParcelle(v); setForm(f => ({ ...f, secteur_id: '' })); }}
@@ -231,7 +231,7 @@ export default function Recoltes({ navigation }) {
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un secteur"
                   value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}

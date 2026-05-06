@@ -142,7 +142,7 @@ export default function ParcellesSecteurs({ navigation }) {
                 <TextInput label="Âge moyen (ans)" value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                 <Text variant="labelMedium" style={{ marginBottom: 4 }}>Variété *</Text>
                 <View style={{ marginBottom: 12 }}>
-                  <SelectFilter
+                  <SelectFilter noAll
                     label="Choisir une variété"
                     value={form.variete_id}
                     onChange={v => setForm(f => ({ ...f, variete_id: v }))}
@@ -151,7 +151,7 @@ export default function ParcellesSecteurs({ navigation }) {
                 </View>
                 <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
                 <View style={{ marginBottom: 8 }}>
-                  <SelectFilter
+                  <SelectFilter noAll
                     label="Choisir un statut"
                     value={form.statut}
                     onChange={v => setForm(f => ({ ...f, statut: v }))}

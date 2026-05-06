@@ -147,7 +147,7 @@ export default function RH({ navigation }) {
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Poste *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un poste"
                   value={form.poste}
                   onChange={v => setForm(f => ({ ...f, poste: v }))}
@@ -165,7 +165,7 @@ export default function RH({ navigation }) {
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de contrat</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un type"
                   value={form.type_contrat}
                   onChange={v => setForm(f => ({ ...f, type_contrat: v }))}
@@ -186,7 +186,7 @@ export default function RH({ navigation }) {
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de salaire</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un type"
                   value={form.type_salaire}
                   onChange={v => setForm(f => ({ ...f, type_salaire: v }))}

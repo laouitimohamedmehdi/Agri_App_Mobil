@@ -121,7 +121,7 @@ export default function Utilisateurs({ navigation }) {
             <TextInput label={editing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry style={{ marginBottom: 8 }} />
             <Text variant="labelMedium" style={{ marginBottom: 4 }}>Rôle</Text>
             <View style={{ marginBottom: 12 }}>
-              <SelectFilter
+              <SelectFilter noAll
                 label="Choisir un rôle"
                 value={form.role}
                 onChange={v => setForm(f => ({ ...f, role: v }))}
