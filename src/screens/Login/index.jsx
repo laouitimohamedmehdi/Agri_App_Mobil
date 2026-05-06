@@ -36,6 +36,7 @@ export default function LoginScreen() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          maxLength={50}
           style={styles.input}
         />
         <TextInput
@@ -43,6 +44,7 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
           secureTextEntry={secure}
+          maxLength={50}
           right={<TextInput.Icon icon={secure ? 'eye' : 'eye-off'} onPress={() => setSecure(!secure)} />}
           style={styles.input}
         />

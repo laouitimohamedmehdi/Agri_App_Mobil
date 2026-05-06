@@ -254,7 +254,7 @@ export default function Fertilisation({ navigation }) {
           <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
+              <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label="Produit" value={demandeForm.produit} onChange={v => setDemandeForm(f => ({ ...f, produit: v }))} options={[{ value: 'Fumier de ferme', label: 'Fumier de ferme' }, { value: 'D.A.P', label: 'D.A.P' }, { value: 'Super 45', label: 'Super 45' }, { value: 'Urée', label: 'Urée' }, { value: 'NPK', label: 'NPK' }, { value: 'Compost', label: 'Compost' }, { value: 'Autre', label: 'Autre' }]} />
@@ -272,7 +272,7 @@ export default function Fertilisation({ navigation }) {
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
           <Dialog.Title>Demande de suppression</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline />
+            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>

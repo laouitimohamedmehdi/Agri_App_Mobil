@@ -260,7 +260,7 @@ export default function Recoltes({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une récolte</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Campagne (ex: 25/26)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Campagne (ex: 25/26)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
 
               <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
 
@@ -301,8 +301,8 @@ export default function Recoltes({ navigation }) {
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
           <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
-            <TextInput label="Campagne" value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 12 }} />
+            <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
+            <TextInput label="Campagne" value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
             <TextInput label="Production (kg)" value={demandeForm.production} onChangeText={v => setDemandeForm(f => ({ ...f, production: v }))} keyboardType="numeric" />
           </Dialog.Content>
           <Dialog.Actions>
@@ -313,7 +313,7 @@ export default function Recoltes({ navigation }) {
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
           <Dialog.Title>Demande de suppression</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline />
+            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>

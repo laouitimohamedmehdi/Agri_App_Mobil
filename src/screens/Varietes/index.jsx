@@ -95,7 +95,7 @@ export default function Varietes({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une variété</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} />
+            <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
@@ -105,7 +105,7 @@ export default function Varietes({ navigation }) {
         <Dialog visible={!!demandeId} onDismiss={() => setDemandeId(null)}>
           <Dialog.Title>Demander la suppression</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif" value={motif} onChangeText={setMotif} multiline />
+            <TextInput label="Motif" value={motif} onChangeText={setMotif} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeId(null)}>Annuler</Button>

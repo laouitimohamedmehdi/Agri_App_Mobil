@@ -145,8 +145,8 @@ export default function RH({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un employé</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Nom *" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
-              <TextInput label="Prénom *" value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Nom *" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <TextInput label="Prénom *" value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Poste *</Text>
               <View style={{ marginBottom: 12 }}>

@@ -216,7 +216,7 @@ export default function TravailAgricole({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type *</Text>
               <View style={{ marginBottom: 12 }}>
@@ -265,8 +265,8 @@ export default function TravailAgricole({ navigation }) {
           <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
-              <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
+              <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label="Type" value={demandeForm.type} onChange={v => setDemandeForm(f => ({ ...f, type: v }))} options={TYPES.map(t => ({ value: t, label: t }))} />
@@ -288,7 +288,7 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
           <Dialog.Title>Demande de suppression</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline />
+            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>
