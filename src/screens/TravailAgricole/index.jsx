@@ -194,9 +194,14 @@ export default function TravailAgricole({ navigation }) {
             <ScrollView keyboardShouldPersistTaps="handled">
               <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
-                {TYPES.map(t => <Chip key={t} selected={form.type === t} onPress={() => setForm(f => ({ ...f, type: t }))} style={{ marginRight: 6 }}>{t}</Chip>)}
-              </ScrollView>
+              <View style={{ marginBottom: 8 }}>
+                <SelectFilter
+                  label="Choisir un type"
+                  value={form.type}
+                  onChange={v => setForm(f => ({ ...f, type: v }))}
+                  options={TYPES.map(t => ({ value: t, label: t }))}
+                />
+              </View>
               <TextInput label="Coût (DH)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
               <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
               <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
@@ -238,6 +243,6 @@ const styles = StyleSheet.create({
   tableHeader: { flexDirection: 'row', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 8, borderBottomWidth: 2, borderColor: '#2d7a4a' },
   tableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
   tableRowAlt: { backgroundColor: '#f0f7f0' },
-  th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a' },
-  td: { fontSize: 12, color: '#333' },
+  th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a', paddingRight: 8 },
+  td: { fontSize: 12, color: '#333', paddingRight: 8 },
 });
