@@ -32,8 +32,11 @@ export default function TravailAgricole({ navigation }) {
   const [form, setForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '' });
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
-  const [demandeItem, setDemandeItem] = useState(null);
-  const [motif, setMotif] = useState('');
+  const [demandeSupprItem, setDemandeSupprItem] = useState(null);
+  const [demandeModifItem, setDemandeModifItem] = useState(null);
+  const [motifSuppr, setMotifSuppr] = useState('');
+  const [demandeForm, setDemandeForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', motif: '' });
+  const [savingDemande, setSavingDemande] = useState(false);
   const [snack, setSnack] = useState('');
 
   useEffect(() => { fetchTravaux(); }, []);
@@ -92,12 +95,28 @@ export default function TravailAgricole({ navigation }) {
     setConfirmId(null);
   };
 
-  const envoyerDemande = async () => {
+  const openDemandeModif = (t) => {
+    setDemandeModifItem(t);
+    setDemandeForm({ nom: t.nom, type: t.type ?? 'Taille', cout: String(t.cout ?? ''), m_o: String(t.m_o ?? ''), date: t.date ?? '', statut: t.statut, secteur_id: String(t.secteur_id ?? ''), motif: '' });
+  };
+
+  const envoyerDemandeModif = async () => {
+    setSavingDemande(true);
     try {
-      await soumettreDemande({ type_action: 'suppression', entity_type: 'travail', travail_id: demandeItem.id_travail, motif });
-      setSnack('Demande envoyée');
+      const { motif: m, ...data } = demandeForm;
+      await soumettreDemande({ type_action: 'modification', entity_type: 'travail', travail_id: demandeModifItem.id_travail, motif: m, nouvelles_donnees: { nom: data.nom, type: data.type, cout: parseFloat(data.cout) || 0, m_o: parseInt(data.m_o) || 0, date: data.date, statut: data.statut, secteur_id: parseInt(data.secteur_id) || null } });
+      setSnack('Demande de modification envoyée');
+      setDemandeModifItem(null);
     } catch { setSnack("Erreur lors de l'envoi"); }
-    setDemandeItem(null); setMotif('');
+    finally { setSavingDemande(false); }
+  };
+
+  const envoyerDemandeSuppr = async () => {
+    try {
+      await soumettreDemande({ type_action: 'suppression', entity_type: 'travail', travail_id: demandeSupprItem.id_travail, motif: motifSuppr });
+      setSnack('Demande de suppression envoyée');
+    } catch { setSnack("Erreur lors de l'envoi"); }
+    setDemandeSupprItem(null); setMotifSuppr('');
   };
 
   const annees = [...new Set(travaux.map(t => t.date?.slice(0, 4)).filter(Boolean))].sort().reverse();
@@ -177,7 +196,10 @@ export default function TravailAgricole({ navigation }) {
                         <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
                       </>
                     ) : (
-                      <Button compact icon="file-send" onPress={() => { setDemandeItem(t); setMotif(''); }} textColor="#fa8c16" />
+                      <View style={{ flexDirection: 'row' }}>
+                        <Button icon="pencil" compact onPress={() => openDemandeModif(t)} textColor="#1677ff" />
+                        <Button icon="delete" compact onPress={() => { setDemandeSupprItem(t); setMotifSuppr(''); }} textColor="#ff4d4f" />
+                      </View>
                     )}
                   </View>
                 </View>
@@ -237,14 +259,38 @@ export default function TravailAgricole({ navigation }) {
             <Button onPress={save} loading={saving}>Enregistrer</Button>
           </Dialog.Actions>
         </Dialog>
-        <Dialog visible={!!demandeItem} onDismiss={() => setDemandeItem(null)}>
-          <Dialog.Title>Soumettre une demande</Dialog.Title>
+        <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
+          <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif" value={motif} onChangeText={setMotif} multiline />
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
+              <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 12 }} />
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter noAll label="Type" value={demandeForm.type} onChange={v => setDemandeForm(f => ({ ...f, type: v }))} options={TYPES.map(t => ({ value: t, label: t }))} />
+              </View>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter noAll label="Statut" value={demandeForm.statut} onChange={v => setDemandeForm(f => ({ ...f, statut: v }))} options={[{ value: 'planifie', label: 'Planifié' }, { value: 'actif', label: 'En cours' }, { value: 'termine', label: 'Terminé' }]} />
+              </View>
+              <TextInput label="Coût (DT)" value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label="Date (YYYY-MM-DD)" value={demandeForm.date} onChangeText={v => setDemandeForm(f => ({ ...f, date: v }))} />
+            </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemande}>Envoyer</Button>
+            <Button onPress={() => setDemandeModifItem(null)}>Annuler</Button>
+            <Button onPress={envoyerDemandeModif} loading={savingDemande}>Envoyer</Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
+          <Dialog.Title>Demande de suppression</Dialog.Title>
+          <Dialog.Content>
+            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>
+            <Button onPress={envoyerDemandeSuppr}>Envoyer</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

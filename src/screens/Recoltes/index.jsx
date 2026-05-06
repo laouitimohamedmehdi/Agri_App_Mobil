@@ -26,8 +26,11 @@ export default function Recoltes({ navigation }) {
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [expandedCampagne, setExpandedCampagne] = useState(null);
-  const [demandeItem, setDemandeItem] = useState(null);
-  const [motif, setMotif] = useState('');
+  const [demandeSupprItem, setDemandeSupprItem] = useState(null);
+  const [demandeModifItem, setDemandeModifItem] = useState(null);
+  const [motifSuppr, setMotifSuppr] = useState('');
+  const [demandeForm, setDemandeForm] = useState({ campagne: '', production: '', secteur_id: '', motif: '' });
+  const [savingDemande, setSavingDemande] = useState(false);
   const [snack, setSnack] = useState('');
   const [filterCampagne, setFilterCampagne] = useState('');
   const [filterParcelle, setFilterParcelle] = useState('');
@@ -115,12 +118,28 @@ export default function Recoltes({ navigation }) {
     setConfirmId(null);
   };
 
-  const envoyerDemande = async () => {
+  const openDemandeModif = (r) => {
+    setDemandeModifItem(r);
+    setDemandeForm({ campagne: r.campagne, production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), motif: '' });
+  };
+
+  const envoyerDemandeModif = async () => {
+    setSavingDemande(true);
     try {
-      await soumettreDemande({ type_action: 'suppression', entity_type: 'recolte', entity_id: demandeItem.id_recolte, motif });
-      setSnack('Demande envoyée');
+      const { motif: m, ...data } = demandeForm;
+      await soumettreDemande({ type_action: 'modification', entity_type: 'recolte', entity_id: demandeModifItem.id_recolte, motif: m, nouvelles_donnees: { campagne: data.campagne, production: parseFloat(data.production) || 0, secteur_id: parseInt(data.secteur_id) || null } });
+      setSnack('Demande de modification envoyée');
+      setDemandeModifItem(null);
     } catch { setSnack("Erreur lors de l'envoi"); }
-    setDemandeItem(null); setMotif('');
+    finally { setSavingDemande(false); }
+  };
+
+  const envoyerDemandeSuppr = async () => {
+    try {
+      await soumettreDemande({ type_action: 'suppression', entity_type: 'recolte', entity_id: demandeSupprItem.id_recolte, motif: motifSuppr });
+      setSnack('Demande de suppression envoyée');
+    } catch { setSnack("Erreur lors de l'envoi"); }
+    setDemandeSupprItem(null); setMotifSuppr('');
   };
 
   const secteursForForm = formParcelle
@@ -214,13 +233,14 @@ export default function Recoltes({ navigation }) {
                           <Button icon="delete" compact onPress={() => setConfirmId(r.id_recolte)} textColor="#ff4d4f" />
                         </View>
                       ) : (
-                        <TouchableOpacity
-                          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#fa8c16' }}
-                          onPress={() => { setDemandeItem(r); setMotif(''); }}
-                        >
-                          <MaterialCommunityIcons name="file-send-outline" size={16} color="#fa8c16" />
-                          <Text style={{ fontSize: 12, color: '#fa8c16', fontWeight: '600' }}>Demande</Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: 4 }}>
+                          <TouchableOpacity style={{ padding: 6, borderRadius: 6, borderWidth: 1, borderColor: '#1677ff' }} onPress={() => openDemandeModif(r)}>
+                            <MaterialCommunityIcons name="pencil-outline" size={18} color="#1677ff" />
+                          </TouchableOpacity>
+                          <TouchableOpacity style={{ padding: 6, borderRadius: 6, borderWidth: 1, borderColor: '#ff4d4f' }} onPress={() => { setDemandeSupprItem(r); setMotifSuppr(''); }}>
+                            <MaterialCommunityIcons name="delete-outline" size={18} color="#ff4d4f" />
+                          </TouchableOpacity>
+                        </View>
                       )}
                     </View>
                   );
@@ -275,14 +295,26 @@ export default function Recoltes({ navigation }) {
             <Button onPress={save} loading={saving}>Enregistrer</Button>
           </Dialog.Actions>
         </Dialog>
-        <Dialog visible={!!demandeItem} onDismiss={() => setDemandeItem(null)}>
-          <Dialog.Title>Soumettre une demande</Dialog.Title>
+        <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
+          <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif" value={motif} onChangeText={setMotif} multiline />
+            <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline style={{ marginBottom: 12 }} />
+            <TextInput label="Campagne" value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} style={{ marginBottom: 12 }} />
+            <TextInput label="Production (kg)" value={demandeForm.production} onChangeText={v => setDemandeForm(f => ({ ...f, production: v }))} keyboardType="numeric" />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemande}>Envoyer</Button>
+            <Button onPress={() => setDemandeModifItem(null)}>Annuler</Button>
+            <Button onPress={envoyerDemandeModif} loading={savingDemande}>Envoyer</Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
+          <Dialog.Title>Demande de suppression</Dialog.Title>
+          <Dialog.Content>
+            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>
+            <Button onPress={envoyerDemandeSuppr}>Envoyer</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
