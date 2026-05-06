@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
 import { DrawerContext } from '../contexts/DrawerContext';
-import { navigationRef } from '../../App';
+import { navigationRef } from './navigationRef';
 import DashboardScreen from '../screens/Dashboard';
 import TravailAgricoleScreen from '../screens/TravailAgricole';
 import RecoltesScreen from '../screens/Recoltes';
