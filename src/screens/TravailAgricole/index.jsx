@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { DataTable, FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -105,34 +104,23 @@ export default function TravailAgricole({ navigation }) {
     <View style={{ flex: 1 }}>
       <AppHeader title="Travaux Agricoles" navigation={navigation} />
       <View style={styles.filtersContainer}>
-        <View style={{ flexDirection: 'row', gap: 6 }}>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterParcelle} onValueChange={v => { setFilterParcelle(v); setFilterSecteur(''); }} style={styles.picker}>
-              <Picker.Item label="Toutes parcelles" value="" />
-              {parcelles.map(p => <Picker.Item key={p.id_parcelle} label={p.nom} value={String(p.id_parcelle)} />)}
-            </Picker>
-          </View>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterSecteur} onValueChange={setFilterSecteur} style={styles.picker}>
-              <Picker.Item label="Tous secteurs" value="" />
-              {secteursOfParcelle.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
-            </Picker>
-          </View>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterAnnee} onValueChange={setFilterAnnee} style={styles.picker}>
-              <Picker.Item label="Toutes années" value="" />
-              {annees.map(a => <Picker.Item key={a} label={a} value={a} />)}
-            </Picker>
-          </View>
-          <View style={styles.pickerWrap}>
-            <Picker selectedValue={filterType} onValueChange={setFilterType} style={styles.picker}>
-              <Picker.Item label="Tous types" value="" />
-              {TYPES.map(t => <Picker.Item key={t} label={t} value={t} />)}
-            </Picker>
-          </View>
-        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <Chip selected={!filterParcelle} onPress={() => { setFilterParcelle(''); setFilterSecteur(''); }} style={styles.chip}>Toutes parcelles</Chip>
+          {parcelles.map(p => (
+            <Chip key={p.id_parcelle} selected={filterParcelle === String(p.id_parcelle)} onPress={() => { setFilterParcelle(String(p.id_parcelle)); setFilterSecteur(''); }} style={styles.chip}>{p.nom}</Chip>
+          ))}
+          {secteursOfParcelle.map(s => (
+            <Chip key={s.id_secteur} selected={filterSecteur === String(s.id_secteur)} onPress={() => setFilterSecteur(filterSecteur === String(s.id_secteur) ? '' : String(s.id_secteur))} style={styles.chip}>{s.nom}</Chip>
+          ))}
+        </ScrollView>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}>
+          {annees.map(a => (
+            <Chip key={a} selected={filterAnnee === a} onPress={() => setFilterAnnee(filterAnnee === a ? '' : a)} style={styles.chip}>{a}</Chip>
+          ))}
+          {TYPES.map(t => (
+            <Chip key={t} selected={filterType === t} onPress={() => setFilterType(filterType === t ? '' : t)} style={styles.chip}>{t}</Chip>
+          ))}
+        </ScrollView>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView horizontal style={{ flex: 1 }}>
@@ -186,22 +174,21 @@ export default function TravailAgricole({ navigation }) {
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled">
               <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
-              <Text variant="labelMedium">Type</Text>
-              <Picker selectedValue={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
-                {TYPES.map(t => <Picker.Item key={t} label={t} value={t} />)}
-              </Picker>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+                {TYPES.map(t => <Chip key={t} selected={form.type === t} onPress={() => setForm(f => ({ ...f, type: t }))} style={{ marginRight: 6 }}>{t}</Chip>)}
+              </ScrollView>
               <TextInput label="Coût (DH)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
               <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
               <TextInput label="Date (YYYY-MM-DD)" value={form.date} onChangeText={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 8 }} />
-              <Text variant="labelMedium">Statut</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
               <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
                 {STATUTS.map(s => <Chip key={s} selected={form.statut === s} onPress={() => setForm(f => ({ ...f, statut: s }))}>{s}</Chip>)}
               </View>
-              <Text variant="labelMedium">Secteur</Text>
-              <Picker selectedValue={form.secteur_id} onValueChange={v => setForm(f => ({ ...f, secteur_id: v }))}>
-                <Picker.Item label="Sélectionner..." value="" />
-                {secteurs.map(s => <Picker.Item key={s.id_secteur} label={s.nom} value={String(s.id_secteur)} />)}
-              </Picker>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {secteurs.map(s => <Chip key={s.id_secteur} selected={form.secteur_id === String(s.id_secteur)} onPress={() => setForm(f => ({ ...f, secteur_id: String(s.id_secteur) }))} style={{ marginRight: 6 }}>{s.nom}</Chip>)}
+              </ScrollView>
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
@@ -227,7 +214,6 @@ export default function TravailAgricole({ navigation }) {
 }
 const styles = StyleSheet.create({
   filtersContainer: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8 },
-  pickerWrap: { width: '49%', borderWidth: 1, borderColor: '#ccc', borderRadius: 4 },
-  picker: { height: 44 },
+  chip: { marginRight: 6 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
 });
