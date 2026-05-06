@@ -60,12 +60,13 @@ export default function DashboardScreen({ navigation }) {
     (data?.recoltes || []).reduce((acc, r) => { const k = r.campagne || 'Sans'; acc[k] = (acc[k] || 0) + (r.production || 0); return acc; }, {})
   ).map(([label, value]) => ({ label, value, frontColor: '#2d7a4a' }));
 
-  const pieData = [
-    { value: fraisTraitement, color: '#fa8c16', text: 'Frais récolte' },
-    { value: totalCoutTravaux, color: '#ff4d4f', text: 'Travaux' },
-    { value: chargesFertilisation, color: '#13c2c2', text: 'Fertilisation' },
-    { value: totalSalaires, color: '#722ed1', text: 'Salaires' },
+  const PIE_ITEMS = [
+    { key: 'frais',   value: fraisTraitement,    color: '#fa8c16', label: 'Frais récolte' },
+    { key: 'travaux', value: totalCoutTravaux,    color: '#ff4d4f', label: 'Travaux'       },
+    { key: 'fert',    value: chargesFertilisation, color: '#13c2c2', label: 'Fertilisation' },
+    { key: 'sal',     value: totalSalaires,       color: '#722ed1', label: 'Salaires'      },
   ].filter(d => d.value > 0);
+  const pieData = PIE_ITEMS.map(d => ({ value: d.value, color: d.color }));
 
   const getEmployeNom = (l) => {
     if (l.nom_temp) return l.nom_temp;
@@ -124,15 +125,22 @@ export default function DashboardScreen({ navigation }) {
           <>
             <SectionHeader icon="chart-pie" title="Répartition des charges" />
             <Card style={styles.chartCard}>
-              <View style={{ alignItems: 'center' }}>
-                <PieChart data={pieData} radius={70} innerRadius={35} />
-                <View style={{ flexDirection: 'row', gap: 20, marginTop: 12 }}>
-                  {pieData.map(d => (
-                    <View key={d.text} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color }} />
-                      <Text variant="bodySmall" style={{ color: '#555' }}>{d.text} — {d.value.toFixed(0)} DH</Text>
-                    </View>
-                  ))}
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <PieChart data={pieData} radius={80} />
+                <View style={{ flex: 1, marginLeft: 16 }}>
+                  {PIE_ITEMS.map(d => {
+                    const total = PIE_ITEMS.reduce((s, x) => s + x.value, 0);
+                    const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
+                    return (
+                      <View key={d.key} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                        <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: d.color, marginRight: 8 }} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }}>{d.label}</Text>
+                          <Text style={{ fontSize: 10, color: '#888' }}>{d.value.toFixed(0)} DH · {pct}%</Text>
+                        </View>
+                      </View>
+                    );
+                  })}
                 </View>
               </View>
             </Card>
@@ -199,10 +207,12 @@ function SectionHeader({ icon, title }) {
 function KpiCard({ label, value, color, borderColor, icon, bg }) {
   return (
     <Card style={[styles.kpiCard, { borderTopColor: borderColor, backgroundColor: bg }]}>
-      <Card.Content style={{ alignItems: 'center', padding: 10 }}>
-        <MaterialCommunityIcons name={icon} size={22} color={color} style={{ marginBottom: 4 }} />
-        <Text variant="titleMedium" style={{ color, fontWeight: 'bold' }}>{value}</Text>
-        <Text variant="bodySmall" style={{ color: '#666', textAlign: 'center', fontSize: 10 }}>{label}</Text>
+      <Card.Content style={{ padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <MaterialCommunityIcons name={icon} size={20} color={color} />
+        <View style={{ flex: 1 }}>
+          <Text numberOfLines={1} style={{ color, fontWeight: 'bold', fontSize: 13 }}>{value}</Text>
+          <Text numberOfLines={1} style={{ color: '#666', fontSize: 10 }}>{label}</Text>
+        </View>
       </Card.Content>
     </Card>
   );
@@ -226,7 +236,7 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 16 },
   sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
   kpiRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  kpiCard: { flex: 1, minWidth: 80, borderTopWidth: 3, elevation: 2 },
+  kpiCard: { flex: 1, minWidth: 140, borderTopWidth: 3, elevation: 2 },
   financeRow: { flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, borderRadius: 8, padding: 12, marginBottom: 8, elevation: 1 },
   chartCard: { padding: 12, marginBottom: 4, elevation: 2 },
   listCard: { elevation: 2, overflow: 'hidden' },
