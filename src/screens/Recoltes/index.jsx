@@ -164,20 +164,31 @@ export default function Recoltes({ navigation }) {
               <List.Accordion
                 key={campagne}
                 title={campagne}
-                description={`${stats.production.toLocaleString()} kg • Marge : ${stats.marge.toFixed(0)} DT`}
+                description={isAdmin
+                  ? `${stats.production.toLocaleString()} kg • Marge : ${stats.marge.toFixed(0)} DT`
+                  : `${stats.production.toLocaleString()} kg`}
                 expanded={expandedCampagne === campagne}
                 onPress={() => setExpandedCampagne(expandedCampagne === campagne ? null : campagne)}
                 left={props => <List.Icon {...props} icon="basket" />}
                 style={{ backgroundColor: '#f6faf3', marginBottom: 8, borderRadius: 8 }}
                 titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
               >
-                <View style={styles.financeRow}>
-                  <StatBadge label="Production" value={`${stats.production.toLocaleString()} kg`} />
-                  <StatBadge label="Huile" value={`${stats.huile.toLocaleString()} L`} />
-                  <StatBadge label="Revenu brut" value={`${stats.revenu.toFixed(0)} DT`} />
-                  <StatBadge label="Frais" value={`${stats.frais.toFixed(0)} DT`} color="#c0392b" />
-                  <StatBadge label="Marge nette" value={`${stats.marge.toFixed(0)} DT`} color={stats.marge >= 0 ? '#2d7a4a' : '#c0392b'} />
-                </View>
+                {isAdmin && (
+                  <View style={styles.financeRow}>
+                    <StatBadge label="Production" value={`${stats.production.toLocaleString()} kg`} />
+                    <StatBadge label="Huile" value={`${stats.huile.toLocaleString()} L`} />
+                    <StatBadge label="Revenu brut" value={`${stats.revenu.toFixed(0)} DT`} />
+                    <StatBadge label="Frais" value={`${stats.frais.toFixed(0)} DT`} color="#c0392b" />
+                    <StatBadge label="Marge nette" value={`${stats.marge.toFixed(0)} DT`} color={stats.marge >= 0 ? '#2d7a4a' : '#c0392b'} />
+                  </View>
+                )}
+                {!isAdmin && (
+                  <View style={{ padding: 8, backgroundColor: '#f6faf3' }}>
+                    <Text variant="bodySmall" style={{ color: '#2d7a4a' }}>
+                      Production totale : <Text style={{ fontWeight: 'bold' }}>{stats.production.toLocaleString()} kg</Text>
+                    </Text>
+                  </View>
+                )}
                 <Divider />
                 {items.map(r => {
                   const a = getAnalyse(r.id_recolte);
@@ -187,7 +198,7 @@ export default function Recoltes({ navigation }) {
                         <Text variant="bodyMedium">{getSecteurNom(r.secteur_id)}</Text>
                         <Text variant="bodySmall" style={{ color: '#666' }}>
                           {r.production?.toLocaleString()} kg
-                          {a ? ` • Huile : ${a.huile} L • Prix : ${a.prix} DT/L` : ''}
+                          {isAdmin && a ? ` • Huile : ${a.huile} L • Prix : ${a.prix} DT/L` : ''}
                         </Text>
                       </View>
                       {isAdmin ? (

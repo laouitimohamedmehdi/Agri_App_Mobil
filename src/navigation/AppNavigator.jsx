@@ -66,13 +66,17 @@ function TabsWithDrawer() {
 
   const menuItems = [
     { label: 'Dashboard', icon: 'view-dashboard', tab: 'Dashboard' },
+    { label: 'Présences', icon: 'account-clock', tab: 'Présences' },
+    { divider: true, title: 'EXPLOITATION' },
     { label: 'Parcelles & Secteurs', icon: 'map-marker-multiple', screen: 'ParcellesSecteurs' },
+    { divider: true, title: 'PRODUCTION' },
     { label: 'Travaux Agricoles', icon: 'shovel', tab: 'Travaux' },
     { label: 'Récoltes', icon: 'basket', tab: 'Récoltes' },
     { label: 'Fertilisation', icon: 'sprout', screen: 'Fertilisation' },
+    { divider: true, title: 'RÉFÉRENTIEL' },
     { label: 'Variétés', icon: 'leaf', screen: 'Varietes' },
-    { label: 'Présences', icon: 'account-clock', tab: 'Présences' },
     ...(isAdmin ? [
+      { divider: true, title: 'ADMINISTRATION' },
       { label: 'RH', icon: 'account-group', screen: 'RH' },
       { label: 'Demandes', icon: 'file-document-outline', tab: 'Demandes' },
       { label: 'Utilisateurs', icon: 'account-cog', screen: 'Utilisateurs' },
@@ -112,12 +116,22 @@ function TabsWithDrawer() {
             </View>
             <Divider />
             <ScrollView>
-              {menuItems.map((item, i) => (
-                <TouchableOpacity key={i} style={styles.menuItem} onPress={() => navigateTo(item)}>
-                  <MaterialCommunityIcons name={item.icon} size={22} color="#2d7a4a" style={{ marginRight: 14 }} />
-                  <Text variant="bodyLarge">{item.label}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.map((item, i) => {
+                if (item.divider) {
+                  return (
+                    <View key={`div-${i}`} style={styles.menuSection}>
+                      <View style={styles.menuSectionLine} />
+                      <Text style={styles.menuSectionTitle}>{item.title}</Text>
+                    </View>
+                  );
+                }
+                return (
+                  <TouchableOpacity key={i} style={styles.menuItem} onPress={() => navigateTo(item)}>
+                    <MaterialCommunityIcons name={item.icon} size={20} color="#2d7a4a" style={{ marginRight: 14 }} />
+                    <Text variant="bodyMedium">{item.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
             <Divider />
             <TouchableOpacity style={styles.menuItem} onPress={() => { closeDrawer(); logout(); }}>
@@ -138,6 +152,9 @@ const styles = StyleSheet.create({
   drawerPanel: { width: 280, backgroundColor: '#fff', elevation: 16, shadowColor: '#000', shadowOffset: { width: -2, height: 0 }, shadowOpacity: 0.3, shadowRadius: 8 },
   drawerHeader: { padding: 20, alignItems: 'center' },
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 },
+  menuSection: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
+  menuSectionLine: { height: 1, backgroundColor: '#e8f0e4', marginBottom: 8 },
+  menuSectionTitle: { fontSize: 10, fontWeight: '700', color: '#b0bba8', letterSpacing: 1.2, textTransform: 'uppercase' },
 });
 
 export default function AppNavigator() {
