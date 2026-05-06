@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
+import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar, Searchbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import SelectFilter from '../../components/SelectFilter';
@@ -24,6 +24,8 @@ export default function ParcellesSecteurs({ navigation }) {
   const [confirmType, setConfirmType] = useState(null);
   const [snack, setSnack] = useState('');
   const [expandedParcelle, setExpandedParcelle] = useState(null);
+  const [filterParcelle, setFilterParcelle] = useState('');
+  const [filterSecteur, setFilterSecteur] = useState('');
 
   const secteursOfParcelle = (parcelleId) => secteurs.filter(s => s.parcelle_id === parcelleId);
   const getVarieteNom = (id) => varietes.find(v => v.id_variete === id)?.nom || '-';
@@ -79,9 +81,30 @@ export default function ParcellesSecteurs({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Parcelles & Secteurs" navigation={navigation} />
+
+      {/* Filtres */}
+      <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0' }}>
+        <Searchbar
+          placeholder="Filtrer par parcelle..."
+          value={filterParcelle}
+          onChangeText={setFilterParcelle}
+          style={{ marginBottom: 6, height: 40, elevation: 0, backgroundColor: '#f5f5f5' }}
+          inputStyle={{ fontSize: 13 }}
+        />
+        <Searchbar
+          placeholder="Filtrer par secteur..."
+          value={filterSecteur}
+          onChangeText={setFilterSecteur}
+          style={{ height: 40, elevation: 0, backgroundColor: '#f5f5f5' }}
+          inputStyle={{ fontSize: 13 }}
+        />
+      </View>
+
       <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
         {parcelles.length === 0 && <EmptyState message="Aucune parcelle enregistrée" />}
-        {parcelles.map(p => (
+        {parcelles
+          .filter(p => !filterParcelle || p.nom.toLowerCase().includes(filterParcelle.toLowerCase()))
+          .map(p => (
           <List.Accordion
             key={p.id_parcelle}
             title={p.nom}
@@ -98,7 +121,9 @@ export default function ParcellesSecteurs({ navigation }) {
                 <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>Supprimer</Button>
               </View>
             )}
-            {secteursOfParcelle(p.id_parcelle).map(s => (
+            {secteursOfParcelle(p.id_parcelle)
+              .filter(s => !filterSecteur || s.nom.toLowerCase().includes(filterSecteur.toLowerCase()))
+              .map(s => (
               <View key={s.id_secteur} style={styles.secteurCard}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text variant="titleSmall" style={{ color: '#2d7a4a' }}>{s.nom}</Text>
@@ -129,7 +154,7 @@ export default function ParcellesSecteurs({ navigation }) {
           </List.Accordion>
         ))}
       </ScrollView>
-      {isAdmin && <FAB icon="plus" label="Parcelle" style={styles.fab} onPress={openCreateParcelle} />}
+      {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreateParcelle} />}
       <Portal>
         <Dialog visible={!!dialogType} onDismiss={() => setDialogType(null)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} {dialogType === 'parcelle' ? 'une parcelle' : 'un secteur'}</Dialog.Title>
