@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+const SCREEN_H = Dimensions.get('window').height;
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -159,6 +160,7 @@ export default function ParcellesSecteurs({ navigation }) {
         <Dialog visible={!!dialogType} onDismiss={() => setDialogType(null)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} {dialogType === 'parcelle' ? 'une parcelle' : 'un secteur'}</Dialog.Title>
           <Dialog.Content>
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
             <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
             {dialogType === 'secteur' && (
               <>
@@ -189,6 +191,7 @@ export default function ParcellesSecteurs({ navigation }) {
                 </View>
               </>
             )}
+            </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogType(null)}>Annuler</Button>
