@@ -10,7 +10,7 @@ import { Menu, Button } from 'react-native-paper';
  * @param {Array} options    [{value, label}]
  * @param {object} style     Style optionnel sur le bouton
  */
-export default function SelectFilter({ label, value, onChange, options, style }) {
+export default function SelectFilter({ label, value, onChange, options, style, noAll }) {
   const [visible, setVisible] = useState(false);
   const selected = options.find(o => String(o.value) === String(value));
   const isActive = value !== '' && value !== null && value !== undefined;
@@ -33,11 +33,13 @@ export default function SelectFilter({ label, value, onChange, options, style })
         </Button>
       }
     >
-      <Menu.Item
-        onPress={() => { onChange(''); setVisible(false); }}
-        title={`Tous — ${label}`}
-        leadingIcon={!isActive ? 'check' : undefined}
-      />
+      {!noAll && (
+        <Menu.Item
+          onPress={() => { onChange(''); setVisible(false); }}
+          title={`Tous — ${label}`}
+          leadingIcon={!isActive ? 'check' : undefined}
+        />
+      )}
       {options.map(o => (
         <Menu.Item
           key={String(o.value)}

@@ -196,7 +196,7 @@ export default function TravailAgricole({ navigation }) {
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un type"
                   value={form.type}
                   onChange={v => setForm(f => ({ ...f, type: v }))}
@@ -204,23 +204,22 @@ export default function TravailAgricole({ navigation }) {
                 />
               </View>
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un statut"
                   value={form.statut}
                   onChange={v => setForm(f => ({ ...f, statut: v }))}
                   options={[
                     { value: 'planifie', label: 'Planifié' },
                     { value: 'actif', label: 'En cours' },
-                    { value: 'termine', label: 'Terminé' },
                   ]}
                 />
               </View>
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter
+                <SelectFilter noAll
                   label="Choisir un secteur"
                   value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
