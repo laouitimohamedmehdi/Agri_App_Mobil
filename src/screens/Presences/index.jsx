@@ -170,25 +170,34 @@ export default function Presences({ navigation }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <MaterialCommunityIcons
               name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'}
-              size={18}
+              size={16}
               color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'}
             />
-            <Text style={{ fontSize: 13, fontWeight: '600', color: feuille.statut === 'validee' ? '#52c41a' : '#fa8c16' }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: feuille.statut === 'validee' ? '#52c41a' : '#fa8c16' }}>
               {feuille.statut === 'validee' ? 'Validée' : 'Brouillon'}
             </Text>
-            <Text style={{ fontSize: 11, color: '#888' }}>· {totalPresents} présences</Text>
+            <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} j</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {isAdmin && feuille.statut !== 'validee' && (
               <>
-                <Button mode="contained" icon="content-save" buttonColor="#2d7a4a" onPress={saveChanges} loading={saving}>
-                  Enregistrer
-                </Button>
-                <Button mode="outlined" icon="check-circle" onPress={valider}>Valider</Button>
+                <TouchableOpacity style={styles.actionBtn} onPress={saveChanges}>
+                  <MaterialCommunityIcons name="content-save" size={16} color="#2d7a4a" />
+                  <Text style={[styles.actionBtnTxt, { color: '#2d7a4a' }]}>
+                    {saving ? '...' : 'Sauver'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
+                  <MaterialCommunityIcons name="check" size={16} color="#fff" />
+                  <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>Valider</Text>
+                </TouchableOpacity>
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
-              <Button mode="outlined" icon="lock-open" onPress={deverrouiller}>Déverrouiller</Button>
+              <TouchableOpacity style={styles.actionBtn} onPress={deverrouiller}>
+                <MaterialCommunityIcons name="lock-open-outline" size={16} color="#1677ff" />
+                <Text style={[styles.actionBtnTxt, { color: '#1677ff' }]}>Déverrouiller</Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -282,6 +291,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderColor: '#e0ece0',
   },
   navBtn: { flexDirection: 'row', alignItems: 'center', padding: 4 },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#2d7a4a' },
+  actionBtnTxt: { fontSize: 12, fontWeight: '600' },
   statusBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#f6faf3', paddingHorizontal: 12, paddingVertical: 8,

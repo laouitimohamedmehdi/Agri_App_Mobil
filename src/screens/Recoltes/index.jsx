@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -183,33 +183,44 @@ export default function Recoltes({ navigation }) {
                   </View>
                 )}
                 {!isAdmin && (
-                  <View style={{ padding: 8, backgroundColor: '#f6faf3' }}>
-                    <Text variant="bodySmall" style={{ color: '#2d7a4a' }}>
-                      Production totale : <Text style={{ fontWeight: 'bold' }}>{stats.production.toLocaleString()} kg</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, backgroundColor: '#e8f5e9' }}>
+                    <MaterialCommunityIcons name="basket-outline" size={18} color="#2d7a4a" />
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#2d7a4a' }}>
+                      {stats.production.toLocaleString()} kg
                     </Text>
+                    <Text style={{ fontSize: 12, color: '#888' }}>production totale · {items.length} secteur(s)</Text>
                   </View>
                 )}
                 <Divider />
                 {items.map(r => {
                   const a = getAnalyse(r.id_recolte);
                   return (
-                    <View key={r.id_recolte} style={styles.recolteRow}>
+                    <View key={r.id_recolte} style={[styles.recolteRow, { borderLeftWidth: 3, borderLeftColor: '#2d7a4a' }]}>
                       <View style={{ flex: 1 }}>
-                        <Text variant="bodyMedium">{getSecteurNom(r.secteur_id)}</Text>
-                        <Text variant="bodySmall" style={{ color: '#666' }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#333' }}>{getSecteurNom(r.secteur_id)}</Text>
+                        <Text style={{ fontSize: 13, color: '#2d7a4a', fontWeight: '600', marginTop: 2 }}>
                           {r.production?.toLocaleString()} kg
-                          {isAdmin && a ? ` • Huile : ${a.huile} L • Prix : ${a.prix} DT/L` : ''}
                         </Text>
+                        {r.date && <Text style={{ fontSize: 11, color: '#aaa', marginTop: 1 }}>{r.date}</Text>}
+                        {isAdmin && a && (
+                          <Text style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+                            Huile : {a.huile} L  ·  Prix : {a.prix} DT/L
+                          </Text>
+                        )}
                       </View>
                       {isAdmin ? (
                         <View style={{ flexDirection: 'row' }}>
-                          <Button icon="pencil" compact onPress={() => openEdit(r)} />
-                          <Button icon="delete" compact onPress={() => setConfirmId(r.id_recolte)} />
+                          <Button icon="pencil" compact onPress={() => openEdit(r)} textColor="#1677ff" />
+                          <Button icon="delete" compact onPress={() => setConfirmId(r.id_recolte)} textColor="#ff4d4f" />
                         </View>
                       ) : (
-                        <Button compact icon="file-send" onPress={() => { setDemandeItem(r); setMotif(''); }}>
-                          Demande
-                        </Button>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#fa8c16' }}
+                          onPress={() => { setDemandeItem(r); setMotif(''); }}
+                        >
+                          <MaterialCommunityIcons name="file-send-outline" size={16} color="#fa8c16" />
+                          <Text style={{ fontSize: 12, color: '#fa8c16', fontWeight: '600' }}>Demande</Text>
+                        </TouchableOpacity>
                       )}
                     </View>
                   );
