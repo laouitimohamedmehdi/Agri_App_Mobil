@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Appbar, Badge } from 'react-native-paper';
 import { View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import client from '../api/client';
+import { DrawerContext } from '../navigation/AppNavigator';
 
-export default function AppHeader({ title, navigation }) {
+export default function AppHeader({ title }) {
+  const { openDrawer } = useContext(DrawerContext);
+  const navigation = useNavigation();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -21,10 +25,13 @@ export default function AppHeader({ title, navigation }) {
 
   return (
     <Appbar.Header>
-      <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+      <Appbar.Action icon="menu" onPress={openDrawer} />
       <Appbar.Content title={title} />
       <View>
-        <Appbar.Action icon="bell-outline" onPress={() => {}} />
+        <Appbar.Action
+          icon="bell-outline"
+          onPress={() => navigation.navigate('Extra', { screen: 'Notifications' })}
+        />
         {unreadCount > 0 && (
           <Badge style={{ position: 'absolute', top: 4, right: 4 }} size={16}>
             {unreadCount}
