@@ -60,18 +60,14 @@ export default function DashboardScreen({ navigation }) {
     (data?.recoltes || []).reduce((acc, r) => { const k = r.campagne || 'Sans'; acc[k] = (acc[k] || 0) + (r.production || 0); return acc; }, {})
   ).map(([label, value]) => ({ label, value, frontColor: '#2d7a4a' }));
 
-  // Couleurs issues du DESIGN_SYSTEM :
-  // Frais récolte → #fa8c16 (--color-warning)
-  // Coût travaux  → #ff4d4f (--color-error)
-  // Fertilisation → #13c2c2 (--color-teal)
-  // Salaires      → #722ed1 (--color-purple, "salaires dans camembert")
+  // Couleurs DESIGN_SYSTEM — prop `color` (PieChart), pas frontColor (BarChart)
   const PIE_ITEMS = [
-    { key: 'frais',   value: fraisTraitement,     frontColor: '#fa8c16', label: 'Frais récolte' },
-    { key: 'travaux', value: totalCoutTravaux,     frontColor: '#ff4d4f', label: 'Travaux'       },
-    { key: 'fert',    value: chargesFertilisation, frontColor: '#13c2c2', label: 'Fertilisation' },
-    { key: 'sal',     value: totalSalaires,        frontColor: '#722ed1', label: 'Salaires'      },
+    { key: 'travaux', value: totalCoutTravaux,     color: '#ff4d4f', label: 'Travaux'       },
+    { key: 'frais',   value: fraisTraitement,      color: '#fa8c16', label: 'Frais récolte' },
+    { key: 'fert',    value: chargesFertilisation, color: '#13c2c2', label: 'Fertilisation' },
+    { key: 'sal',     value: totalSalaires,        color: '#722ed1', label: 'Salaires'      },
   ].filter(d => d.value > 0);
-  const pieData = PIE_ITEMS.map(d => ({ value: d.value, frontColor: d.frontColor }));
+  const pieData = PIE_ITEMS.map(d => ({ value: d.value, color: d.color }));
 
   const getEmployeNom = (l) => {
     if (l.nom_temp) return l.nom_temp;
@@ -144,12 +140,12 @@ export default function DashboardScreen({ navigation }) {
                     const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
                     return (
                       <View key={d.key} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.frontColor, marginRight: 8 }} />
+                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color, marginRight: 8 }} />
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }}>{d.label}</Text>
                           <Text style={{ fontSize: 10, color: '#595959' }}>
                             {d.value.toFixed(0)} DH
-                            <Text style={{ fontWeight: 'bold', color: d.frontColor }}> · {pct}%</Text>
+                            <Text style={{ fontWeight: 'bold', color: d.color }}> · {pct}%</Text>
                           </Text>
                         </View>
                       </View>
