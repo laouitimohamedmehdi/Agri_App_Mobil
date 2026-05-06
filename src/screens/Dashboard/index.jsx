@@ -82,21 +82,21 @@ export default function DashboardScreen({ navigation }) {
         {/* KPIs */}
         <SectionHeader icon="chart-box" title="Vue d'ensemble" />
         <View style={styles.kpiRow}>
-          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`} color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
-          <KpiCard label="Arbres" value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" icon="tree" bg="#f6fff0" />
-          <KpiCard label="Production" value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket" bg="#fff7e6" />
-          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water" bg="#e6fffb" />}
+          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`}  color="#2d7a4a" borderColor="#2d7a4a" icon="map-marker-radius" />
+          <KpiCard label="Arbres"         value={nbArbres.toLocaleString()} color="#2d7a4a" borderColor="#2d7a4a" icon="tree" />
+          <KpiCard label="Production"     value={`${productionTotale.toLocaleString()} kg`} color="#fa8c16" borderColor="#fa8c16" icon="basket" />
+          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} color="#fa8c16" borderColor="#fa8c16" icon="water" />}
         </View>
 
         {/* Résumé financier */}
         {isAdmin && (
           <>
             <SectionHeader icon="cash-multiple" title="Résumé financier" />
-            <FinanceRow icon="trending-up" label="Revenu brut" formule="Σ (Huile × Prix)" value={`${revenuBrut.toFixed(0)} DH`} color="#3a5a2c" accent="#52c41a" bg="#f6faf3" />
-            <FinanceRow icon="trending-down" label="Total charges" formule="Frais + Fertilisation" value={`${totalCharges.toFixed(0)} DH`} color="#cf1322" accent="#ff4d4f" bg="#fff1f0" />
-            <FinanceRow icon="finance" label="Marge nette" formule="Revenu − Charges" value={`${margeNette.toFixed(0)} DH`} color={margeNette >= 0 ? '#389e0d' : '#cf1322'} accent={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} bg={margeNette >= 0 ? '#f6fff0' : '#fff1f0'} />
-            <FinanceRow icon="sprout" label="Rendement/ha" formule="Production ÷ Surface" value={`${rendementHa} kg`} color="#0958d9" accent="#1677ff" bg="#e6f4ff" />
-            <FinanceRow icon="calculator" label="Coût/kg" formule="Charges ÷ Production" value={`${coutKg} DH`} color="#d46b08" accent="#fa8c16" bg="#fff7e6" />
+            <FinanceRow icon="trending-up"   label="Revenu brut"    formule="Σ (Huile × Prix)"     value={`${revenuBrut.toFixed(0)} DH`}  accent="#2d7a4a" />
+            <FinanceRow icon="trending-down"  label="Total charges"  formule="Frais + Fertilisation" value={`${totalCharges.toFixed(0)} DH`} accent="#ff4d4f" />
+            <FinanceRow icon="finance"        label="Marge nette"    formule="Revenu − Charges"      value={`${margeNette.toFixed(0)} DH`}  accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
+            <FinanceRow icon="sprout"         label="Rendement/ha"   formule="Production ÷ Surface"  value={`${rendementHa} kg`}            accent="#fa8c16" />
+            <FinanceRow icon="calculator"     label="Coût/kg"        formule="Charges ÷ Production"  value={`${coutKg} DH`}                 accent="#ff4d4f" />
           </>
         )}
 
@@ -204,29 +204,29 @@ function SectionHeader({ icon, title }) {
   );
 }
 
-function KpiCard({ label, value, color, borderColor, icon, bg }) {
+function KpiCard({ label, value, color, borderColor, icon }) {
   return (
-    <Card style={[styles.kpiCard, { borderTopColor: borderColor, backgroundColor: bg }]}>
+    <Card style={[styles.kpiCard, { borderTopColor: borderColor }]}>
       <Card.Content style={{ padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <MaterialCommunityIcons name={icon} size={20} color={color} />
         <View style={{ flex: 1 }}>
           <Text numberOfLines={1} style={{ color, fontWeight: 'bold', fontSize: 13 }}>{value}</Text>
-          <Text numberOfLines={1} style={{ color: '#666', fontSize: 10 }}>{label}</Text>
+          <Text numberOfLines={1} style={{ color: '#888', fontSize: 10 }}>{label}</Text>
         </View>
       </Card.Content>
     </Card>
   );
 }
 
-function FinanceRow({ icon, label, formule, value, color, accent, bg }) {
+function FinanceRow({ icon, label, formule, value, accent }) {
   return (
-    <View style={[styles.financeRow, { backgroundColor: bg, borderLeftColor: accent }]}>
+    <View style={[styles.financeRow, { borderLeftColor: accent }]}>
       <MaterialCommunityIcons name={icon} size={20} color={accent} style={{ marginRight: 10 }} />
       <View style={{ flex: 1 }}>
-        <Text variant="bodyMedium" style={{ fontWeight: '600', color: '#3a5a2c' }}>{label}</Text>
+        <Text variant="bodyMedium" style={{ fontWeight: '600', color: '#333' }}>{label}</Text>
         <Text variant="bodySmall" style={{ color: '#aaa', fontSize: 10, fontStyle: 'italic' }}>{formule}</Text>
       </View>
-      <Text variant="titleSmall" style={{ fontWeight: 'bold', color }}>{value}</Text>
+      <Text style={{ fontWeight: 'bold', color: accent, fontSize: 14 }}>{value}</Text>
     </View>
   );
 }
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
   kpiRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   kpiCard: { flex: 1, minWidth: 140, borderTopWidth: 3, elevation: 2 },
-  financeRow: { flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, borderRadius: 8, padding: 12, marginBottom: 8, elevation: 1 },
+  financeRow: { flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, borderRadius: 8, padding: 12, marginBottom: 8, elevation: 1, backgroundColor: '#fff' },
   chartCard: { padding: 12, marginBottom: 4, elevation: 2 },
   listCard: { elevation: 2, overflow: 'hidden' },
   travauxRow: { flexDirection: 'row', alignItems: 'center', padding: 12, borderBottomWidth: 1, borderColor: '#f0f0f0' },
