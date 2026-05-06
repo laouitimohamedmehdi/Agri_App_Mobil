@@ -90,7 +90,7 @@ export default function Varietes({ navigation }) {
           </Card>
         )}
       </ScrollView>
-      {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreate} />}
+      <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une variété</Dialog.Title>

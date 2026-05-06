@@ -208,7 +208,7 @@ export default function TravailAgricole({ navigation }) {
           </View>
         </ScrollView>
       )}
-      {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreate} />}
+      <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>

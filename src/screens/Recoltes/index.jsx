@@ -251,7 +251,7 @@ export default function Recoltes({ navigation }) {
           <View style={{ height: 80 }} />
         </ScrollView>
       )}
-      {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreate} />}
+      <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une récolte</Dialog.Title>

@@ -134,7 +134,7 @@ export default function Presences({ navigation }) {
   const moisLabel = `${MOIS_FR[month - 1]} ${year}`;
   const nbJours = DAYS_IN_MONTH(mois);
   const days = Array.from({ length: nbJours }, (_, i) => i + 1);
-  const canEdit = isAdmin && feuille?.statut !== 'validee';
+  const canEdit = feuille?.statut !== 'validee';
 
   const lignesFiltrees = lignes
     .map((l, originalIdx) => ({ ...l, _originalIdx: originalIdx }))
@@ -179,7 +179,7 @@ export default function Presences({ navigation }) {
             <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} j</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 6 }}>
-            {isAdmin && feuille.statut !== 'validee' && (
+            {feuille.statut !== 'validee' && (
               <>
                 <TouchableOpacity style={styles.actionBtn} onPress={saveChanges}>
                   <MaterialCommunityIcons name="content-save" size={16} color="#2d7a4a" />
@@ -187,10 +187,12 @@ export default function Presences({ navigation }) {
                     {saving ? '...' : 'Sauver'}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
-                  <MaterialCommunityIcons name="check" size={16} color="#fff" />
-                  <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>Valider</Text>
-                </TouchableOpacity>
+                {isAdmin && (
+                  <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
+                    <MaterialCommunityIcons name="check" size={16} color="#fff" />
+                    <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>Valider</Text>
+                  </TouchableOpacity>
+                )}
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
