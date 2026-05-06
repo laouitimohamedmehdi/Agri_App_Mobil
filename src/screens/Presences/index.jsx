@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Button, Chip, Snackbar, ActivityIndicator } from 'react-native-paper';
+import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -25,6 +25,7 @@ export default function Presences({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState('');
+  const [filterNom, setFilterNom] = useState('');
 
   useEffect(() => { fetchFeuille(); }, [mois]);
 
@@ -116,6 +117,14 @@ export default function Presences({ navigation }) {
     return emp ? `${emp.nom} ${emp.prenom ?? ''}` : `Emp ${l.employe_id}`;
   };
 
+  const lignesFiltrees = lignes
+    .map((l, originalIdx) => ({ ...l, _originalIdx: originalIdx }))
+    .filter(l => {
+      if (!filterNom) return true;
+      const nom = getEmployeNom(l).toLowerCase();
+      return nom.includes(filterNom.toLowerCase());
+    });
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Présences" navigation={navigation} />
@@ -128,23 +137,35 @@ export default function Presences({ navigation }) {
       </View>
 
       {feuille && (
-        <View style={styles.statusBar}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <MaterialCommunityIcons name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'} size={16} color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'} />
-            <Chip compact style={{ backgroundColor: feuille.statut === 'validee' ? '#e8f5e9' : '#fff8e1' }}>
-              {feuille.statut === 'validee' ? 'Validée ✓' : 'Brouillon'}
-            </Chip>
+        <>
+          <View style={styles.statusBar}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <MaterialCommunityIcons name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'} size={16} color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'} />
+              <Chip compact style={{ backgroundColor: feuille.statut === 'validee' ? '#e8f5e9' : '#fff8e1' }}>
+                {feuille.statut === 'validee' ? 'Validée ✓' : 'Brouillon'}
+              </Chip>
+            </View>
+            {isAdmin && feuille.statut !== 'validee' && (
+              <>
+                <Button mode="contained" compact buttonColor="#2d7a4a" onPress={saveChanges} loading={saving}>Sauvegarder</Button>
+                <Button mode="outlined" compact onPress={valider}>Valider</Button>
+              </>
+            )}
+            {isAdmin && feuille.statut === 'validee' && (
+              <Button mode="outlined" compact onPress={deverrouiller}>Déverrouiller</Button>
+            )}
           </View>
-          {isAdmin && feuille.statut !== 'validee' && (
-            <>
-              <Button mode="contained" compact buttonColor="#2d7a4a" onPress={saveChanges} loading={saving}>Sauvegarder</Button>
-              <Button mode="outlined" compact onPress={valider}>Valider</Button>
-            </>
-          )}
-          {isAdmin && feuille.statut === 'validee' && (
-            <Button mode="outlined" compact onPress={deverrouiller}>Déverrouiller</Button>
-          )}
-        </View>
+          <TextInput
+            placeholder="Rechercher employé..."
+            value={filterNom}
+            onChangeText={setFilterNom}
+            left={<TextInput.Icon icon="magnify" />}
+            right={filterNom ? <TextInput.Icon icon="close" onPress={() => setFilterNom('')} /> : null}
+            mode="outlined"
+            dense
+            style={{ margin: 8, backgroundColor: '#fff' }}
+          />
+        </>
       )}
 
       {loading ? (
@@ -168,7 +189,7 @@ export default function Presences({ navigation }) {
               </View>
             </View>
             <ScrollView>
-              {lignes.map((l, idx) => {
+              {lignesFiltrees.map((l, idx) => {
                 const total = Object.values(l.jours).filter(v => v === 1).length;
                 return (
                   <View key={idx} style={[styles.gridRow, idx % 2 === 0 ? {} : { backgroundColor: '#f5f5f5' }]}>
@@ -182,7 +203,7 @@ export default function Presences({ navigation }) {
                         <TouchableOpacity
                           key={d}
                           style={[styles.dayCell, val ? styles.present : styles.absent]}
-                          onPress={() => canEdit && toggleJour(idx, String(d))}
+                          onPress={() => canEdit && toggleJour(l._originalIdx, String(d))}
                           activeOpacity={canEdit ? 0.6 : 1}
                         >
                           <Text style={{ color: val ? '#fff' : '#ccc', fontSize: 11 }}>{val ? '1' : '·'}</Text>

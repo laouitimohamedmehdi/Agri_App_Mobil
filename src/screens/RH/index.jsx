@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
+import SelectFilter from '../../components/SelectFilter';
 import { useData } from '../../contexts/DataContext';
 import client from '../../api/client';
 
@@ -22,6 +23,18 @@ export default function RH({ navigation }) {
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [snack, setSnack] = useState('');
+  const [filterNom, setFilterNom] = useState('');
+  const [filterStatut, setFilterStatut] = useState('');
+  const [filterPoste, setFilterPoste] = useState('');
+
+  const postes = [...new Set(employes.map(e => e.poste).filter(Boolean))];
+  const employesFiltres = employes.filter(e => {
+    if (filterNom && !`${e.nom} ${e.prenom ?? ''}`.toLowerCase().includes(filterNom.toLowerCase())) return false;
+    if (filterStatut === 'actif' && !e.is_active) return false;
+    if (filterStatut === 'inactif' && e.is_active) return false;
+    if (filterPoste && e.poste !== filterPoste) return false;
+    return true;
+  });
 
   const openCreate = () => { setEditing(null); setForm({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'CDI', date_embauche: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' }); setDialogVisible(true); };
   const openEdit = (e) => { setEditing(e); setForm({ nom: e.nom, prenom: e.prenom ?? '', poste: e.poste ?? '', telephone: e.telephone ?? '', type_contrat: e.type_contrat ?? 'CDI', date_embauche: e.date_embauche ?? '', is_active: e.is_active ?? true, type_salaire: e.type_salaire ?? 'journalier', tarif_journalier: String(e.tarif_journalier ?? ''), salaire_fixe: String(e.salaire_fixe ?? '') }); setDialogVisible(true); };
@@ -49,14 +62,47 @@ export default function RH({ navigation }) {
       <SegmentedButtons value={tab} onValueChange={setTab} style={{ margin: 12 }}
         buttons={[{ value: 'employes', label: 'Employés', icon: 'account-group' }, { value: 'presences', label: 'Présences', icon: 'calendar-check' }]} />
 
+      {tab === 'employes' && (
+        <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0' }}>
+          <TextInput
+            placeholder="Rechercher un employé..."
+            value={filterNom}
+            onChangeText={setFilterNom}
+            left={<TextInput.Icon icon="magnify" />}
+            right={filterNom ? <TextInput.Icon icon="close" onPress={() => setFilterNom('')} /> : null}
+            mode="outlined"
+            dense
+            style={{ marginBottom: 8, backgroundColor: '#fff' }}
+          />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <SegmentedButtons
+              value={filterStatut}
+              onValueChange={setFilterStatut}
+              buttons={[
+                { value: '', label: 'Tous' },
+                { value: 'actif', label: 'Actifs' },
+                { value: 'inactif', label: 'Inactifs' },
+              ]}
+              style={{ marginRight: 8 }}
+            />
+            <SelectFilter
+              label="Poste"
+              value={filterPoste}
+              onChange={setFilterPoste}
+              options={postes.map(p => ({ value: p, label: p }))}
+            />
+          </ScrollView>
+        </View>
+      )}
+
       {tab === 'employes' ? (
         <ScrollView style={styles.container}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-            <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{employes.length} employé(s)</Text>
+            <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{employesFiltres.length} employé(s)</Text>
           </View>
-          {employes.length === 0 ? <EmptyState message="Aucun employé enregistré" /> : (
-            employes.map((e, i) => {
+          {employesFiltres.length === 0 && employes.length > 0 ? <EmptyState message="Aucun employé pour ces filtres" /> : employesFiltres.length === 0 ? <EmptyState message="Aucun employé enregistré" /> : (
+            employesFiltres.map((e, i) => {
               const sc = SALAIRE_CONFIG[e.type_salaire] || SALAIRE_CONFIG.journalier;
               const salaire = e.type_salaire === 'journalier' ? `${e.tarif_journalier ?? 0} DH/j` : `${e.salaire_fixe ?? 0} DH/mois`;
               return (

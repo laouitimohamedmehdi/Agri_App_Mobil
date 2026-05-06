@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
+import SelectFilter from '../../components/SelectFilter';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
@@ -27,6 +28,8 @@ export default function Recoltes({ navigation }) {
   const [demandeItem, setDemandeItem] = useState(null);
   const [motif, setMotif] = useState('');
   const [snack, setSnack] = useState('');
+  const [filterCampagne, setFilterCampagne] = useState('');
+  const [filterSecteur, setFilterSecteur] = useState('');
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -45,7 +48,13 @@ export default function Recoltes({ navigation }) {
   const getSecteurNom = (id) => secteurs.find(s => s.id_secteur === id)?.nom || '-';
   const getAnalyse = (recolteId) => analyses.find(a => a.recolte_id === recolteId);
 
-  const byCampagne = recoltes.reduce((acc, r) => {
+  const recoltesFiltered = recoltes.filter(r => {
+    if (filterCampagne && r.campagne !== filterCampagne) return false;
+    if (filterSecteur && String(r.secteur_id) !== filterSecteur) return false;
+    return true;
+  });
+  const campagnes = [...new Set(recoltes.map(r => r.campagne).filter(Boolean))];
+  const byCampagne = recoltesFiltered.reduce((acc, r) => {
     const key = r.campagne || 'Sans campagne';
     if (!acc[key]) acc[key] = [];
     acc[key].push(r);
@@ -108,7 +117,25 @@ export default function Recoltes({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Récoltes" navigation={navigation} />
-      {recoltes.length === 0 ? <EmptyState message="Aucune récolte enregistrée" /> : (
+      {recoltes.length > 0 && (
+        <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0', padding: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <SelectFilter
+              label="Campagne"
+              value={filterCampagne}
+              onChange={setFilterCampagne}
+              options={campagnes.map(c => ({ value: c, label: c }))}
+            />
+            <SelectFilter
+              label="Secteur"
+              value={filterSecteur}
+              onChange={setFilterSecteur}
+              options={secteurs.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+            />
+          </ScrollView>
+        </View>
+      )}
+      {recoltesFiltered.length === 0 && recoltes.length > 0 ? <EmptyState message="Aucune récolte pour ces filtres" /> : recoltes.length === 0 ? <EmptyState message="Aucune récolte enregistrée" /> : (
         <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
           {Object.entries(byCampagne).map(([campagne, items]) => {
             const stats = campagneStats(items);
