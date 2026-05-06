@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar, Searchbar } from 'react-native-paper';
+import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import SelectFilter from '../../components/SelectFilter';
@@ -83,27 +83,27 @@ export default function ParcellesSecteurs({ navigation }) {
       <AppHeader title="Parcelles & Secteurs" navigation={navigation} />
 
       {/* Filtres */}
-      <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0' }}>
-        <Searchbar
-          placeholder="Filtrer par parcelle..."
+      <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0', flexDirection: 'row', gap: 8 }}>
+        <SelectFilter
+          label="Parcelle"
           value={filterParcelle}
-          onChangeText={setFilterParcelle}
-          style={{ marginBottom: 6, height: 40, elevation: 0, backgroundColor: '#f5f5f5' }}
-          inputStyle={{ fontSize: 13 }}
+          onChange={v => { setFilterParcelle(v); setFilterSecteur(''); }}
+          options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
         />
-        <Searchbar
-          placeholder="Filtrer par secteur..."
+        <SelectFilter
+          label="Secteur"
           value={filterSecteur}
-          onChangeText={setFilterSecteur}
-          style={{ height: 40, elevation: 0, backgroundColor: '#f5f5f5' }}
-          inputStyle={{ fontSize: 13 }}
+          onChange={setFilterSecteur}
+          options={secteurs
+            .filter(s => !filterParcelle || String(s.parcelle_id) === filterParcelle)
+            .map(s => ({ value: String(s.id_secteur), label: s.nom }))}
         />
       </View>
 
       <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
         {parcelles.length === 0 && <EmptyState message="Aucune parcelle enregistrée" />}
         {parcelles
-          .filter(p => !filterParcelle || p.nom.toLowerCase().includes(filterParcelle.toLowerCase()))
+          .filter(p => !filterParcelle || String(p.id_parcelle) === filterParcelle)
           .map(p => (
           <List.Accordion
             key={p.id_parcelle}
@@ -122,7 +122,7 @@ export default function ParcellesSecteurs({ navigation }) {
               </View>
             )}
             {secteursOfParcelle(p.id_parcelle)
-              .filter(s => !filterSecteur || s.nom.toLowerCase().includes(filterSecteur.toLowerCase()))
+              .filter(s => !filterSecteur || String(s.id_secteur) === filterSecteur)
               .map(s => (
               <View key={s.id_secteur} style={styles.secteurCard}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
