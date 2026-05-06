@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text, Divider, Chip, Snackbar, List } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BarChart, PieChart } from 'react-native-gifted-charts';
 import AppHeader from '../../components/AppHeader';
 import LoadingOverlay from '../../components/LoadingOverlay';
@@ -9,6 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 
 const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c' };
+const STATUT_ICONS  = { planifie: 'clock-outline', actif: 'play-circle-outline', termine: 'check-circle-outline' };
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
@@ -30,13 +32,7 @@ export default function DashboardScreen({ navigation }) {
         client.get('/fertilisation/'),
         client.get(`/feuilles/?mois=${mois}`).catch(() => ({ data: null })),
       ]);
-      setData({
-        travaux: travaux.data,
-        recoltes: recoltes.data,
-        analyses: analyses.data,
-        fertilisations: fertilisations.data,
-        feuille: feuille.data,
-      });
+      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, fertilisations: fertilisations.data, feuille: feuille.data });
     } catch { setSnack('Erreur de chargement'); }
     finally { setLoading(false); }
   };
@@ -58,114 +54,125 @@ export default function DashboardScreen({ navigation }) {
 
   const derniersTravaux = (data?.travaux || []).slice(-5).reverse();
 
-  const byCampagne = (data?.recoltes || []).reduce((acc, r) => {
-    const key = r.campagne || 'Sans campagne';
-    acc[key] = (acc[key] || 0) + (r.production || 0);
-    return acc;
-  }, {});
-  const barData = Object.entries(byCampagne).map(([label, value]) => ({ label, value, frontColor: '#2d7a4a' }));
+  const barData = Object.entries(
+    (data?.recoltes || []).reduce((acc, r) => { const k = r.campagne || 'Sans'; acc[k] = (acc[k] || 0) + (r.production || 0); return acc; }, {})
+  ).map(([label, value]) => ({ label, value, frontColor: '#2d7a4a' }));
 
   const pieData = [
-    { value: fraisTraitement, color: '#2d7a4a', text: 'Traitement' },
-    { value: chargesFertilisation, color: '#81c784', text: 'Fertilisation' },
+    { value: fraisTraitement, color: '#fa8c16', text: 'Traitement' },
+    { value: chargesFertilisation, color: '#13c2c2', text: 'Fertilisation' },
   ].filter(d => d.value > 0);
 
-  return (
-    <View style={{ flex: 1 }}>
-      <AppHeader title="Dashboard" navigation={navigation} />
-      <ScrollView style={styles.container}>
+  const getEmployeNom = (l) => {
+    if (l.nom_temp) return l.nom_temp;
+    const emp = employes.find(e => e.id_employe === l.employe_id);
+    return emp ? `${emp.nom} ${emp.prenom ?? ''}`.trim() : `Employé ${l.employe_id}`;
+  };
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>Vue d'ensemble</Text>
+  return (
+    <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
+      <AppHeader title="Tableau de bord" navigation={navigation} />
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+
+        {/* KPIs */}
+        <SectionHeader icon="chart-box" title="Vue d'ensemble" />
         <View style={styles.kpiRow}>
-          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`} />
-          <KpiCard label="Arbres" value={nbArbres.toLocaleString()} />
-          <KpiCard label="Production" value={`${productionTotale.toLocaleString()} kg`} />
-          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} />}
+          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`} color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
+          <KpiCard label="Arbres" value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" icon="tree" bg="#f6fff0" />
+          <KpiCard label="Production" value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket" bg="#fff7e6" />
+          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water" bg="#e6fffb" />}
         </View>
 
+        {/* Résumé financier */}
         {isAdmin && (
           <>
-            <Divider style={{ marginVertical: 16 }} />
-            <Text variant="titleMedium" style={styles.sectionTitle}>Résumé financier</Text>
-            <View style={styles.kpiRow}>
-              <KpiCard label="Revenu brut" value={`${revenuBrut.toFixed(0)} DH`} />
-              <KpiCard label="Total charges" value={`${totalCharges.toFixed(0)} DH`} color="#c0392b" />
-              <KpiCard label="Marge nette" value={`${margeNette.toFixed(0)} DH`} color={margeNette >= 0 ? '#2d7a4a' : '#c0392b'} />
-            </View>
-            <View style={[styles.kpiRow, { marginTop: 8 }]}>
-              <KpiCard label="Rendement/ha" value={`${rendementHa} kg`} />
-              <KpiCard label="Coût/kg" value={`${coutKg} DH`} />
-            </View>
+            <SectionHeader icon="cash-multiple" title="Résumé financier" />
+            <FinanceRow icon="trending-up" label="Revenu brut" formule="Σ (Huile × Prix)" value={`${revenuBrut.toFixed(0)} DH`} color="#3a5a2c" accent="#52c41a" bg="#f6faf3" />
+            <FinanceRow icon="trending-down" label="Total charges" formule="Frais + Fertilisation" value={`${totalCharges.toFixed(0)} DH`} color="#cf1322" accent="#ff4d4f" bg="#fff1f0" />
+            <FinanceRow icon="finance" label="Marge nette" formule="Revenu − Charges" value={`${margeNette.toFixed(0)} DH`} color={margeNette >= 0 ? '#389e0d' : '#cf1322'} accent={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} bg={margeNette >= 0 ? '#f6fff0' : '#fff1f0'} />
+            <FinanceRow icon="sprout" label="Rendement/ha" formule="Production ÷ Surface" value={`${rendementHa} kg`} color="#0958d9" accent="#1677ff" bg="#e6f4ff" />
+            <FinanceRow icon="calculator" label="Coût/kg" formule="Charges ÷ Production" value={`${coutKg} DH`} color="#d46b08" accent="#fa8c16" bg="#fff7e6" />
           </>
         )}
 
+        {/* Graphiques admin */}
         {isAdmin && barData.length > 0 && (
           <>
-            <Divider style={{ marginVertical: 16 }} />
-            <Text variant="titleMedium" style={styles.sectionTitle}>Récoltes par campagne</Text>
-            <ScrollView horizontal>
-              <BarChart
-                data={barData}
-                width={Math.max(300, barData.length * 70)}
-                height={180}
-                barWidth={40}
-                noOfSections={4}
-                yAxisTextStyle={{ color: '#888', fontSize: 11 }}
-                xAxisLabelTextStyle={{ color: '#555', fontSize: 10 }}
-              />
-            </ScrollView>
+            <SectionHeader icon="chart-bar" title="Récoltes par campagne" />
+            <Card style={styles.chartCard}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <BarChart
+                  data={barData}
+                  width={Math.max(300, barData.length * 70)}
+                  height={160}
+                  barWidth={36}
+                  noOfSections={4}
+                  barBorderRadius={4}
+                  yAxisTextStyle={{ color: '#888', fontSize: 10 }}
+                  xAxisLabelTextStyle={{ color: '#555', fontSize: 9 }}
+                />
+              </ScrollView>
+            </Card>
           </>
         )}
 
         {isAdmin && pieData.length > 0 && (
           <>
-            <Divider style={{ marginVertical: 16 }} />
-            <Text variant="titleMedium" style={styles.sectionTitle}>Répartition des charges</Text>
-            <View style={{ alignItems: 'center' }}>
-              <PieChart data={pieData} radius={80} />
-              <View style={{ flexDirection: 'row', gap: 16, marginTop: 12 }}>
-                {pieData.map(d => (
-                  <View key={d.text} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: d.color }} />
-                    <Text variant="bodySmall">{d.text} : {d.value.toFixed(0)} DH</Text>
-                  </View>
-                ))}
+            <SectionHeader icon="chart-pie" title="Répartition des charges" />
+            <Card style={styles.chartCard}>
+              <View style={{ alignItems: 'center' }}>
+                <PieChart data={pieData} radius={70} innerRadius={35} />
+                <View style={{ flexDirection: 'row', gap: 20, marginTop: 12 }}>
+                  {pieData.map(d => (
+                    <View key={d.text} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color }} />
+                      <Text variant="bodySmall" style={{ color: '#555' }}>{d.text} — {d.value.toFixed(0)} DH</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
-            </View>
+            </Card>
           </>
         )}
 
-        <Divider style={{ marginVertical: 16 }} />
-        <Text variant="titleMedium" style={styles.sectionTitle}>Derniers travaux</Text>
-        {derniersTravaux.length === 0
-          ? <Text style={{ color: '#888', paddingHorizontal: 4 }}>Aucun travail</Text>
-          : derniersTravaux.map(t => (
-            <List.Item
-              key={t.id_travail}
-              title={t.nom}
-              description={`${t.type} • ${t.date || ''}`}
-              left={props => <List.Icon {...props} icon="shovel" />}
-              right={() => <Chip compact style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '22' }}>{t.statut}</Chip>}
-            />
-          ))
-        }
+        {/* Derniers travaux */}
+        <SectionHeader icon="shovel" title="Derniers travaux" />
+        <Card style={styles.listCard}>
+          {derniersTravaux.length === 0
+            ? <Text style={styles.empty}>Aucun travail récent</Text>
+            : derniersTravaux.map(t => (
+              <View key={t.id_travail} style={styles.travauxRow}>
+                <View style={[styles.statutDot, { backgroundColor: STATUT_COLORS[t.statut] || '#888' }]} />
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{t.nom}</Text>
+                  <Text variant="bodySmall" style={{ color: '#888' }}>{t.type} • {t.date || ''}</Text>
+                </View>
+                <Chip compact textStyle={{ fontSize: 10 }} style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '22' }}>
+                  {t.statut}
+                </Chip>
+              </View>
+            ))
+          }
+        </Card>
 
+        {/* Présences du mois */}
         {data?.feuille?.lignes?.length > 0 && (
           <>
-            <Divider style={{ marginVertical: 16 }} />
-            <Text variant="titleMedium" style={styles.sectionTitle}>Présences du mois</Text>
-            {data.feuille.lignes.map((l, i) => (
-              <List.Item
-                key={i}
-                title={(() => {
-                  if (l.nom_temp) return l.nom_temp;
-                  const emp = employes.find(e => e.id_employe === l.employe_id);
-                  return emp ? `${emp.nom} ${emp.prenom ?? ''}`.trim() : `Employé ${l.employe_id}`;
-                })()}
-                description={`${l.nb_jours_present ?? 0} jours`}
-                left={props => <List.Icon {...props} icon="account-clock" />}
-              />
-            ))}
+            <SectionHeader icon="account-clock" title="Présences du mois" />
+            <Card style={styles.listCard}>
+              {data.feuille.lignes.map((l, i) => (
+                <View key={i} style={[styles.presenceRow, i > 0 && styles.presenceBorder]}>
+                  <MaterialCommunityIcons name="account-circle" size={32} color="#2d7a4a" style={{ marginRight: 10 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{getEmployeNom(l)}</Text>
+                  </View>
+                  <View style={styles.joursBadge}>
+                    <Text variant="titleSmall" style={{ color: '#fff', fontWeight: 'bold' }}>{l.nb_jours_present ?? 0}</Text>
+                    <Text style={{ color: '#fff', fontSize: 9 }}>jours</Text>
+                  </View>
+                </View>
+              ))}
+            </Card>
           </>
         )}
 
@@ -176,19 +183,53 @@ export default function DashboardScreen({ navigation }) {
   );
 }
 
-function KpiCard({ label, value, color = '#2d7a4a' }) {
+function SectionHeader({ icon, title }) {
   return (
-    <Card style={{ flex: 1, minWidth: 90 }}>
-      <Card.Content>
-        <Text variant="titleLarge" style={{ color, fontWeight: 'bold' }}>{value}</Text>
-        <Text variant="bodySmall" style={{ color: '#666' }}>{label}</Text>
+    <View style={styles.sectionHeader}>
+      <MaterialCommunityIcons name={icon} size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
+      <Text variant="titleSmall" style={styles.sectionTitle}>{title}</Text>
+    </View>
+  );
+}
+
+function KpiCard({ label, value, color, borderColor, icon, bg }) {
+  return (
+    <Card style={[styles.kpiCard, { borderTopColor: borderColor, backgroundColor: bg }]}>
+      <Card.Content style={{ alignItems: 'center', padding: 10 }}>
+        <MaterialCommunityIcons name={icon} size={22} color={color} style={{ marginBottom: 4 }} />
+        <Text variant="titleMedium" style={{ color, fontWeight: 'bold' }}>{value}</Text>
+        <Text variant="bodySmall" style={{ color: '#666', textAlign: 'center', fontSize: 10 }}>{label}</Text>
       </Card.Content>
     </Card>
   );
 }
 
+function FinanceRow({ icon, label, formule, value, color, accent, bg }) {
+  return (
+    <View style={[styles.financeRow, { backgroundColor: bg, borderLeftColor: accent }]}>
+      <MaterialCommunityIcons name={icon} size={20} color={accent} style={{ marginRight: 10 }} />
+      <View style={{ flex: 1 }}>
+        <Text variant="bodyMedium" style={{ fontWeight: '600', color: '#3a5a2c' }}>{label}</Text>
+        <Text variant="bodySmall" style={{ color: '#aaa', fontSize: 10, fontStyle: 'italic' }}>{formule}</Text>
+      </View>
+      <Text variant="titleSmall" style={{ fontWeight: 'bold', color }}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 12, backgroundColor: '#f5f5f5' },
-  sectionTitle: { marginBottom: 8, color: '#2d7a4a', fontWeight: 'bold' },
+  container: { flex: 1, padding: 12 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 16 },
+  sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
   kpiRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  kpiCard: { flex: 1, minWidth: 80, borderTopWidth: 3, elevation: 2 },
+  financeRow: { flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, borderRadius: 8, padding: 12, marginBottom: 8, elevation: 1 },
+  chartCard: { padding: 12, marginBottom: 4, elevation: 2 },
+  listCard: { elevation: 2, overflow: 'hidden' },
+  travauxRow: { flexDirection: 'row', alignItems: 'center', padding: 12, borderBottomWidth: 1, borderColor: '#f0f0f0' },
+  statutDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
+  presenceRow: { flexDirection: 'row', alignItems: 'center', padding: 12 },
+  presenceBorder: { borderTopWidth: 1, borderColor: '#f0f0f0' },
+  joursBadge: { backgroundColor: '#2d7a4a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, alignItems: 'center', minWidth: 44 },
+  empty: { color: '#aaa', padding: 16, textAlign: 'center' },
 });
