@@ -13,7 +13,7 @@ import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 
 export default function Recoltes({ navigation }) {
-  const { secteurs } = useData();
+  const { secteurs, parcelles } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const [recoltes, setRecoltes] = useState([]);
@@ -29,6 +29,7 @@ export default function Recoltes({ navigation }) {
   const [motif, setMotif] = useState('');
   const [snack, setSnack] = useState('');
   const [filterCampagne, setFilterCampagne] = useState('');
+  const [filterParcelle, setFilterParcelle] = useState('');
   const [filterSecteur, setFilterSecteur] = useState('');
 
   useEffect(() => { fetchAll(); }, []);
@@ -48,8 +49,16 @@ export default function Recoltes({ navigation }) {
   const getSecteurNom = (id) => secteurs.find(s => s.id_secteur === id)?.nom || '-';
   const getAnalyse = (recolteId) => analyses.find(a => a.recolte_id === recolteId);
 
+  const secteursOfParcelle = filterParcelle
+    ? secteurs.filter(s => String(s.parcelle_id) === filterParcelle)
+    : secteurs;
+
   const recoltesFiltered = recoltes.filter(r => {
     if (filterCampagne && r.campagne !== filterCampagne) return false;
+    if (filterParcelle) {
+      const sec = secteurs.find(s => s.id_secteur === r.secteur_id);
+      if (!sec || String(sec.parcelle_id) !== filterParcelle) return false;
+    }
     if (filterSecteur && String(r.secteur_id) !== filterSecteur) return false;
     return true;
   });
@@ -127,10 +136,16 @@ export default function Recoltes({ navigation }) {
               options={campagnes.map(c => ({ value: c, label: c }))}
             />
             <SelectFilter
+              label="Parcelle"
+              value={filterParcelle}
+              onChange={v => { setFilterParcelle(v); setFilterSecteur(''); }}
+              options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
+            />
+            <SelectFilter
               label="Secteur"
               value={filterSecteur}
               onChange={setFilterSecteur}
-              options={secteurs.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+              options={secteursOfParcelle.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
             />
           </ScrollView>
         </View>
