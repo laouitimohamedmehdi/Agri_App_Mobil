@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import SelectFilter from '../../components/SelectFilter';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -118,9 +119,17 @@ export default function Utilisateurs({ navigation }) {
             <TextInput label="Email" value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" style={{ marginBottom: 8 }} />
             <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} style={{ marginBottom: 8 }} />
             <TextInput label={editing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry style={{ marginBottom: 8 }} />
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <Text>Rôle admin</Text>
-              <Switch value={form.role === 'admin'} onValueChange={v => setForm(f => ({ ...f, role: v ? 'admin' : 'user' }))} color="#722ed1" />
+            <Text variant="labelMedium" style={{ marginBottom: 4 }}>Rôle</Text>
+            <View style={{ marginBottom: 12 }}>
+              <SelectFilter
+                label="Choisir un rôle"
+                value={form.role}
+                onChange={v => setForm(f => ({ ...f, role: v }))}
+                options={[
+                  { value: 'user', label: 'Utilisateur' },
+                  { value: 'admin', label: 'Administrateur' },
+                ]}
+              />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text>Compte actif</Text>
