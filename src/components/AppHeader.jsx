@@ -3,7 +3,7 @@ import { Appbar, Badge } from 'react-native-paper';
 import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import client from '../api/client';
-import { DrawerContext } from '../navigation/AppNavigator';
+import { DrawerContext } from '../contexts/DrawerContext';
 
 export default function AppHeader({ title }) {
   const { openDrawer } = useContext(DrawerContext);

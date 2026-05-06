@@ -1,13 +1,14 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState } from 'react';
 import { View, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/native';
 import { Text, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
+import { DrawerContext } from '../contexts/DrawerContext';
+import { navigationRef } from '../../App';
 import DashboardScreen from '../screens/Dashboard';
 import TravailAgricoleScreen from '../screens/TravailAgricole';
 import RecoltesScreen from '../screens/Recoltes';
@@ -22,9 +23,6 @@ import Notifications from '../screens/Notifications';
 
 const Tab = createBottomTabNavigator();
 const ExtraStack = createStackNavigator();
-
-export const DrawerContext = createContext({ openDrawer: () => {} });
-export const useDrawer = () => useContext(DrawerContext);
 
 const TAB_ICONS = {
   Dashboard: 'view-dashboard',
@@ -48,7 +46,6 @@ function ExtraScreens() {
 }
 
 function TabsWithDrawer() {
-  const navigation = useNavigation();
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -59,24 +56,25 @@ function TabsWithDrawer() {
 
   const navigateTo = (item) => {
     closeDrawer();
+    if (!navigationRef.isReady()) return;
     if (item.tab) {
-      navigation.navigate(item.tab);
+      navigationRef.navigate(item.tab);
     } else {
-      navigation.navigate('Extra', { screen: item.screen });
+      navigationRef.navigate('Extra', { screen: item.screen });
     }
   };
 
   const menuItems = [
     { label: 'Dashboard', icon: 'view-dashboard', tab: 'Dashboard' },
+    { label: 'Parcelles & Secteurs', icon: 'map-marker-multiple', screen: 'ParcellesSecteurs' },
     { label: 'Travaux Agricoles', icon: 'shovel', tab: 'Travaux' },
     { label: 'Récoltes', icon: 'basket', tab: 'Récoltes' },
-    { label: 'Présences', icon: 'account-clock', tab: 'Présences' },
-    { label: 'Parcelles & Secteurs', icon: 'map-marker-multiple', screen: 'ParcellesSecteurs' },
     { label: 'Fertilisation', icon: 'sprout', screen: 'Fertilisation' },
     { label: 'Variétés', icon: 'leaf', screen: 'Varietes' },
+    { label: 'Présences', icon: 'account-clock', tab: 'Présences' },
     ...(isAdmin ? [
-      { label: 'Demandes', icon: 'file-document-outline', tab: 'Demandes' },
       { label: 'RH', icon: 'account-group', screen: 'RH' },
+      { label: 'Demandes', icon: 'file-document-outline', tab: 'Demandes' },
       { label: 'Utilisateurs', icon: 'account-cog', screen: 'Utilisateurs' },
     ] : []),
   ];
