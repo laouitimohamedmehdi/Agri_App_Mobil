@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import SelectFilter from '../../components/SelectFilter';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -98,21 +99,25 @@ export default function Fertilisation({ navigation }) {
       <AppHeader title="Fertilisation" navigation={navigation} />
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Chip selected={!filterParcelle} onPress={() => { setFilterParcelle(''); setFilterSecteur(''); }} style={styles.chip}>Toutes parcelles</Chip>
-          {parcelles.map(p => (
-            <Chip key={p.id_parcelle} selected={filterParcelle === String(p.id_parcelle)} onPress={() => { setFilterParcelle(String(p.id_parcelle)); setFilterSecteur(''); }} style={styles.chip}>{p.nom}</Chip>
-          ))}
-          {secteursOfParcelle.map(s => (
-            <Chip key={s.id_secteur} selected={filterSecteur === String(s.id_secteur)} onPress={() => setFilterSecteur(filterSecteur === String(s.id_secteur) ? '' : String(s.id_secteur))} style={styles.chip}>{s.nom}</Chip>
-          ))}
+          <SelectFilter
+            label="Parcelle"
+            value={filterParcelle}
+            onChange={v => { setFilterParcelle(v); setFilterSecteur(''); }}
+            options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
+          />
+          <SelectFilter
+            label="Secteur"
+            value={filterSecteur}
+            onChange={setFilterSecteur}
+            options={secteursOfParcelle.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+          />
+          <SelectFilter
+            label="Année"
+            value={filterAnnee}
+            onChange={setFilterAnnee}
+            options={annees.map(a => ({ value: a, label: a }))}
+          />
         </ScrollView>
-        {annees.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}>
-            {annees.map(a => (
-              <Chip key={a} selected={filterAnnee === a} onPress={() => setFilterAnnee(filterAnnee === a ? '' : a)} style={styles.chip}>{a}</Chip>
-            ))}
-          </ScrollView>
-        )}
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
         <MaterialCommunityIcons name="sprout" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
