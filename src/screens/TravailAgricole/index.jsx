@@ -147,44 +147,42 @@ export default function TravailAgricole({ navigation }) {
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView horizontal style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
-          <View style={{ width: 820 }}>
+          <View style={{ width: 980 }}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.th, { width: 140 }]}>Nom</Text>
-              <Text style={[styles.th, { width: 100 }]}>Type</Text>
-              <Text style={[styles.th, { width: 90 }]}>Parcelle</Text>
-              <Text style={[styles.th, { width: 90 }]}>Secteur</Text>
-              <Text style={[styles.th, { width: 70, textAlign: 'right' }]}>Coût</Text>
-              <Text style={[styles.th, { width: 50, textAlign: 'right' }]}>M.O.</Text>
-              <Text style={[styles.th, { width: 90 }]}>Date</Text>
-              <Text style={[styles.th, { width: 80 }]}>Statut</Text>
-              <Text style={[styles.th, { width: 110 }]}>Actions</Text>
+              <Text style={[styles.th, { width: 105 }]}>Date</Text>
+              <Text style={[styles.th, { width: 180 }]}>Nom</Text>
+              <Text style={[styles.th, { width: 140 }]}>Type</Text>
+              <Text style={[styles.th, { width: 130 }]}>Parcelle</Text>
+              <Text style={[styles.th, { width: 140 }]}>Secteur</Text>
+              <Text style={[styles.th, { width: 95, textAlign: 'right' }]}>Coût (DH)</Text>
+              <Text style={[styles.th, { width: 100 }]}>Statut</Text>
+              <Text style={[styles.th, { width: 90 }]}>Actions</Text>
             </View>
-            {filtered.map((t, idx) => (
-              <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
-                <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.nom}</Text>
-                <Text style={[styles.td, { width: 100 }]} numberOfLines={1}>{t.type}</Text>
-                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
-                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
-                <Text style={[styles.td, { width: 70, textAlign: 'right' }]}>{t.cout} DH</Text>
-                <Text style={[styles.td, { width: 50, textAlign: 'right' }]}>{t.m_o}j</Text>
-                <Text style={[styles.td, { width: 90 }]}>{t.date}</Text>
-                <View style={{ width: 80, justifyContent: 'center' }}>
-                  <Chip compact textStyle={{ fontSize: 9 }} style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '33' }}>
-                    {t.statut}
-                  </Chip>
+            {filtered.map((t, idx) => {
+              const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
+              const statutColor = { planifie: '#faad14', actif: '#1677ff', termine: '#52c41a' }[t.statut] || '#888';
+              return (
+                <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
+                  <Text style={[styles.td, { width: 105 }]}>{t.date || '—'}</Text>
+                  <Text style={[styles.td, { width: 180 }]} numberOfLines={1}>{t.nom}</Text>
+                  <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.type}</Text>
+                  <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
+                  <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                  <Text style={[styles.td, { width: 95, textAlign: 'right' }]}>{t.cout?.toLocaleString('fr-FR') || '0'}</Text>
+                  <Text style={[styles.td, { width: 100, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
+                  <View style={{ width: 90, flexDirection: 'row', alignItems: 'center' }}>
+                    {isAdmin ? (
+                      <>
+                        <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
+                        <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
+                      </>
+                    ) : (
+                      <Button compact icon="file-send" onPress={() => { setDemandeItem(t); setMotif(''); }} textColor="#fa8c16" />
+                    )}
+                  </View>
                 </View>
-                <View style={{ width: 110, flexDirection: 'row', alignItems: 'center' }}>
-                  {isAdmin ? (
-                    <>
-                      <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
-                      <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
-                    </>
-                  ) : (
-                    <Button compact icon="file-send" onPress={() => { setDemandeItem(t); setMotif(''); }} textColor="#fa8c16" />
-                  )}
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </ScrollView>
       )}
