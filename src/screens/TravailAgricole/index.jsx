@@ -31,13 +31,13 @@ export default function TravailAgricole({ navigation }) {
   const [filterStatut, setFilterStatut] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '' });
+  const [form, setForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', quantite: '', cout_unitaire: '' });
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [demandeSupprItem, setDemandeSupprItem] = useState(null);
   const [demandeModifItem, setDemandeModifItem] = useState(null);
   const [motifSuppr, setMotifSuppr] = useState('');
-  const [demandeForm, setDemandeForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', motif: '' });
+  const [demandeForm, setDemandeForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', motif: '', quantite: '', cout_unitaire: '' });
   const [savingDemande, setSavingDemande] = useState(false);
   const [snack, setSnack] = useState('');
 
@@ -77,13 +77,13 @@ export default function TravailAgricole({ navigation }) {
     return parcelles.find(p => p.id_parcelle === sec?.parcelle_id)?.nom || '-';
   };
 
-  const openCreate = () => { setEditing(null); setForm({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '' }); setDialogVisible(true); };
-  const openEdit = (t) => { setEditing(t); setForm({ nom: t.nom, type: t.type ?? 'Taille', cout: String(t.cout ?? ''), m_o: String(t.m_o ?? ''), date: t.date ?? '', statut: t.statut, secteur_id: String(t.secteur_id ?? '') }); setDialogVisible(true); };
+  const openCreate = () => { setEditing(null); setForm({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', quantite: '', cout_unitaire: '' }); setDialogVisible(true); };
+  const openEdit = (t) => { setEditing(t); setForm({ nom: t.nom, type: t.type ?? 'Taille', cout: String(t.cout ?? ''), m_o: String(t.m_o ?? ''), date: t.date ?? '', statut: t.statut, secteur_id: String(t.secteur_id ?? ''), quantite: t.quantite != null ? String(t.quantite) : '', cout_unitaire: t.cout_unitaire != null ? String(t.cout_unitaire) : '' }); setDialogVisible(true); };
 
   const save = async () => {
     setSaving(true);
     try {
-      const payload = { nom: form.nom, type: form.type, cout: parseFloat(form.cout) || 0, m_o: parseInt(form.m_o) || 0, date: form.date, statut: form.statut, secteur_id: parseInt(form.secteur_id) || null };
+      const payload = { nom: form.nom, type: form.type, cout: parseFloat(form.cout) || 0, m_o: parseInt(form.m_o) || 0, date: form.date, statut: form.statut, secteur_id: parseInt(form.secteur_id) || null, quantite: form.type === 'Fertilisation' && form.quantite !== '' ? parseFloat(form.quantite) : null, cout_unitaire: form.type === 'Fertilisation' && form.cout_unitaire !== '' ? parseFloat(form.cout_unitaire) : null };
       if (editing) await client.put(`/travaux/${editing.id_travail}`, payload);
       else await client.post('/travaux/', payload);
       await fetchTravaux(); setDialogVisible(false);
@@ -99,14 +99,14 @@ export default function TravailAgricole({ navigation }) {
 
   const openDemandeModif = (t) => {
     setDemandeModifItem(t);
-    setDemandeForm({ nom: t.nom, type: t.type ?? 'Taille', cout: String(t.cout ?? ''), m_o: String(t.m_o ?? ''), date: t.date ?? '', statut: t.statut, secteur_id: String(t.secteur_id ?? ''), motif: '' });
+    setDemandeForm({ nom: t.nom, type: t.type ?? 'Taille', cout: String(t.cout ?? ''), m_o: String(t.m_o ?? ''), date: t.date ?? '', statut: t.statut, secteur_id: String(t.secteur_id ?? ''), motif: '', quantite: t.quantite != null ? String(t.quantite) : '', cout_unitaire: t.cout_unitaire != null ? String(t.cout_unitaire) : '' });
   };
 
   const envoyerDemandeModif = async () => {
     setSavingDemande(true);
     try {
       const { motif: m, ...data } = demandeForm;
-      await soumettreDemande({ type_action: 'modification', entity_type: 'travail', travail_id: demandeModifItem.id_travail, motif: m, nouvelles_donnees: { nom: data.nom, type: data.type, cout: parseFloat(data.cout) || 0, m_o: parseInt(data.m_o) || 0, date: data.date, statut: data.statut, secteur_id: parseInt(data.secteur_id) || null } });
+      await soumettreDemande({ type_action: 'modification', entity_type: 'travail', travail_id: demandeModifItem.id_travail, motif: m, nouvelles_donnees: { nom: data.nom, type: data.type, cout: parseFloat(data.cout) || 0, m_o: parseInt(data.m_o) || 0, date: data.date, statut: data.statut, secteur_id: parseInt(data.secteur_id) || null, quantite: data.type === 'Fertilisation' && data.quantite !== '' ? parseFloat(data.quantite) : null, cout_unitaire: data.type === 'Fertilisation' && data.cout_unitaire !== '' ? parseFloat(data.cout_unitaire) : null } });
       setSnack('Demande de modification envoyée');
       setDemandeModifItem(null);
     } catch { setSnack("Erreur lors de l'envoi"); }
@@ -253,7 +253,13 @@ export default function TravailAgricole({ navigation }) {
 
               <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
               <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" />
+              <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              {form.type === 'Fertilisation' && (
+                <>
+                  <TextInput label="Quantité" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Coût unitaire (DT)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
+                </>
+              )}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
@@ -277,6 +283,12 @@ export default function TravailAgricole({ navigation }) {
               </View>
               <TextInput label="Coût (DT)" value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              {demandeForm.type === 'Fertilisation' && (
+                <>
+                  <TextInput label="Quantité" value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Coût unitaire (DT)" value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                </>
+              )}
               <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} />
             </ScrollView>
           </Dialog.Content>
