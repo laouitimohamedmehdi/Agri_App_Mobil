@@ -154,6 +154,7 @@ export default function ParcellesSecteurs({ navigation }) {
             )}
           </List.Accordion>
         ))}
+        <View style={{ height: 80 }} />
       </ScrollView>
       {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreateParcelle} />}
       <Portal>
