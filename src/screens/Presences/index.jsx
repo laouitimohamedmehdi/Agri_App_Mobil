@@ -379,7 +379,7 @@ export default function Presences({ navigation }) {
               </Card>
             );
           })}
-          <View style={{ height: 24 }} />
+          <View style={{ height: 80 }} />
         </ScrollView>
       )}
 
