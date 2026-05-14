@@ -107,7 +107,7 @@ function DemandeCard({ d, expanded, setExpanded, onDecide }) {
         <MaterialCommunityIcons name={tc.icon} size={22} color={tc.color} style={{ marginRight: 10 }} />
         <View style={{ flex: 1 }}>
           <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
-            {d.type_action} — {d.entity_type || 'travail'} #{d.entity_id || d.travail_id || ''}
+            {d.type_action ? d.type_action.charAt(0).toUpperCase() + d.type_action.slice(1) : ''} — {d.entity_type || 'travail'} #{d.entity_id || d.travail_id || ''}
           </Text>
           <Text variant="bodySmall" style={{ color: '#888' }}>Par: {d.user_id} • {d.date_demande || ''}</Text>
         </View>
