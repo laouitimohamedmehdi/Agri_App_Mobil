@@ -60,14 +60,14 @@ export default function Demandes({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Demandes" navigation={navigation} />
-      <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-        <View style={styles.filtersBox}>
-          <SegmentedButtons value={filterStatut} onValueChange={setFilterStatut} style={{ marginBottom: 8 }}
-            buttons={[{ value: 'tous', label: 'Tous' }, { value: 'en_attente', label: 'En attente' }, { value: 'approuvee', label: 'Approuvées' }, { value: 'rejetee', label: 'Rejetées' }]} />
-          <SegmentedButtons value={filterType} onValueChange={setFilterType}
-            buttons={[{ value: 'tous', label: 'Tous' }, { value: 'modification', label: 'Modif.' }, { value: 'suppression', label: 'Suppr.' }, { value: 'notification', label: 'Notif.' }]} />
-        </View>
+      <View style={styles.filtersBox}>
+        <SegmentedButtons value={filterStatut} onValueChange={setFilterStatut} style={{ marginBottom: 8 }}
+          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'en_attente', label: 'En attente' }, { value: 'approuvee', label: 'Approuvées' }, { value: 'rejetee', label: 'Rejetées' }]} />
+        <SegmentedButtons value={filterType} onValueChange={setFilterType}
+          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'modification', label: 'Modif.' }, { value: 'suppression', label: 'Suppr.' }, { value: 'notification', label: 'Notif.' }]} />
+      </View>
 
+      <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
         {filtered.length === 0 && <EmptyState message="Aucune demande" />}
 
         {pending.length > 0 && (
