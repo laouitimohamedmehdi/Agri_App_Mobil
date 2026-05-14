@@ -70,7 +70,7 @@ export default function TravailAgricole({ navigation }) {
     if (filterType && t.type !== filterType) return false;
     if (filterStatut && t.statut !== filterStatut) return false;
     return true;
-  });
+  }).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   const getSecteurNom = (id) => secteurs.find(s => s.id_secteur === id)?.nom || '-';
   const getParcelleNom = (secteurId) => {
@@ -229,7 +229,7 @@ export default function TravailAgricole({ navigation }) {
               })}
             </View>
           </ScrollView>
-          <View style={{ height: 48 }} />
+          <View style={{ height: 80 }} />
         </ScrollView>
       )}
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
