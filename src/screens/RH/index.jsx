@@ -127,7 +127,9 @@ export default function RH({ navigation }) {
                       {e.telephone ? <Text variant="bodySmall" style={{ color: '#888', fontSize: 11 }}>{e.telephone}</Text> : null}
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
                         <Chip compact icon={sc.icon} style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>{salaire}</Chip>
-                        {e.statut !== 'actif' && <Chip compact style={{ backgroundColor: '#f5f5f5' }} textStyle={{ color: '#aaa', fontSize: 10 }}>Inactif</Chip>}
+                        <Chip compact style={{ backgroundColor: e.statut === 'actif' ? '#e8f5e9' : '#f5f5f5' }} textStyle={{ color: e.statut === 'actif' ? '#2d7a4a' : '#aaa', fontSize: 10 }}>
+                          {e.statut === 'actif' ? 'Actif' : 'Inactif'}
+                        </Chip>
                       </View>
                     </View>
                     <View style={{ gap: 4 }}>
@@ -190,11 +192,12 @@ export default function RH({ navigation }) {
               <DatePickerInput label="Date fin contrat" value={form.date_fin_contrat} onChange={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
-              <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir un statut" value={form.statut}
-                  onChange={v => setForm(f => ({ ...f, statut: v }))}
-                  options={[{ value: 'actif', label: 'Actif' }, { value: 'inactif', label: 'Inactif' }]} />
-              </View>
+              <SegmentedButtons
+                value={form.statut}
+                onValueChange={v => setForm(f => ({ ...f, statut: v }))}
+                buttons={[{ value: 'actif', label: 'Actif' }, { value: 'inactif', label: 'Inactif' }]}
+                style={{ marginBottom: 12 }}
+              />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de salaire</Text>
               <View style={{ marginBottom: 12 }}>
