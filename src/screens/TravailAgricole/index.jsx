@@ -204,7 +204,7 @@ export default function TravailAgricole({ navigation }) {
                       <Text style={{ fontSize: 11, color: '#8c8c8c' }} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
                     </View>
                     <View style={{ width: 88, paddingRight: 8, justifyContent: 'center' }}>
-                      <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR') || '0'}</Text>
+                      <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</Text>
                       {isFert && (
                         <Text style={{ fontSize: 10, color: '#13c2c2', fontStyle: 'italic' }}>
                           {t.quantite} × {t.cout_unitaire}
@@ -212,17 +212,17 @@ export default function TravailAgricole({ navigation }) {
                       )}
                     </View>
                     <Text style={[styles.td, { width: 68, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
-                    <View style={{ width: 80, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
                       {isAdmin ? (
                         <>
-                          <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
-                          <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
+                          <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => openEdit(t)} textColor="#1677ff" />
+                          <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
                         </>
                       ) : (
-                        <View style={{ flexDirection: 'row' }}>
-                          <Button icon="pencil" compact onPress={() => openDemandeModif(t)} textColor="#1677ff" />
-                          <Button icon="delete" compact onPress={() => { setDemandeSupprItem(t); setMotifSuppr(''); }} textColor="#ff4d4f" />
-                        </View>
+                        <>
+                          <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => openDemandeModif(t)} textColor="#1677ff" />
+                          <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => { setDemandeSupprItem(t); setMotifSuppr(''); }} textColor="#ff4d4f" />
+                        </>
                       )}
                     </View>
                   </View>
