@@ -92,6 +92,7 @@ export default function Varietes({ navigation }) {
             ))}
           </Card>
         )}
+        <View style={{ height: 80 }} />
       </ScrollView>
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
