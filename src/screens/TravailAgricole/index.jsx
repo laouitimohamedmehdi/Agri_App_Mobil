@@ -206,8 +206,8 @@ export default function TravailAgricole({ navigation }) {
                     <View style={{ width: 88, paddingRight: 8, justifyContent: 'center' }}>
                       <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</Text>
                       {isFert && (
-                        <Text style={{ fontSize: 10, color: '#13c2c2', fontStyle: 'italic' }}>
-                          {t.quantite} × {t.cout_unitaire}
+                        <Text style={{ fontSize: 9, color: '#13c2c2', fontStyle: 'italic' }}>
+                          {t.quantite} qté × {t.cout_unitaire} p.u.
                         </Text>
                       )}
                     </View>
