@@ -25,11 +25,11 @@ const Tab = createBottomTabNavigator();
 const ExtraStack = createStackNavigator();
 
 const TAB_ICONS = {
-  Dashboard: 'view-dashboard',
-  Travaux: 'shovel',
+  Dashboard: 'speedometer',
+  Travaux: 'tractor',
   'Récoltes': 'basket',
-  'Présences': 'account-clock',
-  Demandes: 'file-document-outline',
+  'Présences': 'calendar-month',
+  Demandes: 'clipboard-list',
 };
 
 function ExtraScreens() {
@@ -65,20 +65,20 @@ function TabsWithDrawer() {
   };
 
   const menuItems = [
-    { label: 'Dashboard', icon: 'view-dashboard', tab: 'Dashboard' },
-    { label: 'Présences', icon: 'account-clock', tab: 'Présences' },
+    { label: 'Dashboard', icon: 'speedometer', tab: 'Dashboard' },
+    { label: 'Présences', icon: 'calendar-month', tab: 'Présences' },
     { divider: true, title: 'EXPLOITATION' },
-    { label: 'Parcelles & Secteurs', icon: 'map-marker-multiple', screen: 'ParcellesSecteurs' },
+    { label: 'Parcelles & Secteurs', icon: 'map', screen: 'ParcellesSecteurs' },
     { divider: true, title: 'PRODUCTION' },
-    { label: 'Travaux Agricoles', icon: 'shovel', tab: 'Travaux' },
+    { label: 'Travaux Agricoles', icon: 'tractor', tab: 'Travaux' },
+    { label: 'Autres Dépenses', icon: 'receipt', screen: 'Depenses' },
     { label: 'Récoltes', icon: 'basket', tab: 'Récoltes' },
-    { label: 'Autres Dépenses', icon: 'file-invoice-outline', screen: 'Depenses' },
     { divider: true, title: 'RÉFÉRENTIEL' },
     { label: 'Variétés', icon: 'leaf', screen: 'Varietes' },
     ...(isAdmin ? [
       { divider: true, title: 'ADMINISTRATION' },
-      { label: 'RH', icon: 'account-group', screen: 'RH' },
-      { label: 'Demandes', icon: 'file-document-outline', tab: 'Demandes' },
+      { label: 'Gestion RH', icon: 'account-tie', screen: 'RH' },
+      { label: 'Demandes', icon: 'clipboard-list', tab: 'Demandes' },
       { label: 'Paramètres', icon: 'cog', screen: 'Parametres' },
     ] : []),
   ];
