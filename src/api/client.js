@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 const client = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 15000,
+  headers: { 'bypass-tunnel-reminder': 'true' },
 });
 
 client.interceptors.request.use(async (config) => {
