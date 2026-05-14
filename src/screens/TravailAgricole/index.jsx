@@ -25,8 +25,7 @@ export default function TravailAgricole({ navigation }) {
   const isAdmin = user?.role === 'admin';
   const [travaux, setTravaux] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterParcelle, setFilterParcelle] = useState('');
-  const [filterSecteur, setFilterSecteur] = useState('');
+  const [filterLieu, setFilterLieu] = useState('');
   const [filterAnnee, setFilterAnnee] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
@@ -58,14 +57,13 @@ export default function TravailAgricole({ navigation }) {
     }
   };
 
-  const secteursOfParcelle = filterParcelle ? secteurs.filter(s => String(s.parcelle_id) === filterParcelle) : secteurs;
+  const lieuOptions = secteurs.map(s => ({
+    value: String(s.id_secteur),
+    label: `${parcelles.find(p => p.id_parcelle === s.parcelle_id)?.nom || '—'} — ${s.nom}`,
+  }));
 
   const filtered = travaux.filter(t => {
-    if (filterSecteur && String(t.secteur_id) !== filterSecteur) return false;
-    if (filterParcelle) {
-      const sec = secteurs.find(s => s.id_secteur === t.secteur_id);
-      if (!sec || String(sec.parcelle_id) !== filterParcelle) return false;
-    }
+    if (filterLieu && String(t.secteur_id) !== filterLieu) return false;
     if (filterAnnee && t.date && !t.date.startsWith(filterAnnee)) return false;
     if (filterType && t.type !== filterType) return false;
     if (filterStatut && t.statut !== filterStatut) return false;
@@ -141,16 +139,10 @@ export default function TravailAgricole({ navigation }) {
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <SelectFilter
-            label="Parcelle"
-            value={filterParcelle}
-            onChange={v => { setFilterParcelle(v); setFilterSecteur(''); }}
-            options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
-          />
-          <SelectFilter
-            label="Secteur"
-            value={filterSecteur}
-            onChange={setFilterSecteur}
-            options={secteursOfParcelle.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
+            label="Lieu"
+            value={filterLieu}
+            onChange={setFilterLieu}
+            options={lieuOptions}
           />
           <SelectFilter
             label="Année"
