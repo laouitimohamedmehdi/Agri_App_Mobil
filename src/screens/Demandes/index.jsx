@@ -89,6 +89,7 @@ export default function Demandes({ navigation }) {
             {others.map(d => <DemandeCard key={d.id} d={d} expanded={expanded} setExpanded={setExpanded} onDecide={decide} />)}
           </>
         )}
+        <View style={{ height: 80 }} />
       </ScrollView>
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
