@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text, Divider, Chip, Snackbar, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { BarChart, PieChart } from 'react-native-gifted-charts';
+import { LineChart, PieChart } from 'react-native-gifted-charts';
 import AppHeader from '../../components/AppHeader';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import client from '../../api/client';
@@ -38,8 +38,8 @@ export default function DashboardScreen({ navigation }) {
         client.get('/depenses/').catch(() => ({ data: [] })),
         ...months.map(m => client.get(`/feuilles/?mois=${m}`).catch(() => ({ data: null }))),
       ]);
-      const allLignes = feuillesRes.flatMap(f => f.data?.lignes || []);
-      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, depenses: depenses.data, feuillesLignes: allLignes });
+      const allFeuilles = months.map((mois, i) => ({ mois, lignes: feuillesRes[i]?.data?.lignes || [] }));
+      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, depenses: depenses.data, allFeuilles });
     } catch { setSnack('Erreur de chargement'); }
     finally { setLoading(false); }
   };
@@ -76,7 +76,7 @@ export default function DashboardScreen({ navigation }) {
   const totalCoutTravaux = travauxRef.filter(t => t.statut === 'termine').reduce((s, t) => s + (t.cout || 0), 0);
 
   // Salaires : somme sur tous les mois Jan→mois courant
-  const totalSalaires = (data?.feuillesLignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
+  const totalSalaires = (data?.allFeuilles || []).flatMap(f => f.lignes).reduce((s, l) => s + (l.cout_total || 0), 0);
   const totalDepenses = (data?.depenses || []).reduce((s, d) => s + ((d.quantite || 0) * (d.cout_unitaire || 0)), 0);
   const totalCharges = totalFraisRecolte + totalCoutTravaux + totalSalaires + totalDepenses;
   const margeNette = revenuBrut - totalCharges;
@@ -85,9 +85,27 @@ export default function DashboardScreen({ navigation }) {
 
   const derniersTravaux = (data?.travaux || []).slice(-5).reverse();
 
-  const barData = Object.entries(
-    (data?.recoltes || []).reduce((acc, r) => { const k = r.campagne || 'Sans'; acc[k] = (acc[k] || 0) + (r.production || 0); return acc; }, {})
-  ).map(([label, value]) => ({ label, value, frontColor: '#2d7a4a' }));
+  // Activité financière — Jan → Déc année courante
+  const MOIS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+  const currentMonthIdx = new Date().getMonth();
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const moisKey = `${currentYear}-${String(i + 1).padStart(2, '0')}`;
+    if (i > currentMonthIdx) return { mois: MOIS_FR[i], revenu: 0, charges: 0 };
+    const recoltesInMonth = recoltes.filter(r => r.date?.slice(0, 7) === moisKey);
+    const revenu = recoltesInMonth.reduce((s, r) => {
+      const a = (data?.analyses || []).find(an => an.recolte_id === r.id_recolte);
+      return s + (a?.huile || 0) * (a?.prix || 0);
+    }, 0);
+    const idsMonth = new Set(recoltesInMonth.map(r => r.id_recolte));
+    const frais = (data?.charges || []).reduce((s, c) => idsMonth.has(c.recolte_id) ? s + (c.montant || 0) : s, 0);
+    const coutTravaux = (data?.travaux || []).reduce((s, t) =>
+      t.date?.startsWith(moisKey) && t.statut === 'termine' ? s + (t.cout || 0) : s, 0);
+    const coutDepenses = (data?.depenses || []).reduce((s, d) =>
+      d.date?.startsWith(moisKey) ? s + (d.quantite || 0) * (d.cout_unitaire || 0) : s, 0);
+    const feuilleMois = (data?.allFeuilles || []).find(f => f.mois === moisKey);
+    const salaires = (feuilleMois?.lignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
+    return { mois: MOIS_FR[i], revenu: Math.round(revenu), charges: Math.round(frais + coutTravaux + coutDepenses + salaires) };
+  });
 
   // Couleurs DESIGN_SYSTEM — prop `color` (PieChart), pas frontColor (BarChart)
   const PIE_ITEMS = [
@@ -130,21 +148,44 @@ export default function DashboardScreen({ navigation }) {
           </>
         )}
 
-        {/* Graphiques admin */}
-        {isAdmin && barData.length > 0 && (
+        {/* Activité financière */}
+        {isAdmin && (
           <>
-            <SectionHeader icon="chart-bar" title="Récoltes par campagne" />
+            <SectionHeader icon="chart-line" title={`Activité financière ${currentYear}`} />
             <Card style={styles.chartCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 16, marginBottom: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={{ width: 12, height: 3, backgroundColor: '#2d7a4a', borderRadius: 2 }} />
+                  <Text style={{ fontSize: 10, color: '#555' }}>Revenus</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={{ width: 12, height: 3, backgroundColor: '#ff4d4f', borderRadius: 2 }} />
+                  <Text style={{ fontSize: 10, color: '#555' }}>Charges</Text>
+                </View>
+              </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <BarChart
-                  data={barData}
-                  width={Math.max(300, barData.length * 70)}
-                  height={160}
-                  barWidth={36}
+                <LineChart
+                  areaChart
+                  data={monthlyData.map(d => ({ value: d.revenu }))}
+                  data2={monthlyData.map(d => ({ value: d.charges }))}
+                  color1="#2d7a4a"
+                  color2="#ff4d4f"
+                  startFillColor1="#2d7a4a"
+                  startFillColor2="#ff4d4f"
+                  startOpacity={0.25}
+                  endOpacity={0.02}
+                  thickness={2}
+                  dataPointsColor1="#2d7a4a"
+                  dataPointsColor2="#ff4d4f"
+                  dataPointsRadius={3}
+                  xAxisLabelTexts={MOIS_FR}
+                  xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
+                  yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                   noOfSections={4}
-                  barBorderRadius={4}
-                  yAxisTextStyle={{ color: '#888', fontSize: 10 }}
-                  xAxisLabelTextStyle={{ color: '#555', fontSize: 9 }}
+                  width={Math.max(300, 12 * 28)}
+                  height={140}
+                  hideRules={false}
+                  rulesColor="#f0f0f0"
                 />
               </ScrollView>
             </Card>
