@@ -17,7 +17,7 @@ import DemandesScreen from '../screens/Demandes';
 import ParcellesSecteurs from '../screens/ParcellesSecteurs';
 import Varietes from '../screens/Varietes';
 import RH from '../screens/RH';
-import Utilisateurs from '../screens/Utilisateurs';
+import Parametres from '../screens/Parametres';
 import Notifications from '../screens/Notifications';
 
 const Tab = createBottomTabNavigator();
@@ -37,7 +37,7 @@ function ExtraScreens() {
       <ExtraStack.Screen name="ParcellesSecteurs" component={ParcellesSecteurs} />
       <ExtraStack.Screen name="Varietes" component={Varietes} />
       <ExtraStack.Screen name="RH" component={RH} />
-      <ExtraStack.Screen name="Utilisateurs" component={Utilisateurs} />
+      <ExtraStack.Screen name="Parametres" component={Parametres} />
       <ExtraStack.Screen name="Notifications" component={Notifications} />
     </ExtraStack.Navigator>
   );
@@ -76,7 +76,7 @@ function TabsWithDrawer() {
       { divider: true, title: 'ADMINISTRATION' },
       { label: 'RH', icon: 'account-group', screen: 'RH' },
       { label: 'Demandes', icon: 'file-document-outline', tab: 'Demandes' },
-      { label: 'Utilisateurs', icon: 'account-cog', screen: 'Utilisateurs' },
+      { label: 'Paramètres', icon: 'cog', screen: 'Parametres' },
     ] : []),
   ];
 
