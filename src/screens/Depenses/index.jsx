@@ -134,7 +134,7 @@ export default function Depenses({ navigation }) {
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
-        <MaterialCommunityIcons name="file-invoice-outline" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
+        <MaterialCommunityIcons name="receipt" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} dépense(s)</Text>
       </View>
 
@@ -143,7 +143,7 @@ export default function Depenses({ navigation }) {
           {filtered.map((d, idx) => {
             const total = (d.quantite || 0) * (d.cout_unitaire || 0);
             return (
-              <Card key={d.id_depense} style={{ margin: 8, marginBottom: idx === filtered.length - 1 ? 80 : 0, elevation: 1 }}>
+              <Card key={d.id_depense} style={{ margin: 8, elevation: 1 }}>
                 <Card.Content>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <View style={{ flex: 1 }}>
@@ -174,6 +174,7 @@ export default function Depenses({ navigation }) {
               </Card>
             );
           })}
+          <View style={{ height: 80 }} />
         </ScrollView>
       )}
 
