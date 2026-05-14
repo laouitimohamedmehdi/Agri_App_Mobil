@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Snackbar, SegmentedButtons, Chip, Card, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -29,6 +29,13 @@ export default function RH({ navigation }) {
   const [filterNom, setFilterNom] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
   const [filterPoste, setFilterPoste] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshEmployes();
+    setRefreshing(false);
+  };
 
   const postes = [...new Set(employes.map(e => e.poste).filter(Boolean))];
   const employesFiltres = employes.filter(e => {
@@ -99,7 +106,7 @@ export default function RH({ navigation }) {
       )}
 
       {tab === 'employes' ? (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
             <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{employesFiltres.length} employé(s)</Text>

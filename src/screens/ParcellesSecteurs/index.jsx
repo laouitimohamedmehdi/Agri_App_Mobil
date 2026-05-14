@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 const SCREEN_H = Dimensions.get('window').height;
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -27,6 +27,13 @@ export default function ParcellesSecteurs({ navigation }) {
   const [expandedParcelle, setExpandedParcelle] = useState(null);
   const [filterParcelle, setFilterParcelle] = useState('');
   const [filterSecteur, setFilterSecteur] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([refreshSecteurs(), refreshParcelles()]);
+    setRefreshing(false);
+  };
 
   const secteursOfParcelle = (parcelleId) => secteurs.filter(s => s.parcelle_id === parcelleId);
   const getVarieteNom = (id) => varietes.find(v => v.id_variete === id)?.nom || '-';
@@ -101,7 +108,7 @@ export default function ParcellesSecteurs({ navigation }) {
         />
       </View>
 
-      <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
+      <ScrollView style={{ backgroundColor: '#f0f4f0' }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
         {parcelles.length === 0 && <EmptyState message="Aucune parcelle enregistrée" />}
         {parcelles
           .filter(p => !filterParcelle || String(p.id_parcelle) === filterParcelle)

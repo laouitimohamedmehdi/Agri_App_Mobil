@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { Text, Snackbar, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -18,6 +18,13 @@ export default function Notifications({ navigation }) {
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchNotifs();
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     fetchNotifs();
@@ -41,7 +48,7 @@ export default function Notifications({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Notifications" navigation={navigation} />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
 
         <View style={styles.sectionHeader}>
           <MaterialCommunityIcons name="bell-outline" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />

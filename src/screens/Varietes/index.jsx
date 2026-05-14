@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Snackbar, Card, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -22,6 +22,13 @@ export default function Varietes({ navigation }) {
   const [demandeId, setDemandeId] = useState(null);
   const [motif, setMotif] = useState('');
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshVarietes();
+    setRefreshing(false);
+  };
 
   const openCreate = () => { setEditing(null); setForm({ nom: '' }); setDialogVisible(true); };
   const openEdit = (v) => { setEditing(v); setForm({ nom: v.nom }); setDialogVisible(true); };
@@ -54,7 +61,7 @@ export default function Varietes({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Variétés" navigation={navigation} />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
         <View style={styles.sectionHeader}>
           <MaterialCommunityIcons name="leaf" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
           <Text variant="titleSmall" style={styles.sectionTitle}>Liste des variétés ({varietes.length})</Text>

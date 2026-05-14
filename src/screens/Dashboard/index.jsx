@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, RefreshControl } from 'react-native';
 import { Card, Text, Divider, Chip, Snackbar, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
@@ -19,6 +19,13 @@ export default function DashboardScreen({ navigation }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchAll();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -125,7 +132,7 @@ export default function DashboardScreen({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title="Tableau de bord" navigation={navigation} />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
 
         {/* KPIs */}
         <SectionHeader icon="chart-box" title="Vue d'ensemble" />

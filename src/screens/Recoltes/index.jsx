@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Dimensions, RefreshControl } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -38,6 +38,13 @@ export default function Recoltes({ navigation }) {
   const [filterCampagne, setFilterCampagne] = useState('');
   const [filterParcelle, setFilterParcelle] = useState('');
   const [filterSecteur, setFilterSecteur] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchAll();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -181,7 +188,7 @@ export default function Recoltes({ navigation }) {
         </View>
       )}
       {recoltesFiltered.length === 0 && recoltes.length > 0 ? <EmptyState message="Aucune récolte pour ces filtres" /> : recoltes.length === 0 ? <EmptyState message="Aucune récolte enregistrée" /> : (
-        <ScrollView style={{ backgroundColor: '#f0f4f0' }}>
+        <ScrollView style={{ backgroundColor: '#f0f4f0' }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           {Object.entries(byCampagne).map(([campagne, items]) => {
             const stats = campagneStats(items);
             return (

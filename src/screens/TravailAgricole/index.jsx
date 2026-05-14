@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
@@ -40,6 +40,13 @@ export default function TravailAgricole({ navigation }) {
   const [demandeForm, setDemandeForm] = useState({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', motif: '', quantite: '', cout_unitaire: '' });
   const [savingDemande, setSavingDemande] = useState(false);
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchTravaux();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchTravaux(); }, []);
 
@@ -169,7 +176,7 @@ export default function TravailAgricole({ navigation }) {
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} travaux</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
-        <ScrollView style={{ flex: 1 }} nestedScrollEnabled>
+        <ScrollView style={{ flex: 1 }} nestedScrollEnabled refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ width: 666 }}>
               <View style={styles.tableHeader}>

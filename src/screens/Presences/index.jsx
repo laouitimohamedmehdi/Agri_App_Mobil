@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
@@ -29,6 +29,13 @@ export default function Presences({ navigation }) {
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState('');
   const [filterNom, setFilterNom] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchFeuille();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchFeuille(); }, [mois]);
 
@@ -266,7 +273,7 @@ export default function Presences({ navigation }) {
       ) : lignes.length === 0 ? (
         <EmptyState message="Aucune présence ce mois" />
       ) : (
-        <ScrollView style={{ flex: 1, marginTop: 8 }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ flex: 1, marginTop: 8 }} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           {lignesFiltrees.map((l, idx) => {
             const isTemp = !l.employe_id;
             const total = Object.values(l.jours).filter(v => v === 1).length;

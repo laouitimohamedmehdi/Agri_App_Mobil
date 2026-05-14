@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
@@ -33,6 +33,13 @@ export default function Parametres({ navigation }) {
   const [savingCurrency, setSavingCurrency] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUsers();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -87,7 +94,7 @@ export default function Parametres({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Paramètres" navigation={navigation} />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
 
         <View style={styles.sectionHeader}>
           <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />

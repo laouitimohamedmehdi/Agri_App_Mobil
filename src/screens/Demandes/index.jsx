@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, Chip, Snackbar, SegmentedButtons, Card, Button, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -25,6 +25,13 @@ export default function Demandes({ navigation }) {
   const [filterType, setFilterType] = useState('tous');
   const [expanded, setExpanded] = useState(null);
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDemandes();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchDemandes(); }, []);
 
@@ -53,7 +60,7 @@ export default function Demandes({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Demandes" navigation={navigation} />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
         <View style={styles.filtersBox}>
           <SegmentedButtons value={filterStatut} onValueChange={setFilterStatut} style={{ marginBottom: 8 }}
             buttons={[{ value: 'tous', label: 'Tous' }, { value: 'en_attente', label: 'En attente' }, { value: 'approuvee', label: 'Approuvées' }, { value: 'rejetee', label: 'Rejetées' }]} />

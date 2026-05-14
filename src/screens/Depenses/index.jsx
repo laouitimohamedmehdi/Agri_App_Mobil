@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Text, Snackbar, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
@@ -33,6 +33,13 @@ export default function Depenses({ navigation }) {
   const [demandeForm, setDemandeForm] = useState({ titre: '', date: '', quantite: '', cout_unitaire: '' });
   const [savingDemande, setSavingDemande] = useState(false);
   const [snack, setSnack] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDepenses();
+    setRefreshing(false);
+  };
 
   useEffect(() => { fetchDepenses(); }, []);
 
@@ -139,7 +146,7 @@ export default function Depenses({ navigation }) {
       </View>
 
       {filtered.length === 0 ? <EmptyState message="Aucune dépense" /> : (
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           {filtered.map((d, idx) => {
             const total = (d.quantite || 0) * (d.cout_unitaire || 0);
             return (
