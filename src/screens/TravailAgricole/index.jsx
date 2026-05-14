@@ -179,16 +179,16 @@ export default function TravailAgricole({ navigation }) {
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView style={{ flex: 1 }} nestedScrollEnabled>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ width: 1010 }}>
+            <View style={{ width: 825 }}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.th, { width: 105 }]}>Date</Text>
-                <Text style={[styles.th, { width: 180 }]}>Nom</Text>
-                <Text style={[styles.th, { width: 140 }]}>Type</Text>
-                <Text style={[styles.th, { width: 130 }]}>Parcelle</Text>
-                <Text style={[styles.th, { width: 140 }]}>Secteur</Text>
-                <Text style={[styles.th, { width: 125 }]}>Coût (DT)</Text>
-                <Text style={[styles.th, { width: 100 }]}>Statut</Text>
-                <Text style={[styles.th, { width: 90 }]}>Actions</Text>
+                <Text style={[styles.th, { width: 90 }]}>Date</Text>
+                <Text style={[styles.th, { width: 140 }]}>Nom</Text>
+                <Text style={[styles.th, { width: 115 }]}>Type</Text>
+                <Text style={[styles.th, { width: 105 }]}>Parcelle</Text>
+                <Text style={[styles.th, { width: 115 }]}>Secteur</Text>
+                <Text style={[styles.th, { width: 105 }]}>Coût (DT)</Text>
+                <Text style={[styles.th, { width: 80 }]}>Statut</Text>
+                <Text style={[styles.th, { width: 75 }]}>Actions</Text>
               </View>
               {filtered.map((t, idx) => {
                 const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
@@ -197,12 +197,12 @@ export default function TravailAgricole({ navigation }) {
                 const coutAffiche = isFert ? t.quantite * t.cout_unitaire : t.cout;
                 return (
                   <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
-                    <Text style={[styles.td, { width: 105 }]}>{t.date || '—'}</Text>
-                    <Text style={[styles.td, { width: 180 }]} numberOfLines={1}>{t.nom}</Text>
-                    <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.type}</Text>
-                    <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
-                    <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
-                    <View style={{ width: 125, paddingRight: 8, justifyContent: 'center' }}>
+                    <Text style={[styles.td, { width: 90 }]}>{t.date || '—'}</Text>
+                    <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.nom}</Text>
+                    <Text style={[styles.td, { width: 115 }]} numberOfLines={1}>{t.type}</Text>
+                    <Text style={[styles.td, { width: 105 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
+                    <Text style={[styles.td, { width: 115 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                    <View style={{ width: 105, paddingRight: 8, justifyContent: 'center' }}>
                       <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR') || '0'}</Text>
                       {isFert && (
                         <Text style={{ fontSize: 10, color: '#13c2c2', fontStyle: 'italic' }}>
@@ -210,8 +210,8 @@ export default function TravailAgricole({ navigation }) {
                         </Text>
                       )}
                     </View>
-                    <Text style={[styles.td, { width: 100, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
-                    <View style={{ width: 90, flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.td, { width: 80, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
+                    <View style={{ width: 75, flexDirection: 'row', alignItems: 'center' }}>
                       {isAdmin ? (
                         <>
                           <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
