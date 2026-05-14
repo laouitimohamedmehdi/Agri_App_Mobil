@@ -10,7 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 
 const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c' };
-const STATUT_ICONS  = { planifie: 'clock-outline', actif: 'play-circle-outline', termine: 'check-circle-outline' };
+const STATUT_ICONS = { planifie: 'clock-outline', actif: 'play-circle-outline', termine: 'check-circle-outline' };
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
@@ -24,16 +24,22 @@ export default function DashboardScreen({ navigation }) {
 
   const fetchAll = async () => {
     try {
-      const mois = new Date().toISOString().slice(0, 7);
-      const [travaux, recoltes, analyses, charges, feuille, depenses] = await Promise.all([
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonthIdx = now.getMonth(); // 0-based
+      const months = Array.from({ length: currentMonthIdx + 1 }, (_, i) =>
+        `${currentYear}-${String(i + 1).padStart(2, '0')}`
+      );
+      const [travaux, recoltes, analyses, charges, depenses, ...feuillesRes] = await Promise.all([
         client.get('/travaux/'),
         client.get('/recoltes/'),
         client.get('/recolte-analyse/').catch(() => ({ data: [] })),
         client.get('/recolte-charges/').catch(() => ({ data: [] })),
-        client.get(`/feuilles/?mois=${mois}`).catch(() => ({ data: null })),
         client.get('/depenses/').catch(() => ({ data: [] })),
+        ...months.map(m => client.get(`/feuilles/?mois=${m}`).catch(() => ({ data: null }))),
       ]);
-      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, feuille: feuille.data, depenses: depenses.data });
+      const allLignes = feuillesRes.flatMap(f => f.data?.lignes || []);
+      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, depenses: depenses.data, feuillesLignes: allLignes });
     } catch { setSnack('Erreur de chargement'); }
     finally { setLoading(false); }
   };
@@ -50,7 +56,7 @@ export default function DashboardScreen({ navigation }) {
   const productionTotale = recoltesRef.reduce((s, r) => s + (r.production || 0), 0);
   const huileTotale = (data?.analyses || []).reduce((s, a) => s + (a.huile || 0), 0);
 
-  // Revenu brut = Σ (huile × prix) pour les récoltes de la période
+  // Revenu brut = Σ (Production (Kg) × Prix de vente (DT/Kg))
   const revenuBrut = recoltesRef.reduce((s, r) => {
     const a = (data?.analyses || []).find(an => an.recolte_id === r.id_recolte);
     return s + (a?.huile || 0) * (a?.prix || 0);
@@ -61,9 +67,16 @@ export default function DashboardScreen({ navigation }) {
   const totalFraisRecolte = (data?.charges || []).reduce((s, c) =>
     recolteIds.includes(c.recolte_id) ? s + (c.montant || 0) : s, 0);
 
-  // Travaux : seulement les terminés
-  const totalCoutTravaux = (data?.travaux || []).filter(t => t.statut === 'termine').reduce((s, t) => s + (t.cout || 0), 0);
-  const totalSalaires = (data?.feuille?.lignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
+  // Travaux : année courante si des récoltes existent cette année, sinon tout
+  const currentYear = new Date().getFullYear().toString();
+  const hasCurrentYearRecoltes = recoltes.some(r => r.date?.startsWith(currentYear));
+  const travauxRef = hasCurrentYearRecoltes
+    ? (data?.travaux || []).filter(t => t.date?.startsWith(currentYear))
+    : (data?.travaux || []);
+  const totalCoutTravaux = travauxRef.filter(t => t.statut === 'termine').reduce((s, t) => s + (t.cout || 0), 0);
+
+  // Salaires : somme sur tous les mois Jan→mois courant
+  const totalSalaires = (data?.feuillesLignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
   const totalDepenses = (data?.depenses || []).reduce((s, d) => s + ((d.quantite || 0) * (d.cout_unitaire || 0)), 0);
   const totalCharges = totalFraisRecolte + totalCoutTravaux + totalSalaires + totalDepenses;
   const margeNette = revenuBrut - totalCharges;
@@ -78,10 +91,10 @@ export default function DashboardScreen({ navigation }) {
 
   // Couleurs DESIGN_SYSTEM — prop `color` (PieChart), pas frontColor (BarChart)
   const PIE_ITEMS = [
-    { key: 'travaux', value: totalCoutTravaux,   color: '#ff4d4f', label: 'Travaux'          },
-    { key: 'frais',   value: totalFraisRecolte,  color: '#fa8c16', label: 'Frais récolte'    },
-    { key: 'sal',     value: totalSalaires,      color: '#722ed1', label: 'Salaires'         },
-    { key: 'dep',     value: totalDepenses,      color: '#eb2f96', label: 'Autres dépenses'  },
+    { key: 'frais', value: totalFraisRecolte, color: '#fa8c16', label: 'Frais récolte' },
+    { key: 'travaux', value: totalCoutTravaux, color: '#ff4d4f', label: 'Coût des travaux' },
+    { key: 'sal', value: totalSalaires, color: '#722ed1', label: 'Salaires' },
+    { key: 'dep', value: totalDepenses, color: '#eb2f96', label: 'Autres dépenses' },
   ].filter(d => d.value > 0);
   const pieData = PIE_ITEMS.map(d => ({ value: d.value, color: d.color }));
 
@@ -99,21 +112,21 @@ export default function DashboardScreen({ navigation }) {
         {/* KPIs */}
         <SectionHeader icon="chart-box" title="Vue d'ensemble" />
         <View style={styles.kpiRow}>
-          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`}               color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
-          <KpiCard label="Arbres"         value={nbArbres.toLocaleString()}            color="#389e0d" borderColor="#52c41a" icon="tree"              bg="#f6fff0" />
-          <KpiCard label="Production"     value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket"      bg="#fff7e6" />
-          {isAdmin && <KpiCard label="Huile" value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water"          bg="#e6fffb" />}
+          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`} color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
+          <KpiCard label="Total arbres" value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" icon="tree" bg="#f6fff0" />
+          <KpiCard label={`Production ${derniereCampagne}`} value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket" bg="#fff7e6" />
+          {isAdmin && <KpiCard label={`Huile ${derniereCampagne}`} value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water" bg="#e6fffb" />}
         </View>
 
         {/* Résumé financier */}
         {isAdmin && (
           <>
             <SectionHeader icon="cash-multiple" title="Résumé financier" />
-            <FinanceRow icon="trending-up"   label="Revenu brut"    formule="Σ (Huile × Prix)"     value={`${revenuBrut.toFixed(0)} DT`}  accent="#2d7a4a" />
-            <FinanceRow icon="trending-down"  label="Total charges"  formule="Frais + Fertilisation + Travaux + Salaires" value={`${totalCharges.toFixed(0)} DT`} accent="#ff4d4f" />
-            <FinanceRow icon="finance"        label="Marge nette"    formule="Revenu − Charges"      value={`${margeNette.toFixed(0)} DT`}  accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
-            <FinanceRow icon="sprout"         label="Rendement/ha"   formule="Production ÷ Surface"  value={`${rendementHa} kg`}            accent="#fa8c16" />
-            <FinanceRow icon="calculator"     label="Coût/kg"        formule="Charges ÷ Production"  value={`${coutKg} DT`}                 accent="#ff4d4f" />
+            <FinanceRow icon="trending-up" label="Revenu brut" formule="Σ (Production (Kg) × Prix de vente (DT/Kg))" value={`${revenuBrut.toFixed(0)} DT`} accent="#2d7a4a" />
+            <FinanceRow icon="trending-down" label="Total charges" formule="Coût des travaux + Frais de récolte + Salaires + Autres dépenses" value={`${totalCharges.toFixed(0)} DT`} accent="#ff4d4f" />
+            <FinanceRow icon="finance" label="Marge nette" formule="Revenu brut − Total charges" value={`${margeNette.toFixed(0)} DT`} accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
+            <FinanceRow icon="sprout" label="Rendement moyen /ha" formule="Production totale ÷ Surface totale (ha)" value={`${rendementHa} kg`} accent="#fa8c16" />
+            <FinanceRow icon="calculator" label="Coût moyen /kg" formule="Coût total ÷ Production totale (kg)" value={`${coutKg} DT`} accent="#ff4d4f" />
           </>
         )}
 
