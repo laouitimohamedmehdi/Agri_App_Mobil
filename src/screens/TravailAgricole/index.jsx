@@ -78,7 +78,7 @@ export default function TravailAgricole({ navigation }) {
     return parcelles.find(p => p.id_parcelle === sec?.parcelle_id)?.nom || '-';
   };
 
-  const openCreate = () => { setEditing(null); setForm({ nom: '', type: 'Taille', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', quantite: '', cout_unitaire: '' }); setDialogVisible(true); };
+  const openCreate = () => { setEditing(null); setForm({ nom: '', type: '', cout: '', m_o: '', date: '', statut: 'planifie', secteur_id: '', quantite: '', cout_unitaire: '' }); setDialogVisible(true); };
   const openEdit = (t) => { setEditing(t); setForm({ nom: t.nom, type: t.type ?? 'Taille', cout: String(t.cout ?? ''), m_o: String(t.m_o ?? ''), date: t.date ?? '', statut: t.statut, secteur_id: String(t.secteur_id ?? ''), quantite: t.quantite != null ? String(t.quantite) : '', cout_unitaire: t.cout_unitaire != null ? String(t.cout_unitaire) : '' }); setDialogVisible(true); };
 
   const save = async () => {
@@ -283,6 +283,7 @@ export default function TravailAgricole({ navigation }) {
                       Coût total : {(parseFloat(form.quantite) || 0) * (parseFloat(form.cout_unitaire) || 0)} DT
                     </Text>
                   )}
+                  <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               ) : (
                 <>
@@ -337,10 +338,11 @@ export default function TravailAgricole({ navigation }) {
                   <TextInput label="Quantité" value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                   <TextInput label="Coût unitaire (DT)" value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                   {demandeForm.quantite !== '' && demandeForm.cout_unitaire !== '' && (
-                    <Text variant="bodySmall" style={{ color: '#13c2c2', fontStyle: 'italic' }}>
+                    <Text variant="bodySmall" style={{ color: '#13c2c2', marginBottom: 12, fontStyle: 'italic' }}>
                       Coût total : {(parseFloat(demandeForm.quantite) || 0) * (parseFloat(demandeForm.cout_unitaire) || 0)} DT
                     </Text>
                   )}
+                  <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               ) : (
                 <>
