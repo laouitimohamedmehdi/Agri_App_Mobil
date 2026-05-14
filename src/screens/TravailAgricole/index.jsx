@@ -179,7 +179,7 @@ export default function TravailAgricole({ navigation }) {
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView style={{ flex: 1 }} nestedScrollEnabled>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ width: 680 }}>
+            <View style={{ width: 694 }}>
               <View style={styles.tableHeader}>
                 <Text style={[styles.th, { width: 88 }]}>Date</Text>
                 <Text style={[styles.th, { width: 130 }]}>Nom</Text>
@@ -187,7 +187,7 @@ export default function TravailAgricole({ navigation }) {
                 <Text style={[styles.th, { width: 130 }]}>Lieu</Text>
                 <Text style={[styles.th, { width: 88 }]}>Coût (DT)</Text>
                 <Text style={[styles.th, { width: 68 }]}>Statut</Text>
-                <Text style={[styles.th, { width: 66 }]}>Actions</Text>
+                <Text style={[styles.th, { width: 80 }]}>Actions</Text>
               </View>
               {filtered.map((t, idx) => {
                 const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
@@ -212,7 +212,7 @@ export default function TravailAgricole({ navigation }) {
                       )}
                     </View>
                     <Text style={[styles.td, { width: 68, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
-                    <View style={{ width: 66, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 80, flexDirection: 'row', alignItems: 'center' }}>
                       {isAdmin ? (
                         <>
                           <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
