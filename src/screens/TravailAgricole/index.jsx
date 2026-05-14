@@ -167,47 +167,58 @@ export default function TravailAgricole({ navigation }) {
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} travaux</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
-        <ScrollView horizontal style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
-          <View style={{ width: 980 }}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.th, { width: 105 }]}>Date</Text>
-              <Text style={[styles.th, { width: 180 }]}>Nom</Text>
-              <Text style={[styles.th, { width: 140 }]}>Type</Text>
-              <Text style={[styles.th, { width: 130 }]}>Parcelle</Text>
-              <Text style={[styles.th, { width: 140 }]}>Secteur</Text>
-              <Text style={[styles.th, { width: 95 }]}>Coût (DT)</Text>
-              <Text style={[styles.th, { width: 100 }]}>Statut</Text>
-              <Text style={[styles.th, { width: 90 }]}>Actions</Text>
-            </View>
-            {filtered.map((t, idx) => {
-              const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
-              const statutColor = { planifie: '#faad14', actif: '#1677ff', termine: '#52c41a' }[t.statut] || '#888';
-              return (
-                <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
-                  <Text style={[styles.td, { width: 105 }]}>{t.date || '—'}</Text>
-                  <Text style={[styles.td, { width: 180 }]} numberOfLines={1}>{t.nom}</Text>
-                  <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.type}</Text>
-                  <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
-                  <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
-                  <Text style={[styles.td, { width: 95 }]}>{t.cout?.toLocaleString('fr-FR') || '0'}</Text>
-                  <Text style={[styles.td, { width: 100, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
-                  <View style={{ width: 90, flexDirection: 'row', alignItems: 'center' }}>
-                    {isAdmin ? (
-                      <>
-                        <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
-                        <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
-                      </>
-                    ) : (
-                      <View style={{ flexDirection: 'row' }}>
-                        <Button icon="pencil" compact onPress={() => openDemandeModif(t)} textColor="#1677ff" />
-                        <Button icon="delete" compact onPress={() => { setDemandeSupprItem(t); setMotifSuppr(''); }} textColor="#ff4d4f" />
-                      </View>
-                    )}
+        <ScrollView style={{ flex: 1 }} nestedScrollEnabled>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={{ width: 1010 }}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.th, { width: 105 }]}>Date</Text>
+                <Text style={[styles.th, { width: 180 }]}>Nom</Text>
+                <Text style={[styles.th, { width: 140 }]}>Type</Text>
+                <Text style={[styles.th, { width: 130 }]}>Parcelle</Text>
+                <Text style={[styles.th, { width: 140 }]}>Secteur</Text>
+                <Text style={[styles.th, { width: 125 }]}>Coût (DT)</Text>
+                <Text style={[styles.th, { width: 100 }]}>Statut</Text>
+                <Text style={[styles.th, { width: 90 }]}>Actions</Text>
+              </View>
+              {filtered.map((t, idx) => {
+                const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
+                const statutColor = { planifie: '#faad14', actif: '#1677ff', termine: '#52c41a' }[t.statut] || '#888';
+                const isFert = t.type === 'Fertilisation' && t.quantite > 0 && t.cout_unitaire > 0;
+                const coutAffiche = isFert ? t.quantite * t.cout_unitaire : t.cout;
+                return (
+                  <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
+                    <Text style={[styles.td, { width: 105 }]}>{t.date || '—'}</Text>
+                    <Text style={[styles.td, { width: 180 }]} numberOfLines={1}>{t.nom}</Text>
+                    <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.type}</Text>
+                    <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
+                    <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                    <View style={{ width: 125, paddingRight: 8, justifyContent: 'center' }}>
+                      <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR') || '0'}</Text>
+                      {isFert && (
+                        <Text style={{ fontSize: 10, color: '#13c2c2', fontStyle: 'italic' }}>
+                          {t.quantite} × {t.cout_unitaire}
+                        </Text>
+                      )}
+                    </View>
+                    <Text style={[styles.td, { width: 100, color: statutColor, fontWeight: '600' }]}>{statutLabel}</Text>
+                    <View style={{ width: 90, flexDirection: 'row', alignItems: 'center' }}>
+                      {isAdmin ? (
+                        <>
+                          <Button icon="pencil" compact onPress={() => openEdit(t)} textColor="#1677ff" />
+                          <Button icon="delete" compact onPress={() => setConfirmId(t.id_travail)} textColor="#ff4d4f" />
+                        </>
+                      ) : (
+                        <View style={{ flexDirection: 'row' }}>
+                          <Button icon="pencil" compact onPress={() => openDemandeModif(t)} textColor="#1677ff" />
+                          <Button icon="delete" compact onPress={() => { setDemandeSupprItem(t); setMotifSuppr(''); }} textColor="#ff4d4f" />
+                        </View>
+                      )}
+                    </View>
                   </View>
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
+          </ScrollView>
         </ScrollView>
       )}
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
