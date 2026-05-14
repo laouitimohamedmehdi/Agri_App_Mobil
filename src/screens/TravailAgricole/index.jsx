@@ -14,7 +14,8 @@ import { soumettreDemande } from '../../utils/demandeHelper';
 import DatePickerInput from '../../components/DatePickerInput';
 
 const SCREEN_H = Dimensions.get('window').height;
-const TYPES = ['Taille', 'Labour mécanique', 'Nettoyage', 'Ramassage', 'Transport', 'Fertilisation', 'Traitement', 'Irrigation', 'Loyer', 'Autre'];
+const TYPES = ['Fertilisation', 'Taille', 'Labour mécanique', 'Nettoyage', 'Ramassage', 'Transport', 'Traitement', 'Irrigation', 'Loyer', 'Autre'];
+const PRODUITS_FERTILISATION = ['Fumier de ferme', 'D.A.P', 'Super 45', 'Urée', 'NPK', 'Compost', 'Autre'];
 const STATUTS = ['planifie', 'actif', 'termine'];
 const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c' };
 
@@ -83,7 +84,16 @@ export default function TravailAgricole({ navigation }) {
   const save = async () => {
     setSaving(true);
     try {
-      const payload = { nom: form.nom, type: form.type, cout: parseFloat(form.cout) || 0, m_o: parseInt(form.m_o) || 0, date: form.date, statut: form.statut, secteur_id: parseInt(form.secteur_id) || null, quantite: form.type === 'Fertilisation' && form.quantite !== '' ? parseFloat(form.quantite) : null, cout_unitaire: form.type === 'Fertilisation' && form.cout_unitaire !== '' ? parseFloat(form.cout_unitaire) : null };
+      const isFert = form.type === 'Fertilisation';
+      const quantite = isFert && form.quantite !== '' ? parseFloat(form.quantite) : null;
+      const cout_unitaire = isFert && form.cout_unitaire !== '' ? parseFloat(form.cout_unitaire) : null;
+      const payload = {
+        nom: form.nom, type: form.type, statut: form.statut,
+        date: form.date, secteur_id: parseInt(form.secteur_id) || null,
+        cout: isFert ? (quantite || 0) * (cout_unitaire || 0) : parseFloat(form.cout) || 0,
+        m_o: isFert ? 0 : parseInt(form.m_o) || 0,
+        quantite, cout_unitaire,
+      };
       if (editing) await client.put(`/travaux/${editing.id_travail}`, payload);
       else await client.post('/travaux/', payload);
       await fetchTravaux(); setDialogVisible(false);
@@ -219,6 +229,7 @@ export default function TravailAgricole({ navigation }) {
               })}
             </View>
           </ScrollView>
+          <View style={{ height: 48 }} />
         </ScrollView>
       )}
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
@@ -226,49 +237,57 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
-
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll
-                  label="Choisir un type"
-                  value={form.type}
-                  onChange={v => setForm(f => ({ ...f, type: v }))}
-                  options={TYPES.map(t => ({ value: t, label: t }))}
-                />
+                <SelectFilter noAll label="Choisir un type" value={form.type}
+                  onChange={v => setForm(f => ({ ...f, type: v, nom: '', cout: '', quantite: '', cout_unitaire: '' }))}
+                  options={TYPES.map(t => ({ value: t, label: t }))} />
               </View>
+
+              {form.type === 'Fertilisation' ? (
+                <>
+                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit</Text>
+                  <View style={{ marginBottom: 12 }}>
+                    <SelectFilter noAll label="Choisir un produit" value={form.nom}
+                      onChange={v => setForm(f => ({ ...f, nom: v }))}
+                      options={PRODUITS_FERTILISATION.map(p => ({ value: p, label: p }))} />
+                  </View>
+                </>
+              ) : (
+                <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
+              )}
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll
-                  label="Choisir un statut"
-                  value={form.statut}
+                <SelectFilter noAll label="Choisir un statut" value={form.statut}
                   onChange={v => setForm(f => ({ ...f, statut: v }))}
-                  options={[
-                    { value: 'planifie', label: 'Planifié' },
-                    { value: 'actif', label: 'En cours' },
-                  ]}
-                />
+                  options={[{ value: 'planifie', label: 'Planifié' }, { value: 'actif', label: 'En cours' }]} />
               </View>
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll
-                  label="Choisir un secteur"
-                  value={form.secteur_id}
+                <SelectFilter noAll label="Choisir un secteur" value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
-                  options={secteurs.map(s => ({ value: String(s.id_secteur), label: s.nom }))}
-                />
+                  options={secteurs.map(s => ({ value: String(s.id_secteur), label: s.nom }))} />
               </View>
 
               <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-              <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              {form.type === 'Fertilisation' && (
+
+              {form.type === 'Fertilisation' ? (
                 <>
                   <TextInput label="Quantité" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label="Coût unitaire (DT)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
+                  <TextInput label="Coût unitaire (DT)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  {form.quantite !== '' && form.cout_unitaire !== '' && (
+                    <Text variant="bodySmall" style={{ color: '#13c2c2', marginBottom: 12, fontStyle: 'italic' }}>
+                      Coût total : {(parseFloat(form.quantite) || 0) * (parseFloat(form.cout_unitaire) || 0)} DT
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <>
+                  <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               )}
             </ScrollView>
@@ -281,26 +300,54 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
           <Dialog.Title>Demande de modification</Dialog.Title>
           <Dialog.Content>
-            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
               <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
-              <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Type" value={demandeForm.type} onChange={v => setDemandeForm(f => ({ ...f, type: v }))} options={TYPES.map(t => ({ value: t, label: t }))} />
+                <SelectFilter noAll label="Type" value={demandeForm.type}
+                  onChange={v => setDemandeForm(f => ({ ...f, type: v, nom: '', cout: '', quantite: '', cout_unitaire: '' }))}
+                  options={TYPES.map(t => ({ value: t, label: t }))} />
               </View>
+
+              {demandeForm.type === 'Fertilisation' ? (
+                <>
+                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit</Text>
+                  <View style={{ marginBottom: 12 }}>
+                    <SelectFilter noAll label="Choisir un produit" value={demandeForm.nom}
+                      onChange={v => setDemandeForm(f => ({ ...f, nom: v }))}
+                      options={PRODUITS_FERTILISATION.map(p => ({ value: p, label: p }))} />
+                  </View>
+                </>
+              ) : (
+                <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
+              )}
+
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Statut" value={demandeForm.statut} onChange={v => setDemandeForm(f => ({ ...f, statut: v }))} options={[{ value: 'planifie', label: 'Planifié' }, { value: 'actif', label: 'En cours' }, { value: 'termine', label: 'Terminé' }]} />
+                <SelectFilter noAll label="Statut" value={demandeForm.statut}
+                  onChange={v => setDemandeForm(f => ({ ...f, statut: v }))}
+                  options={[{ value: 'planifie', label: 'Planifié' }, { value: 'actif', label: 'En cours' }, { value: 'termine', label: 'Terminé' }]} />
               </View>
-              <TextInput label="Coût (DT)" value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              {demandeForm.type === 'Fertilisation' && (
+
+              <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+
+              {demandeForm.type === 'Fertilisation' ? (
                 <>
                   <TextInput label="Quantité" value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label="Coût unitaire (DT)" value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Coût unitaire (DT)" value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  {demandeForm.quantite !== '' && demandeForm.cout_unitaire !== '' && (
+                    <Text variant="bodySmall" style={{ color: '#13c2c2', fontStyle: 'italic' }}>
+                      Coût total : {(parseFloat(demandeForm.quantite) || 0) * (parseFloat(demandeForm.cout_unitaire) || 0)} DT
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <>
+                  <TextInput label="Coût (DT)" value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               )}
-              <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} />
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
