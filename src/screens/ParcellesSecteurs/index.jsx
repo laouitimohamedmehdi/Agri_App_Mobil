@@ -135,7 +135,7 @@ export default function ParcellesSecteurs({ navigation }) {
               <View key={s.id_secteur} style={styles.secteurCard}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text variant="titleSmall" style={{ color: '#2d7a4a' }}>{s.nom}</Text>
-                  <Chip compact style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{s.statut}</Chip>
+                  <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{s.statut}</Chip>
                 </View>
                 <View style={styles.secteurDetails}>
                   <Text variant="bodySmall">Surface : {s.surface} ha</Text>

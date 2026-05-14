@@ -246,7 +246,7 @@ export default function DashboardScreen({ navigation }) {
                   <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{t.nom}</Text>
                   <Text variant="bodySmall" style={{ color: '#888' }}>{t.type} • {t.date || ''}</Text>
                 </View>
-                <Chip compact textStyle={{ fontSize: 10 }} style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '22' }}>
+                <Chip textStyle={{ fontSize: 10 }} style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '22' }}>
                   {t.statut}
                 </Chip>
               </View>

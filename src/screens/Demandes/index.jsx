@@ -111,7 +111,7 @@ function DemandeCard({ d, expanded, setExpanded, onDecide }) {
           </Text>
           <Text variant="bodySmall" style={{ color: '#888' }}>Par: {d.user_id} • {d.date_demande || ''}</Text>
         </View>
-        <Chip compact style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>
+        <Chip style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>
           {sc.label}
         </Chip>
       </TouchableOpacity>

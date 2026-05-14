@@ -126,8 +126,8 @@ export default function RH({ navigation }) {
                       <Text variant="bodySmall" style={{ color: '#666' }}>{e.poste ?? '—'}</Text>
                       {e.telephone ? <Text variant="bodySmall" style={{ color: '#888', fontSize: 11 }}>{e.telephone}</Text> : null}
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
-                        <Chip compact icon={sc.icon} style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>{salaire}</Chip>
-                        <Chip compact style={{ backgroundColor: e.statut === 'actif' ? '#e8f5e9' : '#f5f5f5' }} textStyle={{ color: e.statut === 'actif' ? '#2d7a4a' : '#aaa', fontSize: 10 }}>
+                        <Chip icon={sc.icon} style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>{salaire}</Chip>
+                        <Chip style={{ backgroundColor: e.statut === 'actif' ? '#e8f5e9' : '#f5f5f5' }} textStyle={{ color: e.statut === 'actif' ? '#2d7a4a' : '#aaa', fontSize: 10 }}>
                           {e.statut === 'actif' ? 'Actif' : 'Inactif'}
                         </Chip>
                       </View>

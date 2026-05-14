@@ -133,7 +133,7 @@ export default function Parametres({ navigation }) {
                 <View style={{ flex: 1 }}>
                   <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{u.nom}</Text>
                   <Text variant="bodySmall" style={{ color: '#888' }}>{u.email}</Text>
-                  <Chip compact style={{ marginTop: 4, alignSelf: 'flex-start', backgroundColor: ROLE_BG[u.role] }}
+                  <Chip style={{ marginTop: 4, alignSelf: 'flex-start', backgroundColor: ROLE_BG[u.role] }}
                     textStyle={{ color: ROLE_COLOR[u.role], fontSize: 10 }}>{u.role}</Chip>
                 </View>
                 <View style={{ alignItems: 'center', gap: 4 }}>
