@@ -41,7 +41,7 @@ export default function RH({ navigation }) {
   const employesFiltres = employes.filter(e => {
     if (filterNom && !`${e.nom} ${e.prenom ?? ''}`.toLowerCase().includes(filterNom.toLowerCase())) return false;
     if (filterStatut === 'actif' && e.statut !== 'actif') return false;
-    if (filterStatut === 'inactif' && e.statut === 'actif') return false;
+    if (filterStatut === 'non_actif' && e.statut === 'actif') return false;
     if (filterPoste && e.poste !== filterPoste) return false;
     return true;
   });
@@ -91,7 +91,7 @@ export default function RH({ navigation }) {
               buttons={[
                 { value: '', label: 'Tous' },
                 { value: 'actif', label: 'Actifs' },
-                { value: 'inactif', label: 'Inactifs' },
+                { value: 'non_actif', label: 'Inactifs' },
               ]}
               style={{ marginRight: 8 }}
             />
@@ -195,7 +195,7 @@ export default function RH({ navigation }) {
               <SegmentedButtons
                 value={form.statut}
                 onValueChange={v => setForm(f => ({ ...f, statut: v }))}
-                buttons={[{ value: 'actif', label: 'Actif' }, { value: 'inactif', label: 'Inactif' }]}
+                buttons={[{ value: 'actif', label: 'Actif' }, { value: 'non_actif', label: 'Inactif' }]}
                 style={{ marginBottom: 12 }}
               />
 
