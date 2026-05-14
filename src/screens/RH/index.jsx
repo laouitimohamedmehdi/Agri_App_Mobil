@@ -14,7 +14,7 @@ const SCREEN_H = Dimensions.get('window').height;
 
 const SALAIRE_CONFIG = {
   journalier: { color: '#fa8c16', bg: '#fff7e6', icon: 'calendar-today' },
-  fixe:       { color: '#1677ff', bg: '#e6f4ff', icon: 'currency-usd'  },
+  fixe: { color: '#1677ff', bg: '#e6f4ff', icon: 'currency-usd' },
 };
 
 export default function RH({ navigation }) {
@@ -22,7 +22,7 @@ export default function RH({ navigation }) {
   const [tab, setTab] = useState('employes');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'saisonnier', date_embauche: '', date_fin_contrat: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' });
+  const [form, setForm] = useState({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'saisonnier', date_embauche: '', date_fin_contrat: '', statut: 'actif', type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' });
   const [saving, setSaving] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
   const [snack, setSnack] = useState('');
@@ -40,19 +40,19 @@ export default function RH({ navigation }) {
   const postes = [...new Set(employes.map(e => e.poste).filter(Boolean))];
   const employesFiltres = employes.filter(e => {
     if (filterNom && !`${e.nom} ${e.prenom ?? ''}`.toLowerCase().includes(filterNom.toLowerCase())) return false;
-    if (filterStatut === 'actif' && !e.is_active) return false;
-    if (filterStatut === 'inactif' && e.is_active) return false;
+    if (filterStatut === 'actif' && e.statut !== 'actif') return false;
+    if (filterStatut === 'inactif' && e.statut === 'actif') return false;
     if (filterPoste && e.poste !== filterPoste) return false;
     return true;
   });
 
-  const openCreate = () => { setEditing(null); setForm({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'saisonnier', date_embauche: '', date_fin_contrat: '', is_active: true, type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' }); setDialogVisible(true); };
-  const openEdit = (e) => { setEditing(e); setForm({ nom: e.nom, prenom: e.prenom ?? '', poste: e.poste ?? '', telephone: e.telephone ?? '', type_contrat: e.type_contrat ?? 'saisonnier', date_embauche: e.date_embauche ?? '', date_fin_contrat: e.date_fin_contrat ?? '', is_active: e.is_active ?? true, type_salaire: e.type_salaire ?? 'journalier', tarif_journalier: String(e.tarif_journalier ?? ''), salaire_fixe: String(e.salaire_fixe ?? '') }); setDialogVisible(true); };
+  const openCreate = () => { setEditing(null); setForm({ nom: '', prenom: '', poste: '', telephone: '', type_contrat: 'saisonnier', date_embauche: '', date_fin_contrat: '', statut: 'actif', type_salaire: 'journalier', tarif_journalier: '', salaire_fixe: '' }); setDialogVisible(true); };
+  const openEdit = (e) => { setEditing(e); setForm({ nom: e.nom, prenom: e.prenom ?? '', poste: e.poste ?? '', telephone: e.telephone ?? '', type_contrat: e.type_contrat ?? 'saisonnier', date_embauche: e.date_embauche ?? '', date_fin_contrat: e.date_fin_contrat ?? '', statut: e.statut ?? 'actif', type_salaire: e.type_salaire ?? 'journalier', tarif_journalier: String(e.tarif_journalier ?? ''), salaire_fixe: String(e.salaire_fixe ?? '') }); setDialogVisible(true); };
 
   const save = async () => {
     setSaving(true);
     try {
-      const payload = { nom: form.nom, prenom: form.prenom, poste: form.poste, telephone: form.telephone, type_contrat: form.type_contrat, date_embauche: form.date_embauche || null, date_fin_contrat: form.date_fin_contrat || null, is_active: form.is_active, type_salaire: form.type_salaire, tarif_journalier: parseFloat(form.tarif_journalier) || null, salaire_fixe: parseFloat(form.salaire_fixe) || null };
+      const payload = { nom: form.nom, prenom: form.prenom, poste: form.poste, telephone: form.telephone, type_contrat: form.type_contrat, date_embauche: form.date_embauche || null, date_fin_contrat: form.date_fin_contrat || null, statut: form.statut, type_salaire: form.type_salaire, tarif_journalier: parseFloat(form.tarif_journalier) || null, salaire_fixe: parseFloat(form.salaire_fixe) || null };
       if (editing) await client.put(`/rh/employes/${editing.id_employe}`, payload);
       else await client.post('/rh/employes/', payload);
       await refreshEmployes(); setDialogVisible(false);
@@ -68,7 +68,7 @@ export default function RH({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Gestion RH" navigation={navigation} />
+      <AppHeader title="Ressources Humaines — Employés" navigation={navigation} />
       <SegmentedButtons value={tab} onValueChange={setTab} style={{ margin: 12 }}
         buttons={[{ value: 'employes', label: 'Employés', icon: 'account-group' }, { value: 'presences', label: 'Présences', icon: 'calendar-check' }]} />
 
@@ -118,8 +118,8 @@ export default function RH({ navigation }) {
               return (
                 <Card key={e.id_employe} style={[styles.empCard, i > 0 && { marginTop: 8 }]}>
                   <View style={styles.empRow}>
-                    <View style={[styles.avatar, { backgroundColor: e.is_active ? '#e8f5e9' : '#f5f5f5' }]}>
-                      <MaterialCommunityIcons name={e.is_active ? 'account' : 'account-off'} size={26} color={e.is_active ? '#2d7a4a' : '#aaa'} />
+                    <View style={[styles.avatar, { backgroundColor: e.statut === 'actif' ? '#e8f5e9' : '#f5f5f5' }]}>
+                      <MaterialCommunityIcons name={e.statut === 'actif' ? 'account' : 'account-off'} size={26} color={e.statut === 'actif' ? '#2d7a4a' : '#aaa'} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text variant="bodyMedium" style={{ fontWeight: '700' }}>{e.nom} {e.prenom ?? ''}</Text>
@@ -127,7 +127,7 @@ export default function RH({ navigation }) {
                       {e.telephone ? <Text variant="bodySmall" style={{ color: '#888', fontSize: 11 }}>{e.telephone}</Text> : null}
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
                         <Chip compact icon={sc.icon} style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>{salaire}</Chip>
-                        {!e.is_active && <Chip compact style={{ backgroundColor: '#f5f5f5' }} textStyle={{ color: '#aaa', fontSize: 10 }}>Inactif</Chip>}
+                        {e.statut !== 'actif' && <Chip compact style={{ backgroundColor: '#f5f5f5' }} textStyle={{ color: '#aaa', fontSize: 10 }}>Inactif</Chip>}
                       </View>
                     </View>
                     <View style={{ gap: 4 }}>
@@ -189,9 +189,11 @@ export default function RH({ navigation }) {
               <DatePickerInput label="Date d'embauche" value={form.date_embauche} onChange={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 12 }} />
               <DatePickerInput label="Date fin contrat" value={form.date_fin_contrat} onChange={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <Text>Actif</Text>
-                <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} color="#2d7a4a" />
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+              <View style={{ marginBottom: 12 }}>
+                <SelectFilter noAll label="Choisir un statut" value={form.statut}
+                  onChange={v => setForm(f => ({ ...f, statut: v }))}
+                  options={[{ value: 'actif', label: 'Actif' }, { value: 'inactif', label: 'Inactif' }]} />
               </View>
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de salaire</Text>
@@ -233,7 +235,7 @@ function PresencesResume({ employes }) {
   useEffect(() => {
     client.get(`/feuilles/?mois=${mois}`)
       .then(r => setFeuille(r.data))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
