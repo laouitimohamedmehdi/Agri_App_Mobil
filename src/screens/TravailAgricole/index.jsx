@@ -187,7 +187,7 @@ export default function TravailAgricole({ navigation }) {
                 <Text style={[styles.th, { width: 130 }]}>Lieu</Text>
                 <Text style={[styles.th, { width: 88 }]}>Coût (DT)</Text>
                 <Text style={[styles.th, { width: 68 }]}>Statut</Text>
-                <Text style={[styles.th, { width: 80 }]}>Actions</Text>
+                <Text style={[styles.th, { width: 80, textAlign: 'center', paddingRight: 0 }]}>Actions</Text>
               </View>
               {filtered.map((t, idx) => {
                 const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
