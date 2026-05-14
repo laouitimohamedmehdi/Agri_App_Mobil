@@ -94,39 +94,35 @@ export default function Parametres({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Paramètres" navigation={navigation} />
+      {/* Devise — fixe */}
+      <View style={styles.sectionHeader}>
+        <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
+        <Text variant="titleSmall" style={styles.sectionTitle}>Général</Text>
+      </View>
+      <Card style={{ marginHorizontal: 12, marginBottom: 8, elevation: 1 }}>
+        <Card.Content>
+          <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#555' }}>Devise d'affichage</Text>
+          <SelectFilter noAll label="Choisir une devise" value={currency} onChange={handleCurrencyChange} options={CURRENCY_OPTIONS} />
+          <Text variant="bodySmall" style={{ color: '#888', marginTop: 6 }}>
+            Symbole actuel : <Text style={{ fontWeight: 'bold', color: '#2d7a4a' }}>{currencySymbol}</Text>
+          </Text>
+        </Card.Content>
+      </Card>
+
+      {/* Filtres utilisateurs — fixes */}
+      <View style={styles.sectionHeader}>
+        <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
+        <Text variant="titleSmall" style={styles.sectionTitle}>Utilisateurs</Text>
+      </View>
+      <View style={styles.filtersBox}>
+        <SegmentedButtons value={filterRole} onValueChange={setFilterRole} style={{ marginBottom: 8 }}
+          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
+        <SegmentedButtons value={filterActif} onValueChange={setFilterActif}
+          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'actif', label: 'Actifs' }, { value: 'inactif', label: 'Inactifs' }]} />
+      </View>
+
+      {/* Liste scrollable */}
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-
-        <View style={styles.sectionHeader}>
-          <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-          <Text variant="titleSmall" style={styles.sectionTitle}>Général</Text>
-        </View>
-        <Card style={{ marginBottom: 16, elevation: 1 }}>
-          <Card.Content>
-            <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#555' }}>Devise d'affichage</Text>
-            <SelectFilter
-              noAll
-              label="Choisir une devise"
-              value={currency}
-              onChange={handleCurrencyChange}
-              options={CURRENCY_OPTIONS}
-            />
-            <Text variant="bodySmall" style={{ color: '#888', marginTop: 6 }}>
-              Symbole actuel : <Text style={{ fontWeight: 'bold', color: '#2d7a4a' }}>{currencySymbol}</Text>
-            </Text>
-          </Card.Content>
-        </Card>
-
-        <View style={styles.sectionHeader}>
-          <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-          <Text variant="titleSmall" style={styles.sectionTitle}>Utilisateurs</Text>
-        </View>
-        <View style={styles.filtersBox}>
-          <SegmentedButtons value={filterRole} onValueChange={setFilterRole} style={{ marginBottom: 8 }}
-            buttons={[{ value: 'tous', label: 'Tous' }, { value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
-          <SegmentedButtons value={filterActif} onValueChange={setFilterActif}
-            buttons={[{ value: 'tous', label: 'Tous' }, { value: 'actif', label: 'Actifs' }, { value: 'inactif', label: 'Inactifs' }]} />
-        </View>
-
         {filtered.length === 0 ? <EmptyState message="Aucun utilisateur" /> : (
           filtered.map((u, i) => (
             <Card key={u.id} style={[styles.userCard, i > 0 && { marginTop: 8 }]}>

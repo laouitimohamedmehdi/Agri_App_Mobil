@@ -185,7 +185,7 @@ export default function Depenses({ navigation }) {
         </ScrollView>
       )}
 
-      {isAdmin && <FAB icon="plus" style={{ position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' }} onPress={openCreate} />}
+      <FAB icon="plus" style={{ position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' }} onPress={openCreate} />
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
