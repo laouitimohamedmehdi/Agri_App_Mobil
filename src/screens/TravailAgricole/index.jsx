@@ -179,13 +179,13 @@ export default function TravailAgricole({ navigation }) {
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView style={{ flex: 1 }} nestedScrollEnabled>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ width: 694 }}>
+            <View style={{ width: 666 }}>
               <View style={styles.tableHeader}>
                 <Text style={[styles.th, { width: 88 }]}>Date</Text>
                 <Text style={[styles.th, { width: 130 }]}>Nom</Text>
                 <Text style={[styles.th, { width: 110 }]}>Type</Text>
-                <Text style={[styles.th, { width: 130 }]}>Lieu</Text>
-                <Text style={[styles.th, { width: 88 }]}>Coût (DT)</Text>
+                <Text style={[styles.th, { width: 114 }]}>Lieu</Text>
+                <Text style={[styles.th, { width: 76 }]}>Coût (DT)</Text>
                 <Text style={[styles.th, { width: 68 }]}>Statut</Text>
                 <Text style={[styles.th, { width: 80, textAlign: 'center', paddingRight: 0 }]}>Actions</Text>
               </View>
@@ -199,11 +199,11 @@ export default function TravailAgricole({ navigation }) {
                     <Text style={[styles.td, { width: 88 }]}>{t.date || '—'}</Text>
                     <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{t.nom}</Text>
                     <Text style={[styles.td, { width: 110 }]} numberOfLines={1}>{t.type}</Text>
-                    <View style={{ width: 130, paddingRight: 8, justifyContent: 'center' }}>
+                    <View style={{ width: 114, paddingRight: 8, justifyContent: 'center' }}>
                       <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
                       <Text style={{ fontSize: 11, color: '#8c8c8c' }} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
                     </View>
-                    <View style={{ width: 88, paddingRight: 8, justifyContent: 'center' }}>
+                    <View style={{ width: 76, paddingRight: 8, justifyContent: 'center' }}>
                       <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</Text>
                       {isFert && (
                         <Text style={{ fontSize: 9, color: '#13c2c2', fontStyle: 'italic' }}>
