@@ -179,13 +179,12 @@ export default function TravailAgricole({ navigation }) {
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView style={{ flex: 1 }} nestedScrollEnabled>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ width: 825 }}>
+            <View style={{ width: 745 }}>
               <View style={styles.tableHeader}>
                 <Text style={[styles.th, { width: 90 }]}>Date</Text>
                 <Text style={[styles.th, { width: 140 }]}>Nom</Text>
                 <Text style={[styles.th, { width: 115 }]}>Type</Text>
-                <Text style={[styles.th, { width: 105 }]}>Parcelle</Text>
-                <Text style={[styles.th, { width: 115 }]}>Secteur</Text>
+                <Text style={[styles.th, { width: 140 }]}>Lieu</Text>
                 <Text style={[styles.th, { width: 105 }]}>Coût (DT)</Text>
                 <Text style={[styles.th, { width: 80 }]}>Statut</Text>
                 <Text style={[styles.th, { width: 75 }]}>Actions</Text>
@@ -200,8 +199,10 @@ export default function TravailAgricole({ navigation }) {
                     <Text style={[styles.td, { width: 90 }]}>{t.date || '—'}</Text>
                     <Text style={[styles.td, { width: 140 }]} numberOfLines={1}>{t.nom}</Text>
                     <Text style={[styles.td, { width: 115 }]} numberOfLines={1}>{t.type}</Text>
-                    <Text style={[styles.td, { width: 105 }]} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
-                    <Text style={[styles.td, { width: 115 }]} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                    <View style={{ width: 140, paddingRight: 8, justifyContent: 'center' }}>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
+                      <Text style={{ fontSize: 11, color: '#8c8c8c' }} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                    </View>
                     <View style={{ width: 105, paddingRight: 8, justifyContent: 'center' }}>
                       <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR') || '0'}</Text>
                       {isFert && (
