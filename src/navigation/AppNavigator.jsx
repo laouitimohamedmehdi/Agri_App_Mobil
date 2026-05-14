@@ -19,6 +19,7 @@ import Varietes from '../screens/Varietes';
 import RH from '../screens/RH';
 import Parametres from '../screens/Parametres';
 import Notifications from '../screens/Notifications';
+import Depenses from '../screens/Depenses';
 
 const Tab = createBottomTabNavigator();
 const ExtraStack = createStackNavigator();
@@ -39,6 +40,7 @@ function ExtraScreens() {
       <ExtraStack.Screen name="RH" component={RH} />
       <ExtraStack.Screen name="Parametres" component={Parametres} />
       <ExtraStack.Screen name="Notifications" component={Notifications} />
+      <ExtraStack.Screen name="Depenses" component={Depenses} />
     </ExtraStack.Navigator>
   );
 }
@@ -70,6 +72,7 @@ function TabsWithDrawer() {
     { divider: true, title: 'PRODUCTION' },
     { label: 'Travaux Agricoles', icon: 'shovel', tab: 'Travaux' },
     { label: 'Récoltes', icon: 'basket', tab: 'Récoltes' },
+    { label: 'Autres Dépenses', icon: 'file-invoice-outline', screen: 'Depenses' },
     { divider: true, title: 'RÉFÉRENTIEL' },
     { label: 'Variétés', icon: 'leaf', screen: 'Varietes' },
     ...(isAdmin ? [
