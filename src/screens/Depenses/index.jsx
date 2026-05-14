@@ -173,8 +173,8 @@ export default function Depenses({ navigation }) {
                     </>
                   ) : (
                     <>
-                      <Button icon="pencil" compact onPress={() => openDemande('modification', d)} textColor="#1677ff">Demander modif</Button>
-                      <Button icon="delete" compact onPress={() => openDemande('suppression', d)} textColor="#ff4d4f">Demander suppr</Button>
+                      <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => openDemande('modification', d)} textColor="#1677ff" />
+                      <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => openDemande('suppression', d)} textColor="#ff4d4f" />
                     </>
                   )}
                 </Card.Actions>
