@@ -25,15 +25,15 @@ export default function DashboardScreen({ navigation }) {
   const fetchAll = async () => {
     try {
       const mois = new Date().toISOString().slice(0, 7);
-      const [travaux, recoltes, analyses, fertilisations, feuille, depenses] = await Promise.all([
+      const [travaux, recoltes, analyses, charges, feuille, depenses] = await Promise.all([
         client.get('/travaux/'),
         client.get('/recoltes/'),
         client.get('/recolte-analyse/').catch(() => ({ data: [] })),
-        client.get('/fertilisation/'),
+        client.get('/recolte-charges/').catch(() => ({ data: [] })),
         client.get(`/feuilles/?mois=${mois}`).catch(() => ({ data: null })),
         client.get('/depenses/').catch(() => ({ data: [] })),
       ]);
-      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, fertilisations: fertilisations.data, feuille: feuille.data, depenses: depenses.data });
+      setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, feuille: feuille.data, depenses: depenses.data });
     } catch { setSnack('Erreur de chargement'); }
     finally { setLoading(false); }
   };
@@ -42,16 +42,30 @@ export default function DashboardScreen({ navigation }) {
 
   const surfaceTotale = secteurs.reduce((s, x) => s + (x.surface || 0), 0).toFixed(1);
   const nbArbres = secteurs.reduce((s, x) => s + (x.nb_arbre || 0), 0);
-  const productionTotale = (data?.recoltes || []).reduce((s, r) => s + (r.production || 0), 0);
+
+  // Production = dernière campagne uniquement
+  const recoltes = data?.recoltes || [];
+  const derniereCampagne = [...recoltes].sort((a, b) => (b.campagne || '').localeCompare(a.campagne || ''))[0]?.campagne;
+  const recoltesRef = derniereCampagne ? recoltes.filter(r => r.campagne === derniereCampagne) : recoltes;
+  const productionTotale = recoltesRef.reduce((s, r) => s + (r.production || 0), 0);
   const huileTotale = (data?.analyses || []).reduce((s, a) => s + (a.huile || 0), 0);
 
-  const revenuBrut = (data?.analyses || []).reduce((s, a) => s + ((a.huile || 0) * (a.prix || 0)), 0);
-  const fraisTraitement = (data?.analyses || []).reduce((s, a) => s + (a.frais || 0), 0);
-  const chargesFertilisation = (data?.fertilisations || []).reduce((s, f) => s + ((f.quantite || 0) * (f.cout_unitaire || 0)), 0);
-  const totalCoutTravaux = (data?.travaux || []).reduce((s, t) => s + (t.cout || 0), 0);
+  // Revenu brut = Σ (huile × prix) pour les récoltes de la période
+  const revenuBrut = recoltesRef.reduce((s, r) => {
+    const a = (data?.analyses || []).find(an => an.recolte_id === r.id_recolte);
+    return s + (a?.huile || 0) * (a?.prix || 0);
+  }, 0);
+
+  // Frais récolte = /recolte-charges/ liés aux récoltes de la période
+  const recolteIds = recoltesRef.map(r => r.id_recolte);
+  const totalFraisRecolte = (data?.charges || []).reduce((s, c) =>
+    recolteIds.includes(c.recolte_id) ? s + (c.montant || 0) : s, 0);
+
+  // Travaux : seulement les terminés
+  const totalCoutTravaux = (data?.travaux || []).filter(t => t.statut === 'termine').reduce((s, t) => s + (t.cout || 0), 0);
   const totalSalaires = (data?.feuille?.lignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
   const totalDepenses = (data?.depenses || []).reduce((s, d) => s + ((d.quantite || 0) * (d.cout_unitaire || 0)), 0);
-  const totalCharges = fraisTraitement + chargesFertilisation + totalCoutTravaux + totalSalaires + totalDepenses;
+  const totalCharges = totalFraisRecolte + totalCoutTravaux + totalSalaires + totalDepenses;
   const margeNette = revenuBrut - totalCharges;
   const rendementHa = parseFloat(surfaceTotale) > 0 ? (productionTotale / parseFloat(surfaceTotale)).toFixed(0) : 0;
   const coutKg = productionTotale > 0 ? (totalCharges / productionTotale).toFixed(2) : 0;
@@ -64,11 +78,10 @@ export default function DashboardScreen({ navigation }) {
 
   // Couleurs DESIGN_SYSTEM — prop `color` (PieChart), pas frontColor (BarChart)
   const PIE_ITEMS = [
-    { key: 'travaux', value: totalCoutTravaux,     color: '#ff4d4f', label: 'Travaux'       },
-    { key: 'frais',   value: fraisTraitement,      color: '#fa8c16', label: 'Frais récolte' },
-    { key: 'fert',    value: chargesFertilisation, color: '#13c2c2', label: 'Fertilisation' },
-    { key: 'sal',     value: totalSalaires,        color: '#722ed1', label: 'Salaires'      },
-    { key: 'dep',     value: totalDepenses,        color: '#eb2f96', label: 'Autres dépenses' },
+    { key: 'travaux', value: totalCoutTravaux,   color: '#ff4d4f', label: 'Travaux'          },
+    { key: 'frais',   value: totalFraisRecolte,  color: '#fa8c16', label: 'Frais récolte'    },
+    { key: 'sal',     value: totalSalaires,      color: '#722ed1', label: 'Salaires'         },
+    { key: 'dep',     value: totalDepenses,      color: '#eb2f96', label: 'Autres dépenses'  },
   ].filter(d => d.value > 0);
   const pieData = PIE_ITEMS.map(d => ({ value: d.value, color: d.color }));
 
