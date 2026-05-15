@@ -11,31 +11,21 @@ export default function OfflineBanner() {
   const { token } = useAuth();
   const { t } = useTranslation();
 
-  if (!token) return null;
-  if (isOnline && pendingCount === 0) return null;
+  if (!token || isOnline) return null;
 
   return (
-    <View style={[styles.banner, isOnline ? styles.syncing : styles.offline]}>
-      <MaterialCommunityIcons
-        name={isOnline ? 'cloud-sync' : 'wifi-off'}
-        size={16}
-        color="#fff"
-        style={{ marginRight: 6 }}
-      />
+    <View style={styles.banner}>
+      <MaterialCommunityIcons name="wifi-off" size={16} color="#fff" style={{ marginRight: 6 }} />
       <Text style={styles.text}>
-        {isOnline
-          ? t('mobile.syncing', { count: pendingCount })
-          : pendingCount > 0
-            ? t('mobile.offline_pending', { count: pendingCount })
-            : t('mobile.offline_banner')}
+        {pendingCount > 0
+          ? t('mobile.offline_pending', { count: pendingCount })
+          : t('mobile.offline_banner')}
       </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  banner: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, zIndex: 999 },
-  offline: { backgroundColor: '#cf1322' },
-  syncing: { backgroundColor: '#fa8c16' },
+  banner: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#cf1322' },
   text: { color: '#fff', fontSize: 12, flex: 1 },
 });
