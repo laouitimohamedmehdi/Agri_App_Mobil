@@ -184,7 +184,7 @@ export default function DashboardScreen({ navigation }) {
                 xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                 yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                 yAxisLabelWidth={30}
-                yAxisSide={isRTL ? 'right' : 'left'}
+                yAxisSide={isRTL ? 1 : 0}
                 noOfSections={4}
                 width={Dimensions.get('window').width - 80}
                 height={140}
