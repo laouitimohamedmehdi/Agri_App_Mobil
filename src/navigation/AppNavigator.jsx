@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 },
   menuSection: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
   menuSectionLine: { height: 1, backgroundColor: '#e8f0e4', marginBottom: 8 },
-  menuSectionTitle: { fontSize: 10, fontWeight: '700', color: '#b0bba8', letterSpacing: 1.2, textTransform: 'uppercase' },
+  menuSectionTitle: { fontSize: 11, fontWeight: '800', color: '#7a9a7a', letterSpacing: 1.2, textTransform: 'uppercase' },
 });
 
 export default function AppNavigator() {
