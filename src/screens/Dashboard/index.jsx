@@ -98,7 +98,7 @@ export default function DashboardScreen({ navigation }) {
   const derniersTravaux = (data?.travaux || []).slice(-5).reverse();
 
   // Activité financière — Jan → Déc année courante
-  const locale = i18n.language === 'ar' ? 'ar' : i18n.language === 'en' ? 'en' : 'fr';
+  const locale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
   const MOIS = Array.from({ length: 12 }, (_, i) =>
     new Intl.DateTimeFormat(locale, { month: 'short' }).format(new Date(2024, i, 1))
   );
