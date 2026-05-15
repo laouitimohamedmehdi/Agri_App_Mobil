@@ -200,8 +200,9 @@ export default function DashboardScreen({ navigation }) {
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                   noOfSections={4}
-                  width={Math.max(300, 12 * 28)}
+                  width={Math.max(300, 12 * 34)}
                   height={140}
+                  endSpacing={30}
                   hideRules={false}
                   rulesColor="#f0f0f0"
                 />
