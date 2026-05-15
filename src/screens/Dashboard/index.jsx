@@ -171,27 +171,12 @@ export default function DashboardScreen({ navigation }) {
           <>
             <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} isRTL={isRTL} />
             <Card style={styles.chartCard}>
-              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'flex-end', gap: 16, marginBottom: 8 }}>
-                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-                  <View style={{ width: 12, height: 3, backgroundColor: '#2d7a4a', borderRadius: 2 }} />
-                  <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.revenue')}</Text>
-                </View>
-                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-                  <View style={{ width: 12, height: 3, backgroundColor: '#ff4d4f', borderRadius: 2 }} />
-                  <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
-                </View>
-              </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <LineChart
-                  areaChart
                   data={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
                   data2={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.charges }))}
                   color1="#2d7a4a"
                   color2="#ff4d4f"
-                  startFillColor1="#2d7a4a"
-                  startFillColor2="#ff4d4f"
-                  startOpacity={0.25}
-                  endOpacity={0.02}
                   thickness={2}
                   dataPointsColor1="#2d7a4a"
                   dataPointsColor2="#ff4d4f"
@@ -199,14 +184,27 @@ export default function DashboardScreen({ navigation }) {
                   xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
+                  yAxisLabelWidth={30}
                   noOfSections={4}
                   width={Math.max(300, 12 * 34)}
                   height={140}
                   endSpacing={30}
                   hideRules={false}
-                  rulesColor="#f0f0f0"
+                  rulesColor="#e8f0e4"
+                  rulesType="solid"
+                  showVerticalLines={false}
                 />
               </ScrollView>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#2d7a4a' }} />
+                  <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.revenue')}</Text>
+                </View>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#ff4d4f' }} />
+                  <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
+                </View>
+              </View>
             </Card>
           </>
         )}
