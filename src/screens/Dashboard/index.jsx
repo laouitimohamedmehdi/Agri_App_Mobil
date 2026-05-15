@@ -8,6 +8,8 @@ import LoadingOverlay from '../../components/LoadingOverlay';
 import client from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
+import { useSettings } from '../../contexts/SettingsContext';
+import { useTranslation } from 'react-i18next';
 
 const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c' };
 const STATUT_ICONS = { planifie: 'clock-outline', actif: 'play-circle-outline', termine: 'check-circle-outline' };
@@ -15,6 +17,8 @@ const STATUT_ICONS = { planifie: 'clock-outline', actif: 'play-circle-outline', 
 export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
   const { secteurs, employes } = useData();
+  const { currencySymbol } = useSettings();
+  const { t } = useTranslation();
   const isAdmin = user?.role === 'admin';
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +51,7 @@ export default function DashboardScreen({ navigation }) {
       ]);
       const allFeuilles = months.map((mois, i) => ({ mois, lignes: feuillesRes[i]?.data?.lignes || [] }));
       setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, depenses: depenses.data, allFeuilles });
-    } catch { setSnack('Erreur de chargement'); }
+    } catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
@@ -131,14 +135,14 @@ export default function DashboardScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
-      <AppHeader title="Tableau de bord" navigation={navigation} />
+      <AppHeader title={t('dashboard.title')} navigation={navigation} />
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
 
         {/* KPIs */}
-        <SectionHeader icon="chart-box" title="Vue d'ensemble" />
+        <SectionHeader icon="chart-box" title={t('mobile.overview')} />
         <View style={styles.kpiRow}>
-          <KpiCard label="Surface totale" value={`${surfaceTotale} ha`} color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
-          <KpiCard label="Total arbres" value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" icon="tree" bg="#f6fff0" />
+          <KpiCard label={t('dashboard.total_area')} value={`${surfaceTotale} ha`} color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
+          <KpiCard label={t('dashboard.total_trees')} value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" icon="tree" bg="#f6fff0" />
           <KpiCard label={`Production ${derniereCampagne}`} value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket" bg="#fff7e6" />
           {isAdmin && <KpiCard label={`Huile ${derniereCampagne}`} value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water" bg="#e6fffb" />}
         </View>
@@ -146,28 +150,28 @@ export default function DashboardScreen({ navigation }) {
         {/* Résumé financier */}
         {isAdmin && (
           <>
-            <SectionHeader icon="cash-multiple" title="Résumé financier" />
-            <FinanceRow icon="trending-up" label="Revenu brut" formule="Σ (Production (Kg) × Prix de vente (DT/Kg))" value={`${revenuBrut.toFixed(0)} DT`} accent="#2d7a4a" />
-            <FinanceRow icon="trending-down" label="Total charges" formule="Coût des travaux + Frais de récolte + Salaires + Autres dépenses" value={`${totalCharges.toFixed(0)} DT`} accent="#ff4d4f" />
-            <FinanceRow icon="finance" label="Marge nette" formule="Revenu brut − Total charges" value={`${margeNette.toFixed(0)} DT`} accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
-            <FinanceRow icon="sprout" label="Rendement moyen /ha" formule="Production totale ÷ Surface totale (ha)" value={`${rendementHa} kg`} accent="#fa8c16" />
-            <FinanceRow icon="calculator" label="Coût moyen /kg" formule="Coût total ÷ Production totale (kg)" value={`${coutKg} DT`} accent="#ff4d4f" />
+            <SectionHeader icon="cash-multiple" title={t('mobile.financial_summary')} />
+            <FinanceRow icon="trending-up" label={t('dashboard.revenu_brut')} formule={t('dashboard.revenu_brut_formule', { currency: currencySymbol })} value={`${revenuBrut.toFixed(0)} ${currencySymbol}`} accent="#2d7a4a" />
+            <FinanceRow icon="trending-down" label={t('dashboard.total_charges')} formule="Coût des travaux + Frais de récolte + Salaires + Autres dépenses" value={`${totalCharges.toFixed(0)} ${currencySymbol}`} accent="#ff4d4f" />
+            <FinanceRow icon="finance" label={t('dashboard.marge_nette')} formule="Revenu brut − Total charges" value={`${margeNette.toFixed(0)} ${currencySymbol}`} accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
+            <FinanceRow icon="sprout" label={t('dashboard.rendement_moyen_ha')} formule="Production totale ÷ Surface totale (ha)" value={`${rendementHa} kg`} accent="#fa8c16" />
+            <FinanceRow icon="calculator" label={t('dashboard.cout_moyen_kg')} formule="Coût total ÷ Production totale (kg)" value={`${coutKg} ${currencySymbol}`} accent="#ff4d4f" />
           </>
         )}
 
         {/* Activité financière */}
         {isAdmin && (
           <>
-            <SectionHeader icon="chart-line" title={`Activité financière ${currentYear}`} />
+            <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} />
             <Card style={styles.chartCard}>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 16, marginBottom: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <View style={{ width: 12, height: 3, backgroundColor: '#2d7a4a', borderRadius: 2 }} />
-                  <Text style={{ fontSize: 10, color: '#555' }}>Revenus</Text>
+                  <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.revenue')}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <View style={{ width: 12, height: 3, backgroundColor: '#ff4d4f', borderRadius: 2 }} />
-                  <Text style={{ fontSize: 10, color: '#555' }}>Charges</Text>
+                  <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
                 </View>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -201,7 +205,7 @@ export default function DashboardScreen({ navigation }) {
 
         {isAdmin && pieData.length > 0 && (
           <>
-            <SectionHeader icon="chart-pie" title="Répartition des charges" />
+            <SectionHeader icon="chart-pie" title={t('dashboard.repartition')} />
             <Card style={styles.chartCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <PieChart
@@ -235,10 +239,10 @@ export default function DashboardScreen({ navigation }) {
         )}
 
         {/* Derniers travaux */}
-        <SectionHeader icon="shovel" title="Derniers travaux" />
+        <SectionHeader icon="shovel" title={t('mobile.last_works')} />
         <Card style={styles.listCard}>
           {derniersTravaux.length === 0
-            ? <Text style={styles.empty}>Aucun travail récent</Text>
+            ? <Text style={styles.empty}>{t('mobile.no_work')}</Text>
             : derniersTravaux.map(t => (
               <View key={t.id_travail} style={styles.travauxRow}>
                 <View style={[styles.statutDot, { backgroundColor: STATUT_COLORS[t.statut] || '#888' }]} />
@@ -257,7 +261,7 @@ export default function DashboardScreen({ navigation }) {
         {/* Présences du mois */}
         {data?.feuille?.lignes?.length > 0 && (
           <>
-            <SectionHeader icon="account-clock" title="Présences du mois" />
+            <SectionHeader icon="account-clock" title={t('mobile.month_presences')} />
             <Card style={styles.listCard}>
               {data.feuille.lignes.map((l, i) => (
                 <View key={i} style={[styles.presenceRow, i > 0 && styles.presenceBorder]}>

@@ -63,7 +63,7 @@ export default function Parametres({ navigation }) {
 
   const fetchUsers = async () => {
     try { const res = await client.get('/users/'); setUsers(res.data); }
-    catch { setSnack('Erreur de chargement'); }
+    catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
@@ -90,7 +90,7 @@ export default function Parametres({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogVisible(false);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -99,7 +99,7 @@ export default function Parametres({ navigation }) {
   const handleCurrencyChange = async (value) => {
     setSavingCurrency(true);
     try { await updateCurrency(value); setSnack(`Devise mise à jour : ${value}`); }
-    catch { setSnack('Erreur mise à jour devise'); }
+    catch { setSnack(t('mobile.error_save')); }
     finally { setSavingCurrency(false); }
   };
 
@@ -116,7 +116,7 @@ export default function Parametres({ navigation }) {
 
   const confirmDelete = async () => {
     try { await client.delete(`/users/${confirmId}`); await fetchUsers(); }
-    catch { setSnack('Erreur lors de la suppression'); }
+    catch { setSnack(t('mobile.error_delete')); }
     setConfirmId(null);
   };
 
@@ -124,7 +124,7 @@ export default function Parametres({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Paramètres" navigation={navigation} />
+      <AppHeader title={t('menu.settings')} navigation={navigation} />
       {/* Section Langue */}
       <View style={styles.sectionHeader}>
         <MaterialCommunityIcons name="translate" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
@@ -144,12 +144,12 @@ export default function Parametres({ navigation }) {
       {/* Devise — fixe */}
       <View style={styles.sectionHeader}>
         <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={styles.sectionTitle}>Général</Text>
+        <Text variant="titleSmall" style={styles.sectionTitle}>{t('parametres.title_general')}</Text>
       </View>
       <Card style={{ marginHorizontal: 12, marginBottom: 8, elevation: 1 }}>
         <Card.Content>
-          <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#555' }}>Devise d'affichage</Text>
-          <SelectFilter noAll label="Choisir une devise" value={currency} onChange={handleCurrencyChange} options={CURRENCY_OPTIONS} />
+          <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#555' }}>{t('parametres.currency_label')}</Text>
+          <SelectFilter noAll label={t('parametres.currency_label')} value={currency} onChange={handleCurrencyChange} options={CURRENCY_OPTIONS} />
           <Text variant="bodySmall" style={{ color: '#888', marginTop: 6 }}>
             Symbole actuel : <Text style={{ fontWeight: 'bold', color: '#2d7a4a' }}>{currencySymbol}</Text>
           </Text>
@@ -159,18 +159,18 @@ export default function Parametres({ navigation }) {
       {/* Filtres utilisateurs — fixes */}
       <View style={styles.sectionHeader}>
         <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={styles.sectionTitle}>Utilisateurs</Text>
+        <Text variant="titleSmall" style={styles.sectionTitle}>{t('parametres.title_users')}</Text>
       </View>
       <View style={styles.filtersBox}>
         <SegmentedButtons value={filterRole} onValueChange={setFilterRole} style={{ marginBottom: 8 }}
-          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
+          buttons={[{ value: 'tous', label: t('mobile.all') }, { value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }]} />
         <SegmentedButtons value={filterActif} onValueChange={setFilterActif}
-          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'actif', label: 'Actifs' }, { value: 'inactif', label: 'Inactifs' }]} />
+          buttons={[{ value: 'tous', label: t('mobile.all') }, { value: 'actif', label: t('mobile.active') }, { value: 'inactif', label: t('mobile.inactive') }]} />
       </View>
 
       {/* Liste scrollable */}
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-        {filtered.length === 0 ? <EmptyState message="Aucun utilisateur" /> : (
+        {filtered.length === 0 ? <EmptyState message={t('parametres.msg_error')} /> : (
           filtered.map((u, i) => (
             <Card key={u.id} style={[styles.userCard, i > 0 && { marginTop: 8 }]}>
               <View style={styles.userRow}>
@@ -186,13 +186,13 @@ export default function Parametres({ navigation }) {
                 <View style={{ alignItems: 'center', gap: 4 }}>
                   <Switch value={u.is_active} onValueChange={() => toggleActif(u)} color="#2d7a4a" />
                   <Text variant="bodySmall" style={{ color: u.is_active ? '#52c41a' : '#aaa', fontSize: 10 }}>
-                    {u.is_active ? 'Actif' : 'Inactif'}
+                    {u.is_active ? t('mobile.active') : t('mobile.inactive')}
                   </Text>
                 </View>
               </View>
               <View style={styles.cardActions}>
-                <Button icon="pencil" compact onPress={() => openEdit(u)} textColor="#1677ff">Modifier</Button>
-                <Button icon="delete" compact onPress={() => setConfirmId(u.id)} textColor="#ff4d4f">Supprimer</Button>
+                <Button icon="pencil" compact onPress={() => openEdit(u)} textColor="#1677ff">{t('mobile.edit')}</Button>
+                <Button icon="delete" compact onPress={() => setConfirmId(u.id)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
               </View>
             </Card>
           ))
@@ -204,32 +204,32 @@ export default function Parametres({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un utilisateur</Dialog.Title>
+          <Dialog.Title>{editing ? t('parametres.modal_edit') : t('parametres.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Email" value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" maxLength={50} style={{ marginBottom: 8 }} />
-              <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
-              <TextInput label={editing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry maxLength={50} style={{ marginBottom: 8 }} />
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Rôle</Text>
+              <TextInput label={t('auth.email')} value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" maxLength={50} style={{ marginBottom: 8 }} />
+              <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
+              <TextInput label={editing ? t('parametres.form_password_edit') : t('auth.password')} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry maxLength={50} style={{ marginBottom: 8 }} />
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('parametres.form_role')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir un rôle" value={form.role}
+                <SelectFilter noAll label={t('parametres.form_role')} value={form.role}
                   onChange={v => setForm(f => ({ ...f, role: v }))}
                   options={[{ value: 'user', label: 'Utilisateur' }, { value: 'admin', label: 'Administrateur' }]} />
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text>Compte actif</Text>
+                <Text>{t('mobile.active')}</Text>
                 <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} color="#2d7a4a" />
               </View>
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
-            <Button onPress={save} loading={saving}>Enregistrer</Button>
+            <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={saving}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
 
-      <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer cet utilisateur ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
+      <ConfirmDialog visible={!!confirmId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel={t('mobile.delete')} />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
   );

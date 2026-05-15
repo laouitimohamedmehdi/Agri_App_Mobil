@@ -9,9 +9,11 @@ import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 import DatePickerInput from '../../components/DatePickerInput';
+import { useTranslation } from 'react-i18next';
 
 const SCREEN_H = Dimensions.get('window').height;
 const TYPES = ['Fertilisation', 'Taille', 'Labour mécanique', 'Nettoyage', 'Ramassage', 'Transport', 'Traitement', 'Irrigation', 'Loyer', 'Autre'];
@@ -22,6 +24,8 @@ const STATUT_COLORS = { planifie: '#f57c00', actif: '#1976d2', termine: '#388e3c
 export default function TravailAgricole({ navigation }) {
   const { secteurs, parcelles } = useData();
   const { user } = useAuth();
+  const { currencySymbol } = useSettings();
+  const { t } = useTranslation();
   const isAdmin = user?.role === 'admin';
   const [travaux, setTravaux] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +61,7 @@ export default function TravailAgricole({ navigation }) {
     } catch (e) {
       const msg = e?.response?.status
         ? `Erreur ${e.response.status}: ${JSON.stringify(e.response.data)}`
-        : e?.message || 'Erreur de chargement';
+        : e?.message || t('mobile.error_load');
       setSnack(msg);
     } finally {
       setLoading(false);
@@ -107,7 +111,7 @@ export default function TravailAgricole({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogVisible(false);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -119,7 +123,7 @@ export default function TravailAgricole({ navigation }) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la suppression');
+        setSnack(t('mobile.error_delete'));
       }
     }
     setConfirmId(null);
@@ -135,13 +139,13 @@ export default function TravailAgricole({ navigation }) {
     try {
       const { motif: m, ...data } = demandeForm;
       await soumettreDemande({ type_action: 'modification', entity_type: 'travail', travail_id: demandeModifItem.id_travail, motif: m, nouvelles_donnees: { nom: data.nom, type: data.type, cout: parseFloat(data.cout) || 0, m_o: parseInt(data.m_o) || 0, date: data.date, statut: data.statut, secteur_id: parseInt(data.secteur_id) || null, quantite: data.type === 'Fertilisation' && data.quantite !== '' ? parseFloat(data.quantite) : null, cout_unitaire: data.type === 'Fertilisation' && data.cout_unitaire !== '' ? parseFloat(data.cout_unitaire) : null } });
-      setSnack('Demande de modification envoyée');
+      setSnack(t('mobile.request_sent'));
       setDemandeModifItem(null);
     } catch (e) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack("Erreur lors de l'envoi");
+        setSnack(t('mobile.error_send'));
       }
     }
     finally { setSavingDemande(false); }
@@ -150,12 +154,12 @@ export default function TravailAgricole({ navigation }) {
   const envoyerDemandeSuppr = async () => {
     try {
       await soumettreDemande({ type_action: 'suppression', entity_type: 'travail', travail_id: demandeSupprItem.id_travail, motif: motifSuppr });
-      setSnack('Demande de suppression envoyée');
+      setSnack(t('mobile.request_delete_sent'));
     } catch (e) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack("Erreur lors de l'envoi");
+        setSnack(t('mobile.error_send'));
       }
     }
     setDemandeSupprItem(null); setMotifSuppr('');
@@ -167,29 +171,29 @@ export default function TravailAgricole({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
-      <AppHeader title="Travaux Agricoles" navigation={navigation} />
+      <AppHeader title={t('travaux.title')} navigation={navigation} />
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <SelectFilter
-            label="Lieu"
+            label={t('mobile.location')}
             value={filterLieu}
             onChange={setFilterLieu}
             options={lieuOptions}
           />
           <SelectFilter
-            label="Année"
+            label={t('mobile.year')}
             value={filterAnnee}
             onChange={setFilterAnnee}
             options={annees.map(a => ({ value: a, label: a }))}
           />
           <SelectFilter
-            label="Type"
+            label={t('mobile.type')}
             value={filterType}
             onChange={setFilterType}
-            options={TYPES.map(t => ({ value: t, label: t }))}
+            options={TYPES.map(ty => ({ value: ty, label: ty }))}
           />
           <SelectFilter
-            label="Statut"
+            label={t('mobile.status')}
             value={filterStatut}
             onChange={setFilterStatut}
             options={STATUTS.map(s => ({ value: s, label: s }))}
@@ -198,23 +202,23 @@ export default function TravailAgricole({ navigation }) {
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
         <MaterialCommunityIcons name="shovel" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} travaux</Text>
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} {t('travaux.title').toLowerCase()}</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView style={{ flex: 1 }} nestedScrollEnabled refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ width: 666 }}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.th, { width: 88 }]}>Date</Text>
-                <Text style={[styles.th, { width: 130 }]}>Nom</Text>
-                <Text style={[styles.th, { width: 110 }]}>Type</Text>
-                <Text style={[styles.th, { width: 114 }]}>Lieu</Text>
-                <Text style={[styles.th, { width: 76 }]}>Coût (DT)</Text>
-                <Text style={[styles.th, { width: 68 }]}>Statut</Text>
-                <Text style={[styles.th, { width: 80, textAlign: 'center', paddingRight: 0 }]}>Actions</Text>
+                <Text style={[styles.th, { width: 88 }]}>{t('travaux.col_date')}</Text>
+                <Text style={[styles.th, { width: 130 }]}>{t('travaux.col_name')}</Text>
+                <Text style={[styles.th, { width: 110 }]}>{t('travaux.col_type')}</Text>
+                <Text style={[styles.th, { width: 114 }]}>{t('travaux.col_location')}</Text>
+                <Text style={[styles.th, { width: 76 }]}>{t('travaux.col_cost', { currency: currencySymbol })}</Text>
+                <Text style={[styles.th, { width: 68 }]}>{t('travaux.col_status')}</Text>
+                <Text style={[styles.th, { width: 80, textAlign: 'center', paddingRight: 0 }]}>{t('common.actions')}</Text>
               </View>
               {filtered.map((t, idx) => {
-                const statutLabel = { planifie: 'Planifié', actif: 'En cours', termine: 'Terminé' }[t.statut] || t.statut;
+                const statutLabel = { planifie: t('travaux.statuts.planifie'), actif: t('travaux.statuts.actif'), termine: t('travaux.statuts.termine') }[t.statut] || t.statut;
                 const statutColor = { planifie: '#faad14', actif: '#1677ff', termine: '#52c41a' }[t.statut] || '#888';
                 const isFert = t.type === 'Fertilisation' && t.quantite > 0 && t.cout_unitaire > 0;
                 const coutAffiche = isFert ? t.quantite * t.cout_unitaire : t.cout;
@@ -260,140 +264,140 @@ export default function TravailAgricole({ navigation }) {
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un travail</Dialog.Title>
+          <Dialog.Title>{editing ? t('travaux.modal_edit') : t('travaux.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type *</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.type')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir un type" value={form.type}
+                <SelectFilter noAll label={t('travaux.filter_type')} value={form.type}
                   onChange={v => setForm(f => ({ ...f, type: v, nom: '', cout: '', quantite: '', cout_unitaire: '' }))}
-                  options={TYPES.map(t => ({ value: t, label: t }))} />
+                  options={TYPES.map(ty => ({ value: ty, label: ty }))} />
               </View>
 
               {form.type === 'Fertilisation' ? (
                 <>
-                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit</Text>
+                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('travaux.form_fertilizer')}</Text>
                   <View style={{ marginBottom: 12 }}>
-                    <SelectFilter noAll label="Choisir un produit" value={form.nom}
+                    <SelectFilter noAll label={t('travaux.choose_fertilizer')} value={form.nom}
                       onChange={v => setForm(f => ({ ...f, nom: v }))}
                       options={PRODUITS_FERTILISATION.map(p => ({ value: p, label: p }))} />
                   </View>
                 </>
               ) : (
-                <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
+                <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
               )}
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut *</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir un statut" value={form.statut}
+                <SelectFilter noAll label={t('travaux.filter_status')} value={form.statut}
                   onChange={v => setForm(f => ({ ...f, statut: v }))}
-                  options={[{ value: 'planifie', label: 'Planifié' }, { value: 'actif', label: 'En cours' }]} />
+                  options={[{ value: 'planifie', label: t('travaux.statuts.planifie') }, { value: 'actif', label: t('travaux.statuts.actif') }]} />
               </View>
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.sector')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir un secteur" value={form.secteur_id}
+                <SelectFilter noAll label={t('fields.secteur_btn')} value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
                   options={secteurs.map(s => ({ value: String(s.id_secteur), label: s.nom }))} />
               </View>
 
-              <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label={t('mobile.year')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
 
               {form.type === 'Fertilisation' ? (
                 <>
-                  <TextInput label="Quantité" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label="Coût unitaire (DT)" value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  <TextInput label={t('travaux.form_quantity')} value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.form_unit_cost', { currency: currencySymbol })} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                   {form.quantite !== '' && form.cout_unitaire !== '' && (
                     <Text variant="bodySmall" style={{ color: '#13c2c2', marginBottom: 12, fontStyle: 'italic' }}>
-                      Coût total : {(parseFloat(form.quantite) || 0) * (parseFloat(form.cout_unitaire) || 0)} DT
+                      {t('travaux.form_global_cost')} {(parseFloat(form.quantite) || 0) * (parseFloat(form.cout_unitaire) || 0)} {currencySymbol}
                     </Text>
                   )}
-                  <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.form_mo')} value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               ) : (
                 <>
-                  <TextInput label="Coût (DT)" value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label="Main d'œuvre (jours)" value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.col_cost', { currency: currencySymbol })} value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.form_mo')} value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               )}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
-            <Button onPress={save} loading={saving}>Enregistrer</Button>
+            <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={saving}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
-          <Dialog.Title>Demande de modification</Dialog.Title>
+          <Dialog.Title>{t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
-              <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
+              <TextInput label={t('mobile.demand_reason_required')} value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.type')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Type" value={demandeForm.type}
+                <SelectFilter noAll label={t('mobile.type')} value={demandeForm.type}
                   onChange={v => setDemandeForm(f => ({ ...f, type: v, nom: '', cout: '', quantite: '', cout_unitaire: '' }))}
-                  options={TYPES.map(t => ({ value: t, label: t }))} />
+                  options={TYPES.map(ty => ({ value: ty, label: ty }))} />
               </View>
 
               {demandeForm.type === 'Fertilisation' ? (
                 <>
-                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>Produit</Text>
+                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('travaux.form_fertilizer')}</Text>
                   <View style={{ marginBottom: 12 }}>
-                    <SelectFilter noAll label="Choisir un produit" value={demandeForm.nom}
+                    <SelectFilter noAll label={t('travaux.choose_fertilizer')} value={demandeForm.nom}
                       onChange={v => setDemandeForm(f => ({ ...f, nom: v }))}
                       options={PRODUITS_FERTILISATION.map(p => ({ value: p, label: p }))} />
                   </View>
                 </>
               ) : (
-                <TextInput label="Nom" value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
+                <TextInput label={t('mobile.name')} value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
               )}
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Statut" value={demandeForm.statut}
+                <SelectFilter noAll label={t('mobile.status')} value={demandeForm.statut}
                   onChange={v => setDemandeForm(f => ({ ...f, statut: v }))}
-                  options={[{ value: 'planifie', label: 'Planifié' }, { value: 'actif', label: 'En cours' }, { value: 'termine', label: 'Terminé' }]} />
+                  options={[{ value: 'planifie', label: t('travaux.statuts.planifie') }, { value: 'actif', label: t('travaux.statuts.actif') }, { value: 'termine', label: t('travaux.statuts.termine') }]} />
               </View>
 
-              <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label={t('mobile.year')} value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
 
               {demandeForm.type === 'Fertilisation' ? (
                 <>
-                  <TextInput label="Quantité" value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label="Coût unitaire (DT)" value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  <TextInput label={t('travaux.form_quantity')} value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.form_unit_cost', { currency: currencySymbol })} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                   {demandeForm.quantite !== '' && demandeForm.cout_unitaire !== '' && (
                     <Text variant="bodySmall" style={{ color: '#13c2c2', marginBottom: 12, fontStyle: 'italic' }}>
-                      Coût total : {(parseFloat(demandeForm.quantite) || 0) * (parseFloat(demandeForm.cout_unitaire) || 0)} DT
+                      {t('travaux.form_global_cost')} {(parseFloat(demandeForm.quantite) || 0) * (parseFloat(demandeForm.cout_unitaire) || 0)} {currencySymbol}
                     </Text>
                   )}
-                  <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.form_mo')} value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               ) : (
                 <>
-                  <TextInput label="Coût (DT)" value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label="Main d'œuvre (jours)" value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.col_cost', { currency: currencySymbol })} value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('travaux.form_mo')} value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               )}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeModifItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemandeModif} loading={savingDemande}>Envoyer</Button>
+            <Button onPress={() => setDemandeModifItem(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={envoyerDemandeModif} loading={savingDemande}>{t('mobile.send')}</Button>
           </Dialog.Actions>
         </Dialog>
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
-          <Dialog.Title>Demande de suppression</Dialog.Title>
+          <Dialog.Title>{t('demandes.action_delete')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
+            <TextInput label={t('mobile.demand_reason_required')} value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemandeSuppr}>Envoyer</Button>
+            <Button onPress={() => setDemandeSupprItem(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={envoyerDemandeSuppr}>{t('mobile.send')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer ce travail ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
+      <ConfirmDialog visible={!!confirmId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel={t('mobile.delete')} />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={8000}>{snack}</Snackbar>
     </View>
   );
