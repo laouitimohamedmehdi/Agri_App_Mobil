@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Modal, TouchableOpacity, ScrollView, StyleSheet, I18nManager } from 'react-native';
+import { changeLanguage } from '../i18n';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Text, Divider } from 'react-native-paper';
@@ -51,7 +52,7 @@ function TabsWithDrawer() {
   const isAdmin = user?.role === 'admin';
   const [drawerVisible, setDrawerVisible] = useState(false);
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const openDrawer = () => setDrawerVisible(true);
   const closeDrawer = () => setDrawerVisible(false);
@@ -115,6 +116,26 @@ function TabsWithDrawer() {
               <MaterialCommunityIcons name="account-circle" size={48} color="#2d7a4a" />
               <Text variant="titleMedium" style={{ marginTop: 8, fontWeight: 'bold' }}>{user?.nom}</Text>
               <Text variant="bodySmall" style={{ color: '#666' }}>{user?.email}</Text>
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
+                {[{ code: 'fr', label: 'FR' }, { code: 'en', label: 'EN' }, { code: 'ar', label: 'ع' }].map(lang => (
+                  <TouchableOpacity
+                    key={lang.code}
+                    onPress={async () => {
+                      await changeLanguage(lang.code);
+                      if (lang.code === 'ar') I18nManager.forceRTL(true);
+                      else I18nManager.forceRTL(false);
+                    }}
+                    style={{
+                      paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
+                      backgroundColor: i18n.language === lang.code ? '#2d7a4a' : '#e8f5e9',
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: i18n.language === lang.code ? '#fff' : '#2d7a4a' }}>
+                      {lang.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
             <Divider />
             <ScrollView>
