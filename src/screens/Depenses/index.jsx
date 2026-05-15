@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Text, Snackbar, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -16,6 +17,7 @@ import { soumettreDemande } from '../../utils/demandeHelper';
 const SCREEN_H = Dimensions.get('window').height;
 
 export default function Depenses({ navigation }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currencySymbol } = useSettings();
   const isAdmin = user?.role === 'admin';
@@ -47,7 +49,7 @@ export default function Depenses({ navigation }) {
     try {
       const res = await client.get('/depenses/');
       setDepenses(res.data.sort((a, b) => (b.date || '').localeCompare(a.date || '')));
-    } catch { setSnack('Erreur de chargement'); }
+    } catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
@@ -84,7 +86,7 @@ export default function Depenses({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogVisible(false);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -96,7 +98,7 @@ export default function Depenses({ navigation }) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la suppression');
+        setSnack(t('mobile.error_delete'));
       }
     }
     setConfirmId(null);
@@ -127,13 +129,13 @@ export default function Depenses({ navigation }) {
         });
       }
       await soumettreDemande(payload);
-      setSnack('Demande envoyée');
+      setSnack(t('mobile.request_sent'));
       setDemandeItem(null);
     } catch (e) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack("Erreur lors de l'envoi");
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSavingDemande(false); }
@@ -143,18 +145,18 @@ export default function Depenses({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
-      <AppHeader title="Autres Dépenses" navigation={navigation} />
+      <AppHeader title={t('depenses.title')} navigation={navigation} />
 
       <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <SelectFilter
-          label="Année"
+          label={t('mobile.year')}
           value={filterAnnee}
           onChange={setFilterAnnee}
           options={annees.map(a => ({ value: a, label: a }))}
         />
         {filtered.length > 0 && (
           <Text variant="bodySmall" style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
-            Total : {totalFiltre.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {currencySymbol}
+            {t('depenses.total_label')} {totalFiltre.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {currencySymbol}
           </Text>
         )}
       </View>
@@ -164,7 +166,7 @@ export default function Depenses({ navigation }) {
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} dépense(s)</Text>
       </View>
 
-      {filtered.length === 0 ? <EmptyState message="Aucune dépense" /> : (
+      {filtered.length === 0 ? <EmptyState message={t('mobile.no_expense')} /> : (
         <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           {filtered.map((d, idx) => {
             const total = (d.quantite || 0) * (d.cout_unitaire || 0);
@@ -187,8 +189,8 @@ export default function Depenses({ navigation }) {
                 <Card.Actions>
                   {isAdmin ? (
                     <>
-                      <Button icon="pencil" compact onPress={() => openEdit(d)} textColor="#1677ff">Modifier</Button>
-                      <Button icon="delete" compact onPress={() => setConfirmId(d.id_depense)} textColor="#ff4d4f">Supprimer</Button>
+                      <Button icon="pencil" compact onPress={() => openEdit(d)} textColor="#1677ff">{t('mobile.edit')}</Button>
+                      <Button icon="delete" compact onPress={() => setConfirmId(d.id_depense)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
                     </>
                   ) : (
                     <>
@@ -208,44 +210,44 @@ export default function Depenses({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une dépense</Dialog.Title>
+          <Dialog.Title>{editing ? t('depenses.modal_edit') : t('depenses.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Titre" value={form.titre} onChangeText={v => setForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
-              <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-              <TextInput label="Quantité" value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label={`Coût unitaire (${currencySymbol})`} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
+              <TextInput label={t('depenses.form_title')} value={form.titre} onChangeText={v => setForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
+              <DatePickerInput label={t('travaux.col_date')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <TextInput label={t('depenses.form_quantity')} value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label={t('depenses.form_unit_cost', { currency: currencySymbol })} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
-            <Button onPress={save} loading={saving}>Enregistrer</Button>
+            <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={saving}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
 
         <Dialog visible={!!demandeItem} onDismiss={() => setDemandeItem(null)}>
-          <Dialog.Title>{demandeAction === 'suppression' ? 'Demande de suppression' : 'Demande de modification'}</Dialog.Title>
+          <Dialog.Title>{demandeAction === 'suppression' ? t('demandes.action_delete') : t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Motif *" value={demandeMotif} onChangeText={setDemandeMotif} multiline maxLength={200} style={{ marginBottom: 12 }} />
+              <TextInput label={t('mobile.demand_reason_required')} value={demandeMotif} onChangeText={setDemandeMotif} multiline maxLength={200} style={{ marginBottom: 12 }} />
               {demandeAction === 'modification' && (
                 <>
-                  <TextInput label="Titre" value={demandeForm.titre} onChangeText={v => setDemandeForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
-                  <DatePickerInput label="Date" value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-                  <TextInput label="Quantité" value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={`Coût unitaire (${currencySymbol})`} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
+                  <TextInput label={t('depenses.form_title')} value={demandeForm.titre} onChangeText={v => setDemandeForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
+                  <DatePickerInput label={t('travaux.col_date')} value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+                  <TextInput label={t('depenses.form_quantity')} value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('depenses.form_unit_cost', { currency: currencySymbol })} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
                 </>
               )}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemande} loading={savingDemande}>Envoyer</Button>
+            <Button onPress={() => setDemandeItem(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={envoyerDemande} loading={savingDemande}>{t('mobile.send')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
 
-      <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer cette dépense ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
+      <ConfirmDialog visible={!!confirmId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel={t('mobile.delete')} />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={4000}>{snack}</Snackbar>
     </View>
   );

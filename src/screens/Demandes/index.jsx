@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, Chip, Snackbar, SegmentedButtons, Card, Button, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import client from '../../api/client';
 
 const STATUT_CONFIG = {
-  en_attente: { color: '#fa8c16', bg: '#fff7e6', icon: 'clock-outline',    label: 'En attente' },
-  approuvee:  { color: '#52c41a', bg: '#f6fff0', icon: 'check-circle',     label: 'Approuvée'  },
-  rejetee:    { color: '#ff4d4f', bg: '#fff1f0', icon: 'close-circle',     label: 'Rejetée'    },
+  en_attente: { color: '#fa8c16', bg: '#fff7e6', icon: 'clock-outline',    labelKey: 'demandes.status_pending' },
+  approuvee:  { color: '#52c41a', bg: '#f6fff0', icon: 'check-circle',     labelKey: 'demandes.status_approved' },
+  rejetee:    { color: '#ff4d4f', bg: '#fff1f0', icon: 'close-circle',     labelKey: 'demandes.status_rejected' },
 };
 const TYPE_CONFIG = {
   modification: { color: '#1677ff', icon: 'pencil-circle' },
@@ -19,6 +20,7 @@ const TYPE_CONFIG = {
 };
 
 export default function Demandes({ navigation }) {
+  const { t } = useTranslation();
   const [demandes, setDemandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatut, setFilterStatut] = useState('tous');
@@ -37,13 +39,13 @@ export default function Demandes({ navigation }) {
 
   const fetchDemandes = async () => {
     try { const res = await client.get('/demandes/'); setDemandes(res.data); }
-    catch { setSnack('Erreur de chargement'); }
+    catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
   const decide = async (id, statut) => {
     try { await client.put(`/demandes/${id}/decision`, { statut, note_admin: '' }); await fetchDemandes(); }
-    catch { setSnack('Erreur lors de la décision'); }
+    catch { setSnack(t('mobile.error_save')); }
   };
 
   const filtered = demandes.filter(d => {
@@ -59,22 +61,32 @@ export default function Demandes({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Demandes" navigation={navigation} />
+      <AppHeader title={t('menu.requests')} navigation={navigation} />
       <View style={styles.filtersBox}>
         <SegmentedButtons value={filterStatut} onValueChange={setFilterStatut} style={{ marginBottom: 8 }}
-          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'en_attente', label: 'En attente' }, { value: 'approuvee', label: 'Approuvées' }, { value: 'rejetee', label: 'Rejetées' }]} />
+          buttons={[
+            { value: 'tous', label: t('mobile.all') },
+            { value: 'en_attente', label: t('demandes.status_pending') },
+            { value: 'approuvee', label: t('demandes.status_approved') },
+            { value: 'rejetee', label: t('demandes.status_rejected') },
+          ]} />
         <SegmentedButtons value={filterType} onValueChange={setFilterType}
-          buttons={[{ value: 'tous', label: 'Tous' }, { value: 'modification', label: 'Modif.' }, { value: 'suppression', label: 'Suppr.' }, { value: 'notification', label: 'Notif.' }]} />
+          buttons={[
+            { value: 'tous', label: t('mobile.all') },
+            { value: 'modification', label: t('demandes.action_modify') },
+            { value: 'suppression', label: t('demandes.action_delete') },
+            { value: 'notification', label: t('demandes.action_notify') },
+          ]} />
       </View>
 
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-        {filtered.length === 0 && <EmptyState message="Aucune demande" />}
+        {filtered.length === 0 && <EmptyState message={t('mobile.no_request')} />}
 
         {pending.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons name="clock-alert" size={18} color="#fa8c16" style={{ marginRight: 6 }} />
-              <Text variant="titleSmall" style={[styles.sectionTitle, { color: '#fa8c16' }]}>En attente ({pending.length})</Text>
+              <Text variant="titleSmall" style={[styles.sectionTitle, { color: '#fa8c16' }]}>{t('demandes.status_pending')} ({pending.length})</Text>
             </View>
             {pending.map(d => <DemandeCard key={d.id} d={d} expanded={expanded} setExpanded={setExpanded} onDecide={decide} />)}
           </>
@@ -84,7 +96,7 @@ export default function Demandes({ navigation }) {
           <>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons name="history" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-              <Text variant="titleSmall" style={styles.sectionTitle}>Traitées ({others.length})</Text>
+              <Text variant="titleSmall" style={styles.sectionTitle}>{t('demandes.status_approved')} ({others.length})</Text>
             </View>
             {others.map(d => <DemandeCard key={d.id} d={d} expanded={expanded} setExpanded={setExpanded} onDecide={decide} />)}
           </>
@@ -97,9 +109,11 @@ export default function Demandes({ navigation }) {
 }
 
 function DemandeCard({ d, expanded, setExpanded, onDecide }) {
-  const sc = STATUT_CONFIG[d.statut] || { color: '#888', bg: '#f5f5f5', icon: 'help-circle', label: d.statut };
+  const { t } = useTranslation();
+  const sc = STATUT_CONFIG[d.statut] || { color: '#888', bg: '#f5f5f5', icon: 'help-circle', labelKey: null };
   const tc = TYPE_CONFIG[d.type_action] || { color: '#888', icon: 'circle' };
   const isOpen = expanded === d.id;
+  const statusLabel = sc.labelKey ? t(sc.labelKey) : d.statut;
 
   return (
     <Card style={[styles.card, { borderLeftWidth: 4, borderLeftColor: sc.color }]}>
@@ -112,7 +126,7 @@ function DemandeCard({ d, expanded, setExpanded, onDecide }) {
           <Text variant="bodySmall" style={{ color: '#888' }}>Par: {d.user_id} • {d.date_demande || ''}</Text>
         </View>
         <Chip style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>
-          {sc.label}
+          {statusLabel}
         </Chip>
       </TouchableOpacity>
 
@@ -127,8 +141,8 @@ function DemandeCard({ d, expanded, setExpanded, onDecide }) {
           )}
           {d.statut === 'en_attente' && d.type_action !== 'notification' && (
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-              <Button mode="contained" buttonColor="#52c41a" compact onPress={() => onDecide(d.id, 'approuvee')}>Approuver</Button>
-              <Button mode="outlined" textColor="#ff4d4f" compact onPress={() => onDecide(d.id, 'rejetee')}>Rejeter</Button>
+              <Button mode="contained" buttonColor="#52c41a" compact onPress={() => onDecide(d.id, 'approuvee')}>{t('demandes.btn_approve')}</Button>
+              <Button mode="outlined" textColor="#ff4d4f" compact onPress={() => onDecide(d.id, 'rejetee')}>{t('demandes.btn_reject')}</Button>
             </View>
           )}
         </View>

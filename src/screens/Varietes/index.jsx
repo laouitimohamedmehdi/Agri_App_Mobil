@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Snackbar, Card, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -11,6 +12,7 @@ import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 
 export default function Varietes({ navigation }) {
+  const { t } = useTranslation();
   const { varietes, refreshVarietes } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -34,7 +36,7 @@ export default function Varietes({ navigation }) {
   const openEdit = (v) => { setEditing(v); setForm({ nom: v.nom }); setDialogVisible(true); };
 
   const save = async () => {
-    if (!form.nom.trim()) { setSnack('Le nom est requis'); return; }
+    if (!form.nom.trim()) { setSnack(t('mobile.error_save')); return; }
     setSaving(true);
     try {
       if (editing) await client.put(`/varietes/${editing.id_variete}`, { nom: form.nom });
@@ -45,7 +47,7 @@ export default function Varietes({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogVisible(false);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -57,7 +59,7 @@ export default function Varietes({ navigation }) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la suppression');
+        setSnack(t('mobile.error_delete'));
       }
     }
     setConfirmId(null);
@@ -66,25 +68,25 @@ export default function Varietes({ navigation }) {
   const envoyerDemandeSuppr = async () => {
     try {
       await soumettreDemande({ type_action: 'suppression', entity_type: 'variete', entity_id: demandeId, motif });
-      setSnack('Demande envoyée');
-    } catch { setSnack("Erreur lors de l'envoi"); }
+      setSnack(t('mobile.request_sent'));
+    } catch { setSnack(t('mobile.error_save')); }
     setDemandeId(null); setMotif('');
   };
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Variétés" navigation={navigation} />
+      <AppHeader title={t('varietes.title')} navigation={navigation} />
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
         <View style={styles.sectionHeader}>
           <MaterialCommunityIcons name="leaf" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-          <Text variant="titleSmall" style={styles.sectionTitle}>Liste des variétés ({varietes.length})</Text>
+          <Text variant="titleSmall" style={styles.sectionTitle}>{t('varietes.title')} ({varietes.length})</Text>
         </View>
-        {varietes.length === 0 ? <EmptyState message="Aucune variété enregistrée" /> : (
+        {varietes.length === 0 ? <EmptyState message={t('mobile.no_variety')} /> : (
           <Card style={{ elevation: 2, overflow: 'hidden' }}>
             {/* Header */}
             <View style={styles.tableHeader}>
-              <Text style={[styles.th, { flex: 2 }]}>Nom de la variété</Text>
-              <Text style={[styles.th, { width: 120 }]}>Actions</Text>
+              <Text style={[styles.th, { flex: 2 }]}>{t('varietes.col_name', 'Nom de la variété')}</Text>
+              <Text style={[styles.th, { width: 120 }]}>{t('common.actions')}</Text>
             </View>
             {/* Rows */}
             {varietes.map((v, i) => (
@@ -110,27 +112,27 @@ export default function Varietes({ navigation }) {
       <FAB icon="plus" style={styles.fab} onPress={openCreate} />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une variété</Dialog.Title>
+          <Dialog.Title>{editing ? t('varietes.modal_edit') : t('varietes.modal_create')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} />
+            <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
-            <Button onPress={save} loading={saving}>Enregistrer</Button>
+            <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={saving}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
         <Dialog visible={!!demandeId} onDismiss={() => setDemandeId(null)}>
-          <Dialog.Title>Demander la suppression</Dialog.Title>
+          <Dialog.Title>{t('demandes.action_delete')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif" value={motif} onChangeText={setMotif} multiline maxLength={200} />
+            <TextInput label={t('mobile.demand_reason_required')} value={motif} onChangeText={setMotif} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeId(null)}>Annuler</Button>
-            <Button onPress={envoyerDemandeSuppr}>Envoyer</Button>
+            <Button onPress={() => setDemandeId(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={envoyerDemandeSuppr}>{t('mobile.send')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer cette variété ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
+      <ConfirmDialog visible={!!confirmId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel={t('mobile.delete')} />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
   );

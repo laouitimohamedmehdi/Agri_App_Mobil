@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-
 const SCREEN_H = Dimensions.get('window').height;
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import SelectFilter from '../../components/SelectFilter';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -14,6 +15,7 @@ import client from '../../api/client';
 const STATUT_COLORS = { actif: '#388e3c', jeune: '#1976d2', inactif: '#757575' };
 
 export default function ParcellesSecteurs({ navigation }) {
+  const { t } = useTranslation();
   const { secteurs, parcelles, varietes, refreshSecteurs, refreshParcelles } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -79,7 +81,7 @@ export default function ParcellesSecteurs({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogType(null);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setLoading(false); }
@@ -93,7 +95,7 @@ export default function ParcellesSecteurs({ navigation }) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la suppression');
+        setSnack(t('mobile.error_delete'));
       }
     }
     setConfirmId(null);
@@ -101,18 +103,18 @@ export default function ParcellesSecteurs({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
-      <AppHeader title="Parcelles & Secteurs" navigation={navigation} />
+      <AppHeader title={t('fields.page_title')} navigation={navigation} />
 
       {/* Filtres */}
       <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0', flexDirection: 'row', gap: 8 }}>
         <SelectFilter
-          label="Parcelle"
+          label={t('mobile.plot')}
           value={filterParcelle}
           onChange={v => { setFilterParcelle(v); setFilterSecteur(''); }}
           options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))}
         />
         <SelectFilter
-          label="Secteur"
+          label={t('mobile.sector')}
           value={filterSecteur}
           onChange={setFilterSecteur}
           options={secteurs
@@ -122,7 +124,7 @@ export default function ParcellesSecteurs({ navigation }) {
       </View>
 
       <ScrollView style={{ backgroundColor: '#f0f4f0' }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-        {parcelles.length === 0 && <EmptyState message="Aucune parcelle enregistrée" />}
+        {parcelles.length === 0 && <EmptyState message={t('mobile.no_plot')} />}
         {parcelles
           .filter(p => !filterParcelle || String(p.id_parcelle) === filterParcelle)
           .map(p => (
@@ -138,8 +140,8 @@ export default function ParcellesSecteurs({ navigation }) {
           >
             {isAdmin && (
               <View style={{ flexDirection: 'row', padding: 8, gap: 8 }}>
-                <Button icon="pencil" mode="outlined" compact onPress={() => openEditParcelle(p)}>Modifier parcelle</Button>
-                <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>Supprimer</Button>
+                <Button icon="pencil" mode="outlined" compact onPress={() => openEditParcelle(p)}>{t('fields.edit_field')}</Button>
+                <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>{t('mobile.delete')}</Button>
               </View>
             )}
             {secteursOfParcelle(p.id_parcelle)
@@ -151,22 +153,22 @@ export default function ParcellesSecteurs({ navigation }) {
                   <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{s.statut}</Chip>
                 </View>
                 <View style={styles.secteurDetails}>
-                  <Text variant="bodySmall">Surface : {s.surface} ha</Text>
-                  <Text variant="bodySmall">Arbres : {s.nb_arbre}</Text>
-                  <Text variant="bodySmall">Âge moy. : {s.age_moy} ans</Text>
-                  <Text variant="bodySmall">Variété : {getVarieteNom(s.variete_id)}</Text>
+                  <Text variant="bodySmall">{t('sectors.area_ha')} {s.surface} ha</Text>
+                  <Text variant="bodySmall">{t('sectors.nb_arbres_col')} {s.nb_arbre}</Text>
+                  <Text variant="bodySmall">{t('sectors.age_moy_col')} {s.age_moy} ans</Text>
+                  <Text variant="bodySmall">{t('sectors.variete_col')} {getVarieteNom(s.variete_id)}</Text>
                 </View>
                 {isAdmin && (
                   <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                    <Button icon="pencil" compact mode="text" onPress={() => openEditSecteur(s)}>Modifier</Button>
-                    <Button icon="delete" compact mode="text" textColor="#d32f2f" onPress={() => { setConfirmType('secteur'); setConfirmId(s.id_secteur); }}>Supprimer</Button>
+                    <Button icon="pencil" compact mode="text" onPress={() => openEditSecteur(s)}>{t('mobile.edit')}</Button>
+                    <Button icon="delete" compact mode="text" textColor="#d32f2f" onPress={() => { setConfirmType('secteur'); setConfirmId(s.id_secteur); }}>{t('mobile.delete')}</Button>
                   </View>
                 )}
               </View>
             ))}
             {isAdmin && (
               <List.Item
-                title="Ajouter un secteur"
+                title={t('mobile.add')}
                 left={props => <List.Icon {...props} icon="plus-circle" />}
                 titleStyle={{ color: '#2d7a4a' }}
                 onPress={() => openCreateSecteur(p.id_parcelle)}
@@ -179,16 +181,18 @@ export default function ParcellesSecteurs({ navigation }) {
       {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreateParcelle} />}
       <Portal>
         <Dialog visible={!!dialogType} onDismiss={() => setDialogType(null)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} {dialogType === 'parcelle' ? 'une parcelle' : 'un secteur'}</Dialog.Title>
+          <Dialog.Title>
+            {editing ? t('mobile.edit') : t('mobile.add')} {dialogType === 'parcelle' ? 'une parcelle' : 'un secteur'}
+          </Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-            <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
+            <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
             {dialogType === 'secteur' && (
               <>
-                <TextInput label="Surface (ha)" value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                <TextInput label="Nombre d'arbres" value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                <TextInput label="Âge moyen (ans)" value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                <Text variant="labelMedium" style={{ marginBottom: 4 }}>Variété *</Text>
+                <TextInput label={t('sectors.area_ha')} value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                <TextInput label={t('sectors.nb_arbres_col')} value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                <TextInput label={t('sectors.age_moyen_label')} value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('sectors.variete_col')} *</Text>
                 <View style={{ marginBottom: 12 }}>
                   <SelectFilter noAll
                     label="Choisir une variété"
@@ -197,7 +201,7 @@ export default function ParcellesSecteurs({ navigation }) {
                     options={varietes.map(v => ({ value: String(v.id_variete), label: v.nom }))}
                   />
                 </View>
-                <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+                <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
                 <View style={{ marginBottom: 8 }}>
                   <SelectFilter noAll
                     label="Choisir un statut"
@@ -215,8 +219,8 @@ export default function ParcellesSecteurs({ navigation }) {
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogType(null)}>Annuler</Button>
-            <Button onPress={save} loading={loading}>Enregistrer</Button>
+            <Button onPress={() => setDialogType(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={loading}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -226,7 +230,7 @@ export default function ParcellesSecteurs({ navigation }) {
         message={confirmType === 'parcelle' ? 'Supprimer cette parcelle et tous ses secteurs associés ?' : 'Supprimer ce secteur et tous ses travaux, récoltes et fertilisations associés ?'}
         onConfirm={confirmDelete}
         onDismiss={() => setConfirmId(null)}
-        confirmLabel="Supprimer"
+        confirmLabel={t('mobile.delete')}
       />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
