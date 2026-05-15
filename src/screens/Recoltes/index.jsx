@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar, Card, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import SelectFilter from '../../components/SelectFilter';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -18,6 +19,7 @@ const SCREEN_H = Dimensions.get('window').height;
 const TYPES_FRAIS = ['Récolte', 'Transport', "Main d'œuvre", 'Trituration', 'Emballage', 'Autre'];
 
 export default function Recoltes({ navigation }) {
+  const { t } = useTranslation();
   const { secteurs, parcelles } = useData();
   const { user } = useAuth();
   const { currencySymbol } = useSettings();
@@ -73,7 +75,7 @@ export default function Recoltes({ navigation }) {
       setRecoltes(r.data);
       setAnalyses(a.data);
       setCharges(c.data);
-    } catch { setSnack('Erreur de chargement'); }
+    } catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
@@ -140,7 +142,7 @@ export default function Recoltes({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogVisible(false);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -155,7 +157,7 @@ export default function Recoltes({ navigation }) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la suppression');
+        setSnack(t('mobile.error_delete'));
       }
     }
     setConfirmId(null);
@@ -181,7 +183,7 @@ export default function Recoltes({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setAddLineGroup(null);
       } else {
-        setSnack("Erreur lors de l'ajout");
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSavingLine(false); }
@@ -200,14 +202,14 @@ export default function Recoltes({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setAddingChargeFor(null);
       } else {
-        setSnack("Erreur lors de l'ajout");
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSavingCharge(false); }
   };
   const deleteCharge = async () => {
     try { await client.delete(`/recolte-charges/${confirmChargeId}`); await fetchAll(); }
-    catch { setSnack('Erreur lors de la suppression'); }
+    catch { setSnack(t('mobile.error_delete')); }
     setConfirmChargeId(null);
   };
 
@@ -217,15 +219,15 @@ export default function Recoltes({ navigation }) {
     try {
       const { motif: m, ...data } = demandeForm;
       await soumettreDemande({ type_action: 'modification', entity_type: 'recolte', entity_id: demandeModifItem.id_recolte, motif: m, nouvelles_donnees: { campagne: data.campagne, production: parseFloat(data.production) || 0 } });
-      setSnack('Demande envoyée'); setDemandeModifItem(null);
-    } catch { setSnack("Erreur lors de l'envoi"); }
+      setSnack(t('mobile.request_sent')); setDemandeModifItem(null);
+    } catch { setSnack(t('mobile.error_send')); }
     finally { setSavingDemande(false); }
   };
   const envoyerDemandeSuppr = async () => {
     try {
       await soumettreDemande({ type_action: 'suppression', entity_type: 'recolte', entity_id: demandeSupprItem.id_recolte, motif: motifSuppr });
-      setSnack('Demande envoyée');
-    } catch { setSnack("Erreur lors de l'envoi"); }
+      setSnack(t('mobile.request_sent'));
+    } catch { setSnack(t('mobile.error_send')); }
     setDemandeSupprItem(null); setMotifSuppr('');
   };
 
@@ -235,12 +237,12 @@ export default function Recoltes({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
-      <AppHeader title="Récoltes" navigation={navigation} />
+      <AppHeader title={t('menu.harvests')} navigation={navigation} />
 
       {/* Filtres */}
       <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8, flexDirection: 'row', gap: 8 }}>
-        <SelectFilter label="Campagne" value={filterCampagne} onChange={setFilterCampagne} options={campagnes.map(c => ({ value: c, label: c }))} />
-        <SelectFilter label="Lieu" value={filterLieu} onChange={setFilterLieu} options={lieuOptions} />
+        <SelectFilter label={t('mobile.campaign')} value={filterCampagne} onChange={setFilterCampagne} options={campagnes.map(c => ({ value: c, label: c }))} />
+        <SelectFilter label={t('mobile.location')} value={filterLieu} onChange={setFilterLieu} options={lieuOptions} />
       </View>
 
       {/* Compteur */}
@@ -249,7 +251,7 @@ export default function Recoltes({ navigation }) {
         <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{groups.length} groupe(s) · {filtered.length} récolte(s)</Text>
       </View>
 
-      {groups.length === 0 ? <EmptyState message="Aucune récolte" /> : (
+      {groups.length === 0 ? <EmptyState message={t('mobile.no_harvest')} /> : (
         <ScrollView style={{ backgroundColor: '#f0f4f0' }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           {groups.map(group => {
             const totalProd = group.recoltes.reduce((s, r) => s + (r.production || 0), 0);
@@ -274,10 +276,10 @@ export default function Recoltes({ navigation }) {
                 {/* Bilan admin */}
                 {isAdmin && (
                   <View style={styles.bilanRow}>
-                    <BilanBadge label="Huile" value={`${totalHuile.toLocaleString('fr-FR')} L`} color="#08979c" />
-                    <BilanBadge label="Frais" value={`${totalFrais.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#d46b08" />
-                    <BilanBadge label="Revenu" value={`${revenuBrut.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#3a5a2c" />
-                    <BilanBadge label="Marge" value={`${margeNette.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} />
+                    <BilanBadge label={t('dashboard.oil_production')} value={`${totalHuile.toLocaleString('fr-FR')} L`} color="#08979c" />
+                    <BilanBadge label={t('dashboard.frais_recolte')} value={`${totalFrais.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#d46b08" />
+                    <BilanBadge label={t('dashboard.revenue')} value={`${revenuBrut.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#3a5a2c" />
+                    <BilanBadge label={t('dashboard.marge_nette')} value={`${margeNette.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} />
                   </View>
                 )}
 
@@ -300,7 +302,7 @@ export default function Recoltes({ navigation }) {
                           {isAdmin && a && (
                             <Text variant="bodySmall" style={{ color: '#555' }}>
                               {a.huile} L · {a.prix} {currencySymbol}/L
-                              {totalRFrais > 0 && <Text style={{ color: '#d46b08' }}> · Frais : {totalRFrais.toLocaleString('fr-FR')} {currencySymbol}</Text>}
+                              {totalRFrais > 0 && <Text style={{ color: '#d46b08' }}> · {t('dashboard.frais_recolte')} : {totalRFrais.toLocaleString('fr-FR')} {currencySymbol}</Text>}
                             </Text>
                           )}
                           {/* Frais pills */}
@@ -318,19 +320,19 @@ export default function Recoltes({ navigation }) {
                           {/* Ajout frais inline */}
                           {isAdmin && addingChargeFor === r.id_recolte ? (
                             <View style={{ marginTop: 6, gap: 6 }}>
-                              <SelectFilter noAll label="Type" value={chargeForm.type_frais}
+                              <SelectFilter noAll label={t('mobile.type')} value={chargeForm.type_frais}
                                 onChange={v => setChargeForm(f => ({ ...f, type_frais: v }))}
                                 options={TYPES_FRAIS.map(t => ({ value: t, label: t }))} />
                               <TextInput label={`Montant (${currencySymbol})`} value={chargeForm.montant}
                                 onChangeText={v => setChargeForm(f => ({ ...f, montant: v }))} keyboardType="numeric" dense />
                               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }}>
-                                <Button compact onPress={() => setAddingChargeFor(null)}>Annuler</Button>
-                                <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addCharge} loading={savingCharge}>Ajouter</Button>
+                                <Button compact onPress={() => setAddingChargeFor(null)}>{t('mobile.cancel')}</Button>
+                                <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addCharge} loading={savingCharge}>{t('mobile.add')}</Button>
                               </View>
                             </View>
                           ) : isAdmin && (
                             <Button icon="plus" compact onPress={() => { setAddingChargeFor(r.id_recolte); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' }); }} textColor="#d46b08" style={{ alignSelf: 'flex-start', marginTop: 2 }}>
-                              Frais
+                              {t('dashboard.frais_recolte')}
                             </Button>
                           )}
                         </View>
@@ -355,19 +357,19 @@ export default function Recoltes({ navigation }) {
                     <Divider style={{ marginTop: 4 }} />
                     {addLineGroup?.key === group.key ? (
                       <View style={{ padding: 12, backgroundColor: '#f0f9f0', gap: 8 }}>
-                        <Text variant="bodySmall" style={{ color: '#389e0d', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 }}>Ajouter une ligne</Text>
-                        <DatePickerInput label="Date" value={addLineForm.date} onChange={v => setAddLineForm(f => ({ ...f, date: v }))} />
-                        <TextInput label="Production (kg)" value={addLineForm.production} onChangeText={v => setAddLineForm(f => ({ ...f, production: v }))} keyboardType="numeric" dense style={{ marginTop: 4 }} />
-                        <TextInput label="Huile (L)" value={addLineForm.huile} onChangeText={v => setAddLineForm(f => ({ ...f, huile: v }))} keyboardType="numeric" dense />
+                        <Text variant="bodySmall" style={{ color: '#389e0d', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 }}>{t('mobile.add')}</Text>
+                        <DatePickerInput label={t('travaux.col_date')} value={addLineForm.date} onChange={v => setAddLineForm(f => ({ ...f, date: v }))} />
+                        <TextInput label={t('recoltes.col_production')} value={addLineForm.production} onChangeText={v => setAddLineForm(f => ({ ...f, production: v }))} keyboardType="numeric" dense style={{ marginTop: 4 }} />
+                        <TextInput label={t('recoltes.form_oil')} value={addLineForm.huile} onChangeText={v => setAddLineForm(f => ({ ...f, huile: v }))} keyboardType="numeric" dense />
                         <TextInput label={`Prix (${currencySymbol}/L)`} value={addLineForm.prix} onChangeText={v => setAddLineForm(f => ({ ...f, prix: v }))} keyboardType="numeric" dense />
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                          <Button compact onPress={() => setAddLineGroup(null)}>Annuler</Button>
-                          <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addLine} loading={savingLine}>Ajouter</Button>
+                          <Button compact onPress={() => setAddLineGroup(null)}>{t('mobile.cancel')}</Button>
+                          <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addLine} loading={savingLine}>{t('mobile.add')}</Button>
                         </View>
                       </View>
                     ) : (
                       <Button icon="plus" compact onPress={() => { setAddLineGroup(group); setAddLineForm({ date: '', production: '', huile: '', prix: '' }); }} textColor="#2d7a4a" style={{ margin: 8 }}>
-                        Ajouter une ligne dans ce groupe
+                        {t('mobile.add')}
                       </Button>
                     )}
                   </>
@@ -383,66 +385,66 @@ export default function Recoltes({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} une récolte</Dialog.Title>
+          <Dialog.Title>{editing ? t('mobile.edit') : t('mobile.add')} une récolte</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
-              <TextInput label="Campagne (ex: 25/26)" value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
-              <DatePickerInput label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Parcelle</Text>
+              <TextInput label={t('mobile.campaign')} value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <DatePickerInput label={t('travaux.col_date')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.plot')}</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label="Choisir une parcelle" value={formParcelle}
                   onChange={v => { setFormParcelle(v); setForm(f => ({ ...f, secteur_id: '' })); }}
                   options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))} />
               </View>
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Secteur *</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.sector')} *</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label="Choisir un secteur" value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
                   options={secteursForForm.map(s => ({ value: String(s.id_secteur), label: s.nom }))} />
               </View>
-              <TextInput label="Production (kg)" value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label={t('recoltes.col_production')} value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               {isAdmin && (
                 <>
                   <Divider style={{ marginBottom: 12 }} />
-                  <TextInput label="Huile (L)" value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <TextInput label={t('recoltes.form_oil')} value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                   <TextInput label={`Prix (${currencySymbol}/L)`} value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" />
                 </>
               )}
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
-            <Button onPress={save} loading={saving}>Enregistrer</Button>
+            <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={saving}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
 
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
-          <Dialog.Title>Demande de modification</Dialog.Title>
+          <Dialog.Title>{t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
-            <TextInput label="Campagne" value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
-            <TextInput label="Production (kg)" value={demandeForm.production} onChangeText={v => setDemandeForm(f => ({ ...f, production: v }))} keyboardType="numeric" />
+            <TextInput label={t('mobile.demand_reason_required')} value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
+            <TextInput label={t('mobile.campaign')} value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+            <TextInput label={t('recoltes.col_production')} value={demandeForm.production} onChangeText={v => setDemandeForm(f => ({ ...f, production: v }))} keyboardType="numeric" />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeModifItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemandeModif} loading={savingDemande}>Envoyer</Button>
+            <Button onPress={() => setDemandeModifItem(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={envoyerDemandeModif} loading={savingDemande}>{t('mobile.send')}</Button>
           </Dialog.Actions>
         </Dialog>
 
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
-          <Dialog.Title>Demande de suppression</Dialog.Title>
+          <Dialog.Title>{t('demandes.action_delete')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label="Motif *" value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
+            <TextInput label={t('mobile.demand_reason_required')} value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDemandeSupprItem(null)}>Annuler</Button>
-            <Button onPress={envoyerDemandeSuppr}>Envoyer</Button>
+            <Button onPress={() => setDemandeSupprItem(null)}>{t('mobile.cancel')}</Button>
+            <Button onPress={envoyerDemandeSuppr}>{t('mobile.send')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
 
-      <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer cette récolte ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
-      <ConfirmDialog visible={!!confirmChargeId} title="Supprimer le frais" message="Supprimer ce frais ?" onConfirm={deleteCharge} onDismiss={() => setConfirmChargeId(null)} confirmLabel="Supprimer" />
+      <ConfirmDialog visible={!!confirmId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel={t('mobile.delete')} />
+      <ConfirmDialog visible={!!confirmChargeId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={deleteCharge} onDismiss={() => setConfirmChargeId(null)} confirmLabel={t('mobile.delete')} />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
   );

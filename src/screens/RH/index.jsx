@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Snackbar, SegmentedButtons, Chip, Card, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import EmptyState from '../../components/EmptyState';
@@ -18,6 +19,7 @@ const SALAIRE_CONFIG = {
 };
 
 export default function RH({ navigation }) {
+  const { t } = useTranslation();
   const { employes, refreshEmployes } = useData();
   const [tab, setTab] = useState('employes');
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -61,7 +63,7 @@ export default function RH({ navigation }) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
         setDialogVisible(false);
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -73,7 +75,7 @@ export default function RH({ navigation }) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la suppression');
+        setSnack(t('mobile.error_delete'));
       }
     }
     setConfirmId(null);
@@ -81,14 +83,17 @@ export default function RH({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Ressources Humaines — Employés" navigation={navigation} />
+      <AppHeader title={t('menu.rh')} navigation={navigation} />
       <SegmentedButtons value={tab} onValueChange={setTab} style={{ margin: 12 }}
-        buttons={[{ value: 'employes', label: 'Employés', icon: 'account-group' }, { value: 'presences', label: 'Présences', icon: 'calendar-check' }]} />
+        buttons={[
+          { value: 'employes', label: t('mobile.employees'), icon: 'account-group' },
+          { value: 'presences', label: t('mobile.presences'), icon: 'calendar-check' },
+        ]} />
 
       {tab === 'employes' && (
         <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0' }}>
           <TextInput
-            placeholder="Rechercher un employé..."
+            placeholder={t('presences.filter_name')}
             value={filterNom}
             onChangeText={setFilterNom}
             left={<TextInput.Icon icon="magnify" />}
@@ -102,14 +107,14 @@ export default function RH({ navigation }) {
               value={filterStatut}
               onValueChange={setFilterStatut}
               buttons={[
-                { value: '', label: 'Tous' },
-                { value: 'actif', label: 'Actifs' },
-                { value: 'non_actif', label: 'Inactifs' },
+                { value: '', label: t('mobile.all') },
+                { value: 'actif', label: t('mobile.active') },
+                { value: 'non_actif', label: t('mobile.inactive') },
               ]}
               style={{ marginRight: 8 }}
             />
             <SelectFilter
-              label="Poste"
+              label={t('presences.col_post')}
               value={filterPoste}
               onChange={setFilterPoste}
               options={postes.map(p => ({ value: p, label: p }))}
@@ -124,7 +129,7 @@ export default function RH({ navigation }) {
             <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
             <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{employesFiltres.length} employé(s)</Text>
           </View>
-          {employesFiltres.length === 0 && employes.length > 0 ? <EmptyState message="Aucun employé pour ces filtres" /> : employesFiltres.length === 0 ? <EmptyState message="Aucun employé enregistré" /> : (
+          {employesFiltres.length === 0 && employes.length > 0 ? <EmptyState message={t('mobile.no_employee')} /> : employesFiltres.length === 0 ? <EmptyState message={t('mobile.no_employee')} /> : (
             employesFiltres.map((e, i) => {
               const sc = SALAIRE_CONFIG[e.type_salaire] || SALAIRE_CONFIG.journalier;
               const salaire = e.type_salaire === 'journalier' ? `${e.tarif_journalier ?? 0} DT/j` : `${e.salaire_fixe ?? 0} DT/mois`;
@@ -141,7 +146,7 @@ export default function RH({ navigation }) {
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
                         <Chip icon={sc.icon} style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>{salaire}</Chip>
                         <Chip style={{ backgroundColor: e.statut === 'actif' ? '#e8f5e9' : '#f5f5f5' }} textStyle={{ color: e.statut === 'actif' ? '#2d7a4a' : '#aaa', fontSize: 10 }}>
-                          {e.statut === 'actif' ? 'Actif' : 'Inactif'}
+                          {e.statut === 'actif' ? t('mobile.active') : t('mobile.inactive')}
                         </Chip>
                       </View>
                     </View>
@@ -164,16 +169,16 @@ export default function RH({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un employé</Dialog.Title>
+          <Dialog.Title>{editing ? t('parametres.modal_edit') : t('parametres.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label="Nom *" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
-              <TextInput label="Prénom *" value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <TextInput label={`${t('mobile.name')} *`} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <TextInput label={`${t('mobile.first_name')} *`} value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Poste *</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('presences.col_post')} *</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll
-                  label="Choisir un poste"
+                  label={t('presences.col_post')}
                   value={form.poste}
                   onChange={v => setForm(f => ({ ...f, poste: v }))}
                   options={[
@@ -186,64 +191,68 @@ export default function RH({ navigation }) {
                 />
               </View>
 
-              <TextInput label="Téléphone" value={form.telephone} onChangeText={v => setForm(f => ({ ...f, telephone: v }))} keyboardType="phone-pad" style={{ marginBottom: 12 }} />
+              <TextInput label={t('mobile.phone')} value={form.telephone} onChangeText={v => setForm(f => ({ ...f, telephone: v }))} keyboardType="phone-pad" style={{ marginBottom: 12 }} />
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de contrat</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.contract')}</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll
                   label="Choisir un type"
                   value={form.type_contrat}
                   onChange={v => setForm(f => ({ ...f, type_contrat: v }))}
                   options={[
-                    { value: 'permanent', label: 'Permanent' },
-                    { value: 'saisonnier', label: 'Saisonnier' },
+                    { value: 'permanent', label: t('mobile.permanent') },
+                    { value: 'saisonnier', label: t('mobile.seasonal') },
                   ]}
                 />
               </View>
 
-              <DatePickerInput label="Date d'embauche" value={form.date_embauche} onChange={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 12 }} />
-              <DatePickerInput label="Date fin contrat" value={form.date_fin_contrat} onChange={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label={t('mobile.hire_date')} value={form.date_embauche} onChange={v => setForm(f => ({ ...f, date_embauche: v }))} style={{ marginBottom: 12 }} />
+              <DatePickerInput label={t('mobile.end_date')} value={form.date_fin_contrat} onChange={v => setForm(f => ({ ...f, date_fin_contrat: v }))} style={{ marginBottom: 12 }} />
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Statut</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
               <SegmentedButtons
                 value={form.statut}
                 onValueChange={v => setForm(f => ({ ...f, statut: v }))}
-                buttons={[{ value: 'actif', label: 'Actif' }, { value: 'non_actif', label: 'Inactif' }]}
+                buttons={[
+                  { value: 'actif', label: t('mobile.active') },
+                  { value: 'non_actif', label: t('mobile.inactive') },
+                ]}
                 style={{ marginBottom: 12 }}
               />
 
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Type de salaire</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.salary_type')}</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll
                   label="Choisir un type"
                   value={form.type_salaire}
                   onChange={v => setForm(f => ({ ...f, type_salaire: v }))}
                   options={[
-                    { value: 'journalier', label: 'Tarif journalier (DT/jour)' },
-                    { value: 'fixe', label: 'Salaire fixe (DT/mois)' },
+                    { value: 'journalier', label: t('mobile.daily_rate') },
+                    { value: 'fixe', label: t('mobile.fixed_salary') },
                   ]}
                 />
               </View>
 
               {form.type_salaire === 'journalier'
-                ? <TextInput label="Tarif journalier (DT/jour)" value={form.tarif_journalier} onChangeText={v => setForm(f => ({ ...f, tarif_journalier: v }))} keyboardType="numeric" />
-                : <TextInput label="Salaire fixe (DT/mois)" value={form.salaire_fixe} onChangeText={v => setForm(f => ({ ...f, salaire_fixe: v }))} keyboardType="numeric" />
+                ? <TextInput label={t('mobile.daily_rate')} value={form.tarif_journalier} onChangeText={v => setForm(f => ({ ...f, tarif_journalier: v }))} keyboardType="numeric" />
+                : <TextInput label={t('mobile.fixed_salary')} value={form.salaire_fixe} onChangeText={v => setForm(f => ({ ...f, salaire_fixe: v }))} keyboardType="numeric" />
               }
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setDialogVisible(false)}>Annuler</Button>
-            <Button onPress={save} loading={saving}>Enregistrer</Button>
+            <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
+            <Button onPress={save} loading={saving}>{t('mobile.save')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      <ConfirmDialog visible={!!confirmId} title="Supprimer" message="Supprimer cet employé ?" onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel="Supprimer" />
+      <ConfirmDialog visible={!!confirmId} title={t('mobile.delete')} message={t('mobile.confirm_delete')} onConfirm={confirmDelete} onDismiss={() => setConfirmId(null)} confirmLabel={t('mobile.delete')} />
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
   );
 }
 
 function PresencesResume({ employes }) {
+  const { t } = useTranslation();
   const [feuille, setFeuille] = useState(null);
   const [loading, setLoading] = useState(true);
   const mois = new Date().toISOString().slice(0, 7);
@@ -255,14 +264,14 @@ function PresencesResume({ employes }) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Text style={{ padding: 16, color: '#888' }}>Chargement...</Text>;
-  if (!feuille || !feuille.lignes?.length) return <EmptyState message="Aucune présence ce mois" />;
+  if (loading) return <Text style={{ padding: 16, color: '#888' }}>{t('common.loading')}</Text>;
+  if (!feuille || !feuille.lignes?.length) return <EmptyState message={t('mobile.no_presence')} />;
 
   return (
     <ScrollView style={{ padding: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
         <MaterialCommunityIcons name="calendar-month" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>Présences — {mois}</Text>
+        <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{t('presences.title')} — {mois}</Text>
       </View>
       {feuille.lignes.map((l, i) => {
         const emp = employes.find(e => e.id_employe === l.employe_id);

@@ -4,6 +4,7 @@ import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput, Card } from
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import EmptyState from '../../components/EmptyState';
 import client from '../../api/client';
@@ -19,6 +20,7 @@ const MOIS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
                   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
 export default function Presences({ navigation }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { employes } = useData();
   const isAdmin = user?.role === 'admin';
@@ -46,7 +48,7 @@ export default function Presences({ navigation }) {
       const res = await client.get(`/feuilles/?mois=${mois}`);
       setFeuille(res.data);
       setLignes(initLignes(res.data.lignes || []));
-    } catch { setSnack('Erreur de chargement'); }
+    } catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
@@ -82,7 +84,7 @@ export default function Presences({ navigation }) {
     if (value) {
       const ligne = lignes[idx];
       if (!ligne.nom_temp?.trim() || !(ligne.tarif_temp > 0)) {
-        setSnack('Nom et tarif obligatoires avant de confirmer');
+        setSnack(t('mobile.warning_temp'));
         return;
       }
     }
@@ -92,7 +94,7 @@ export default function Presences({ navigation }) {
   const validerTemporaires = () => {
     const invalides = lignes.filter(l => !l.employe_id && (!l.nom_temp?.trim() || !(l.tarif_temp > 0)));
     if (invalides.length > 0) {
-      setSnack('Nom et tarif obligatoires pour tous les temporaires');
+      setSnack(t('mobile.warning_temp'));
       return false;
     }
     return true;
@@ -121,12 +123,12 @@ export default function Presences({ navigation }) {
         })),
       });
       await fetchFeuille();
-      setSnack('Sauvegardé ✓');
+      setSnack(t('mobile.saved'));
     } catch (e) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la sauvegarde');
+        setSnack(t('mobile.error_save'));
       }
     }
     finally { setSaving(false); }
@@ -134,19 +136,19 @@ export default function Presences({ navigation }) {
 
   const valider = async () => {
     if (!validerTemporaires()) return;
-    try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack('Feuille validée ✓'); }
+    try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack(t('presences.success_validated')); }
     catch (e) {
       if (e?.isQueued) {
         setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
       } else {
-        setSnack('Erreur lors de la validation');
+        setSnack(t('mobile.error_save'));
       }
     }
   };
 
   const deverrouiller = async () => {
-    try { await client.put(`/feuilles/${feuille.id}/deverrouiller`); await fetchFeuille(); setSnack('Feuille déverrouillée'); }
-    catch { setSnack('Erreur'); }
+    try { await client.put(`/feuilles/${feuille.id}/deverrouiller`); await fetchFeuille(); setSnack(t('presences.success_unlocked')); }
+    catch { setSnack(t('mobile.error_save')); }
   };
 
   const changeMonth = (delta) => {
@@ -204,7 +206,7 @@ export default function Presences({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
-      <AppHeader title="Présences" navigation={navigation} />
+      <AppHeader title={t('presences.title')} navigation={navigation} />
 
       {/* Navigation mois */}
       <View style={styles.monthNav}>
@@ -234,7 +236,7 @@ export default function Presences({ navigation }) {
               color={feuille.statut === 'validee' ? '#52c41a' : '#fa8c16'}
             />
             <Text style={{ fontSize: 12, fontWeight: '600', color: feuille.statut === 'validee' ? '#52c41a' : '#fa8c16' }}>
-              {feuille.statut === 'validee' ? 'Validée' : 'Brouillon'}
+              {feuille.statut === 'validee' ? t('presences.validated_on', { date: feuille.date_validation || '' }) : t('presences.draft')}
             </Text>
             <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} j</Text>
           </View>
@@ -243,24 +245,24 @@ export default function Presences({ navigation }) {
               <>
                 <TouchableOpacity style={[styles.actionBtn, { borderColor: '#fa8c16' }]} onPress={addTemp}>
                   <MaterialCommunityIcons name="account-plus" size={16} color="#fa8c16" />
-                  <Text style={[styles.actionBtnTxt, { color: '#fa8c16' }]}>Temp</Text>
+                  <Text style={[styles.actionBtnTxt, { color: '#fa8c16' }]}>{t('mobile.temp_badge')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionBtn} onPress={saveChanges}>
                   <MaterialCommunityIcons name="content-save" size={16} color="#2d7a4a" />
                   <Text style={[styles.actionBtnTxt, { color: '#2d7a4a' }]}>
-                    {saving ? '...' : 'Sauver'}
+                    {saving ? '...' : t('mobile.save')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
                   <MaterialCommunityIcons name="check" size={16} color="#fff" />
-                  <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>Valider</Text>
+                  <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>{t('mobile.btn_validate')}</Text>
                 </TouchableOpacity>
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
               <TouchableOpacity style={styles.actionBtn} onPress={deverrouiller}>
                 <MaterialCommunityIcons name="lock-open-outline" size={16} color="#1677ff" />
-                <Text style={[styles.actionBtnTxt, { color: '#1677ff' }]}>Déverrouiller</Text>
+                <Text style={[styles.actionBtnTxt, { color: '#1677ff' }]}>{t('mobile.btn_unlock')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -269,7 +271,7 @@ export default function Presences({ navigation }) {
 
       {/* Recherche */}
       <TextInput
-        placeholder="Rechercher un employé..."
+        placeholder={t('presences.filter_name')}
         value={filterNom}
         onChangeText={setFilterNom}
         left={<TextInput.Icon icon="magnify" />}
@@ -283,7 +285,7 @@ export default function Presences({ navigation }) {
       {loading ? (
         <ActivityIndicator size="large" color="#2d7a4a" style={{ marginTop: 48 }} />
       ) : lignes.length === 0 ? (
-        <EmptyState message="Aucune présence ce mois" />
+        <EmptyState message={t('mobile.no_presence')} />
       ) : (
         <ScrollView style={{ flex: 1, marginTop: 8 }} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           {lignesFiltrees.map((l, idx) => {
@@ -301,7 +303,7 @@ export default function Presences({ navigation }) {
                     {isTemp && canEdit && !l.confirmed ? (
                       <>
                         <TextInput
-                          label="Nom prénom *"
+                          label={t('presences.temp_name_placeholder')}
                           value={l.nom_temp || ''}
                           onChangeText={v => updateTemp(l._originalIdx, 'nom_temp', v)}
                           dense
@@ -320,7 +322,7 @@ export default function Presences({ navigation }) {
                         <Text style={styles.empName} numberOfLines={1}>{getEmployeNom(l)}</Text>
                         {isTemp ? (
                           <Text style={[styles.empPoste, { color: '#fa8c16' }]}>
-                            {l.tarif_temp > 0 ? `${l.tarif_temp} DT/j · ` : ''}Temporaire
+                            {l.tarif_temp > 0 ? `${l.tarif_temp} DT/j · ` : ''}{t('mobile.temp_badge')}
                           </Text>
                         ) : poste ? <Text style={styles.empPoste}>{poste}</Text> : null}
                       </>
