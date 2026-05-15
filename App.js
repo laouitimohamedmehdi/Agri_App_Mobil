@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, I18nManager } from 'react-native';
+
+// Toujours forcer LTR — le RTL arabe est géré par les styles explicites
+I18nManager.forceRTL(false);
 import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -17,11 +20,7 @@ export default function App() {
   const [i18nReady, setI18nReady] = useState(false);
 
   useEffect(() => {
-    initI18n().then((lang) => {
-      if (lang === 'ar') I18nManager.forceRTL(true);
-      else I18nManager.forceRTL(false);
-      setI18nReady(true);
-    });
+    initI18n().then(() => setI18nReady(true));
   }, []);
 
   if (!i18nReady) return <View style={{ flex: 1 }} />;

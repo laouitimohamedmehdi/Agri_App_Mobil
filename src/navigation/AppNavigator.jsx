@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Modal, TouchableOpacity, ScrollView, StyleSheet, I18nManager } from 'react-native';
+import { View, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { changeLanguage } from '../i18n';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -122,8 +122,6 @@ function TabsWithDrawer() {
                     key={lang.code}
                     onPress={async () => {
                       await changeLanguage(lang.code);
-                      if (lang.code === 'ar') I18nManager.forceRTL(true);
-                      else I18nManager.forceRTL(false);
                     }}
                     style={{
                       paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,

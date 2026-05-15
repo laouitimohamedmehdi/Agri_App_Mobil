@@ -36,8 +36,6 @@ export default function Parametres({ navigation }) {
 
   const handleLanguageChange = async (lang) => {
     await changeLanguage(lang);
-    if (lang === 'ar') I18nManager.forceRTL(true);
-    else I18nManager.forceRTL(false);
   };
 
   const [users, setUsers] = useState([]);
