@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Text, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
 import { DrawerContext } from '../contexts/DrawerContext';
@@ -50,6 +51,7 @@ function TabsWithDrawer() {
   const isAdmin = user?.role === 'admin';
   const [drawerVisible, setDrawerVisible] = useState(false);
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const openDrawer = () => setDrawerVisible(true);
   const closeDrawer = () => setDrawerVisible(false);
@@ -65,21 +67,21 @@ function TabsWithDrawer() {
   };
 
   const menuItems = [
-    { label: 'Dashboard', icon: 'speedometer', tab: 'Dashboard' },
-    { label: 'Présences', icon: 'calendar-month', tab: 'Présences' },
-    { divider: true, title: 'EXPLOITATION' },
-    { label: 'Parcelles & Secteurs', icon: 'map', screen: 'ParcellesSecteurs' },
-    { divider: true, title: 'PRODUCTION' },
-    { label: 'Travaux Agricoles', icon: 'tractor', tab: 'Travaux' },
-    { label: 'Autres Dépenses', icon: 'receipt', screen: 'Depenses' },
-    { label: 'Récoltes', icon: 'basket', tab: 'Récoltes' },
-    { divider: true, title: 'RÉFÉRENTIEL' },
-    { label: 'Variétés', icon: 'leaf', screen: 'Varietes' },
+    { label: t('menu.dashboard'), icon: 'speedometer', tab: 'Dashboard' },
+    { label: t('menu.presences'), icon: 'calendar-month', tab: 'Présences' },
+    { divider: true, title: t('menu.groups.exploitation') },
+    { label: t('menu.plots_sectors'), icon: 'map', screen: 'ParcellesSecteurs' },
+    { divider: true, title: t('menu.groups.production') },
+    { label: t('menu.works'), icon: 'tractor', tab: 'Travaux' },
+    { label: t('menu.expenses'), icon: 'receipt', screen: 'Depenses' },
+    { label: t('menu.harvests'), icon: 'basket', tab: 'Récoltes' },
+    { divider: true, title: t('menu.groups.referential') },
+    { label: t('menu.varieties'), icon: 'leaf', screen: 'Varietes' },
     ...(isAdmin ? [
-      { divider: true, title: 'ADMINISTRATION' },
-      { label: 'Gestion RH', icon: 'account-tie', screen: 'RH' },
-      { label: 'Demandes', icon: 'clipboard-list', tab: 'Demandes' },
-      { label: 'Paramètres', icon: 'cog', screen: 'Parametres' },
+      { divider: true, title: t('menu.groups.admin') },
+      { label: t('menu.rh'), icon: 'account-tie', screen: 'RH' },
+      { label: t('menu.requests'), icon: 'clipboard-list', tab: 'Demandes' },
+      { label: t('menu.settings'), icon: 'cog', screen: 'Parametres' },
     ] : []),
   ];
 
@@ -136,7 +138,7 @@ function TabsWithDrawer() {
             <Divider />
             <TouchableOpacity style={styles.menuItem} onPress={() => { closeDrawer(); logout(); }}>
               <MaterialCommunityIcons name="logout" size={22} color="#c0392b" style={{ marginRight: 14 }} />
-              <Text variant="bodyLarge" style={{ color: '#c0392b' }}>Déconnexion</Text>
+              <Text variant="bodyLarge" style={{ color: '#c0392b' }}>{t('mobile.logout')}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.overlay} onPress={closeDrawer} activeOpacity={1} />
