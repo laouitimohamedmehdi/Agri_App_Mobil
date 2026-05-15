@@ -2,12 +2,15 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Appbar, Badge } from 'react-native-paper';
 import { View, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import client from '../api/client';
 import { DrawerContext } from '../contexts/DrawerContext';
 
 export default function AppHeader({ title }) {
   const { openDrawer } = useContext(DrawerContext);
   const navigation = useNavigation();
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -30,7 +33,10 @@ export default function AppHeader({ title }) {
         source={require('../../assets/logo.png')}
         style={{ width: 32, height: 32, resizeMode: 'contain', marginRight: 8 }}
       />
-      <Appbar.Content title={title} />
+      {isAr ? <View style={{ flex: 1 }} /> : <Appbar.Content title={title} />}
+      {isAr && (
+        <Appbar.Content title={title} style={{ flex: 0 }} titleStyle={{ textAlign: 'right' }} />
+      )}
       <View>
         <Appbar.Action
           icon="bell-outline"

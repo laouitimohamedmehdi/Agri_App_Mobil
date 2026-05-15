@@ -18,7 +18,8 @@ export default function DashboardScreen({ navigation }) {
   const { user } = useAuth();
   const { secteurs, employes } = useData();
   const { currencySymbol } = useSettings();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const isAdmin = user?.role === 'admin';
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,11 +98,14 @@ export default function DashboardScreen({ navigation }) {
   const derniersTravaux = (data?.travaux || []).slice(-5).reverse();
 
   // Activité financière — Jan → Déc année courante
-  const MOIS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+  const locale = i18n.language === 'ar' ? 'ar' : i18n.language === 'en' ? 'en' : 'fr';
+  const MOIS = Array.from({ length: 12 }, (_, i) =>
+    new Intl.DateTimeFormat(locale, { month: 'short' }).format(new Date(2024, i, 1))
+  );
   const currentMonthIdx = new Date().getMonth();
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const moisKey = `${currentYear}-${String(i + 1).padStart(2, '0')}`;
-    if (i > currentMonthIdx) return { mois: MOIS_FR[i], revenu: 0, charges: 0 };
+    if (i > currentMonthIdx) return { mois: MOIS[i], revenu: 0, charges: 0 };
     const recoltesInMonth = recoltes.filter(r => r.date?.slice(0, 7) === moisKey);
     const revenu = recoltesInMonth.reduce((s, r) => {
       const a = (data?.analyses || []).find(an => an.recolte_id === r.id_recolte);
@@ -115,17 +119,17 @@ export default function DashboardScreen({ navigation }) {
       d.date?.startsWith(moisKey) ? s + (d.quantite || 0) * (d.cout_unitaire || 0) : s, 0);
     const feuilleMois = (data?.allFeuilles || []).find(f => f.mois === moisKey);
     const salaires = (feuilleMois?.lignes || []).reduce((s, l) => s + (l.cout_total || 0), 0);
-    return { mois: MOIS_FR[i], revenu: Math.round(revenu), charges: Math.round(frais + coutTravaux + coutDepenses + salaires) };
+    return { mois: MOIS[i], revenu: Math.round(revenu), charges: Math.round(frais + coutTravaux + coutDepenses + salaires) };
   });
 
   // Couleurs DESIGN_SYSTEM — prop `color` (PieChart), pas frontColor (BarChart)
   const PIE_ITEMS = [
-    { key: 'frais', value: totalFraisRecolte, color: '#fa8c16', label: 'Frais récolte' },
-    { key: 'travaux', value: totalCoutTravaux, color: '#ff4d4f', label: 'Coût des travaux' },
-    { key: 'sal', value: totalSalaires, color: '#722ed1', label: 'Salaires' },
-    { key: 'dep', value: totalDepenses, color: '#eb2f96', label: 'Autres dépenses' },
+    { key: 'frais', value: totalFraisRecolte, color: '#fa8c16', label: t('dashboard.frais_recolte') },
+    { key: 'travaux', value: totalCoutTravaux, color: '#ff4d4f', label: t('dashboard.cout_travaux') },
+    { key: 'sal', value: totalSalaires, color: '#722ed1', label: t('dashboard.salaires') },
+    { key: 'dep', value: totalDepenses, color: '#eb2f96', label: t('dashboard.other_expenses') },
   ].filter(d => d.value > 0);
-  const pieData = PIE_ITEMS.map(d => ({ value: d.value, color: d.color }));
+  const pieData = PIE_ITEMS.map(d => ({ value: d.value, color: d.color, strokeWidth: 2, strokeColor: '#f0f4f0' }));
 
   const getEmployeNom = (l) => {
     if (l.nom_temp) return l.nom_temp;
@@ -139,37 +143,40 @@ export default function DashboardScreen({ navigation }) {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
 
         {/* KPIs */}
-        <SectionHeader icon="chart-box" title={t('mobile.overview')} />
-        <View style={styles.kpiRow}>
-          <KpiCard label={t('dashboard.total_area')} value={`${surfaceTotale} ha`} color="#3a5a2c" borderColor="#3a5a2c" icon="map-marker-radius" bg="#f6faf3" />
-          <KpiCard label={t('dashboard.total_trees')} value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" icon="tree" bg="#f6fff0" />
-          <KpiCard label={`Production ${derniereCampagne}`} value={`${productionTotale.toLocaleString()} kg`} color="#d46b08" borderColor="#fa8c16" icon="basket" bg="#fff7e6" />
-          {isAdmin && <KpiCard label={`Huile ${derniereCampagne}`} value={`${huileTotale.toLocaleString()} L`} color="#08979c" borderColor="#13c2c2" icon="water" bg="#e6fffb" />}
+        <SectionHeader icon="chart-box" title={t('mobile.overview')} isRTL={isRTL} />
+        <View style={[styles.kpiRow, isRTL && { flexDirection: 'row-reverse' }]}>
+          <KpiCard label={t('dashboard.total_area')} value={`${surfaceTotale} ${t('common.ha_short')}`} color="#3a5a2c" borderColor="#3a5a2c" bg="#f6faf3" isRTL={isRTL} />
+          <KpiCard label={t('dashboard.total_trees')} value={nbArbres.toLocaleString()} color="#389e0d" borderColor="#52c41a" bg="#f6fff0" isRTL={isRTL} />
+          <KpiCard label={`${t('dashboard.production')} ${derniereCampagne}`} value={`${productionTotale.toLocaleString()} ${t('common.kg_short')}`} color="#d46b08" borderColor="#fa8c16" bg="#fff7e6" isRTL={isRTL} />
+          {isAdmin && <KpiCard label={`${t('dashboard.oil_production')} ${derniereCampagne}`} value={`${huileTotale.toLocaleString()} ${t('common.litre_short')}`} color="#08979c" borderColor="#13c2c2" bg="#e6fffb" isRTL={isRTL} />}
         </View>
 
         {/* Résumé financier */}
         {isAdmin && (
           <>
-            <SectionHeader icon="cash-multiple" title={t('mobile.financial_summary')} />
-            <FinanceRow icon="trending-up" label={t('dashboard.revenu_brut')} formule={t('dashboard.revenu_brut_formule', { currency: currencySymbol })} value={`${revenuBrut.toFixed(0)} ${currencySymbol}`} accent="#2d7a4a" />
-            <FinanceRow icon="trending-down" label={t('dashboard.total_charges')} formule="Coût des travaux + Frais de récolte + Salaires + Autres dépenses" value={`${totalCharges.toFixed(0)} ${currencySymbol}`} accent="#ff4d4f" />
-            <FinanceRow icon="finance" label={t('dashboard.marge_nette')} formule="Revenu brut − Total charges" value={`${margeNette.toFixed(0)} ${currencySymbol}`} accent={margeNette >= 0 ? '#2d7a4a' : '#ff4d4f'} />
-            <FinanceRow icon="sprout" label={t('dashboard.rendement_moyen_ha')} formule="Production totale ÷ Surface totale (ha)" value={`${rendementHa} kg`} accent="#fa8c16" />
-            <FinanceRow icon="calculator" label={t('dashboard.cout_moyen_kg')} formule="Coût total ÷ Production totale (kg)" value={`${coutKg} ${currencySymbol}`} accent="#ff4d4f" />
+            <SectionHeader icon="cash-multiple" title={t('mobile.financial_summary')} isRTL={isRTL} />
+            <GroupLabel label={t('dashboard.revenus_charges')} />
+            <FinanceRow icon="trending-up" label={t('dashboard.revenu_brut')} formule={t('dashboard.revenu_brut_formule', { currency: currencySymbol })} value={`${revenuBrut.toFixed(0)} ${currencySymbol}`} accent="#3a5a2c" isRTL={isRTL} />
+            <FinanceRow icon="trending-down" label={t('dashboard.total_charges')} formule={t('dashboard.cout_travaux') + ' + ' + t('dashboard.frais_recolte') + ' + ' + t('dashboard.salaires') + ' + ' + t('dashboard.autres_depenses')} value={`${totalCharges.toFixed(0)} ${currencySymbol}`} accent="#ff4d4f" isRTL={isRTL} />
+            <GroupLabel label={t('dashboard.resultat')} />
+            <FinanceRow icon="finance" label={t('dashboard.marge_nette')} formule={t('dashboard.revenu_brut') + ' − ' + t('dashboard.total_charges')} value={`${margeNette.toFixed(0)} ${currencySymbol}`} accent={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} isRTL={isRTL} />
+            <GroupLabel label={t('dashboard.performance')} />
+            <FinanceRow icon="chart-line" label={t('dashboard.rendement_moyen_ha')} formule={t('dashboard.production_totale') + ' ÷ ' + t('dashboard.surface_totale_ha')} value={`${rendementHa} ${t('common.kg_ha')}`} accent="#1677ff" isRTL={isRTL} />
+            <FinanceRow icon="calculator" label={t('dashboard.cout_moyen_kg')} formule={t('dashboard.cout_total') + ' ÷ ' + t('dashboard.production_totale_kg')} value={`${coutKg} ${currencySymbol}/${t('common.kg_short')}`} accent="#fa8c16" isRTL={isRTL} />
           </>
         )}
 
         {/* Activité financière */}
         {isAdmin && (
           <>
-            <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} />
+            <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} isRTL={isRTL} />
             <Card style={styles.chartCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 16, marginBottom: 8 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'flex-end', gap: 16, marginBottom: 8 }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
                   <View style={{ width: 12, height: 3, backgroundColor: '#2d7a4a', borderRadius: 2 }} />
                   <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.revenue')}</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
                   <View style={{ width: 12, height: 3, backgroundColor: '#ff4d4f', borderRadius: 2 }} />
                   <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
                 </View>
@@ -189,7 +196,7 @@ export default function DashboardScreen({ navigation }) {
                   dataPointsColor1="#2d7a4a"
                   dataPointsColor2="#ff4d4f"
                   dataPointsRadius={3}
-                  xAxisLabelTexts={MOIS_FR}
+                  xAxisLabelTexts={MOIS}
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                   noOfSections={4}
@@ -205,27 +212,27 @@ export default function DashboardScreen({ navigation }) {
 
         {isAdmin && pieData.length > 0 && (
           <>
-            <SectionHeader icon="chart-pie" title={t('dashboard.repartition')} />
+            <SectionHeader icon="chart-pie" title={t('dashboard.repartition')} isRTL={isRTL} />
             <Card style={styles.chartCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
                 <PieChart
                   data={pieData}
+                  donut
                   radius={75}
-                  innerRadius={35}
-                  strokeWidth={0}
+                  innerRadius={41}
                   showGradient={false}
                 />
-                <View style={{ flex: 1, marginLeft: 16 }}>
+                <View style={{ flex: 1, marginLeft: isRTL ? 0 : 16, marginRight: isRTL ? 16 : 0 }}>
                   {PIE_ITEMS.map(d => {
                     const total = PIE_ITEMS.reduce((s, x) => s + x.value, 0);
                     const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
                     return (
-                      <View key={d.key} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color, marginRight: 8 }} />
+                      <View key={d.key} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 10 }}>
+                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: d.color, marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }} />
                         <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }}>{d.label}</Text>
-                          <Text style={{ fontSize: 10, color: '#595959' }}>
-                            {d.value.toFixed(0)} DT
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#333', textAlign: isRTL ? 'right' : 'left' }}>{d.label}</Text>
+                          <Text style={{ fontSize: 10, color: '#595959', textAlign: isRTL ? 'right' : 'left' }}>
+                            {d.value.toFixed(0)} {currencySymbol}
                             <Text style={{ fontWeight: 'bold', color: d.color }}> · {pct}%</Text>
                           </Text>
                         </View>
@@ -239,19 +246,19 @@ export default function DashboardScreen({ navigation }) {
         )}
 
         {/* Derniers travaux */}
-        <SectionHeader icon="shovel" title={t('mobile.last_works')} />
+        <SectionHeader icon="shovel" title={t('mobile.last_works')} isRTL={isRTL} />
         <Card style={styles.listCard}>
           {derniersTravaux.length === 0
-            ? <Text style={styles.empty}>{t('mobile.no_work')}</Text>
-            : derniersTravaux.map(t => (
-              <View key={t.id_travail} style={styles.travauxRow}>
-                <View style={[styles.statutDot, { backgroundColor: STATUT_COLORS[t.statut] || '#888' }]} />
+            ? <Text style={[styles.empty, isRTL && { textAlign: 'right' }]}>{t('mobile.no_work')}</Text>
+            : derniersTravaux.map(travail => (
+              <View key={travail.id_travail} style={[styles.travauxRow, isRTL && { flexDirection: 'row-reverse' }]}>
+                <View style={[styles.statutDot, { backgroundColor: STATUT_COLORS[travail.statut] || '#888' }, isRTL && { marginRight: 0, marginLeft: 10 }]} />
                 <View style={{ flex: 1 }}>
-                  <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{t.nom}</Text>
-                  <Text variant="bodySmall" style={{ color: '#888' }}>{t.type} • {t.date || ''}</Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{travail.nom}</Text>
+                  <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{t(`travaux.types.${travail.type}`, { defaultValue: travail.type })} • {travail.date || ''}</Text>
                 </View>
-                <Chip textStyle={{ fontSize: 10 }} style={{ backgroundColor: (STATUT_COLORS[t.statut] || '#888') + '22' }}>
-                  {t.statut}
+                <Chip textStyle={{ fontSize: 10 }} style={{ backgroundColor: (STATUT_COLORS[travail.statut] || '#888') + '22' }}>
+                  {t(`travaux.statuts.${travail.statut}`)}
                 </Chip>
               </View>
             ))
@@ -261,17 +268,17 @@ export default function DashboardScreen({ navigation }) {
         {/* Présences du mois */}
         {data?.feuille?.lignes?.length > 0 && (
           <>
-            <SectionHeader icon="account-clock" title={t('mobile.month_presences')} />
+            <SectionHeader icon="account-clock" title={t('mobile.month_presences')} isRTL={isRTL} />
             <Card style={styles.listCard}>
               {data.feuille.lignes.map((l, i) => (
-                <View key={i} style={[styles.presenceRow, i > 0 && styles.presenceBorder]}>
-                  <MaterialCommunityIcons name="account-circle" size={32} color="#2d7a4a" style={{ marginRight: 10 }} />
+                <View key={i} style={[styles.presenceRow, i > 0 && styles.presenceBorder, isRTL && { flexDirection: 'row-reverse' }]}>
+                  <MaterialCommunityIcons name="account-circle" size={32} color="#2d7a4a" style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }} />
                   <View style={{ flex: 1 }}>
-                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{getEmployeNom(l)}</Text>
+                    <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{getEmployeNom(l)}</Text>
                   </View>
                   <View style={styles.joursBadge}>
                     <Text variant="titleSmall" style={{ color: '#fff', fontWeight: 'bold' }}>{l.nb_jours_present ?? 0}</Text>
-                    <Text style={{ color: '#fff', fontSize: 9 }}>jours</Text>
+                    <Text style={{ color: '#fff', fontSize: 9 }}>{t('common.per_day_short')}</Text>
                   </View>
                 </View>
               ))}
@@ -286,36 +293,60 @@ export default function DashboardScreen({ navigation }) {
   );
 }
 
-function SectionHeader({ icon, title }) {
+function GroupLabel({ label }) {
   return (
-    <View style={styles.sectionHeader}>
-      <MaterialCommunityIcons name={icon} size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-      <Text variant="titleSmall" style={styles.sectionTitle}>{title}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 4 }}>
+      <View style={{ flex: 1, height: 1, backgroundColor: '#e0e0e0' }} />
+      <Text style={{
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#b0bba8',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginHorizontal: 10,
+      }}>
+        {label}
+      </Text>
+      <View style={{ flex: 1, height: 1, backgroundColor: '#e0e0e0' }} />
     </View>
   );
 }
 
-function KpiCard({ label, value, color, borderColor, icon, bg }) {
+function SectionHeader({ icon, title, isRTL }) {
+  return (
+    <View style={[styles.sectionHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+      <MaterialCommunityIcons name={icon} size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+      <Text variant="titleSmall" style={[styles.sectionTitle, isRTL && { textAlign: 'right' }]}>{title}</Text>
+    </View>
+  );
+}
+
+function KpiCard({ label, value, color, borderColor, icon, bg, isRTL }) {
   return (
     <Card style={[styles.kpiCard, { borderTopColor: borderColor, backgroundColor: bg || '#fff' }]}>
-      <Card.Content style={{ padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <MaterialCommunityIcons name={icon} size={20} color={color} />
-        <View style={{ flex: 1 }}>
-          <Text numberOfLines={1} style={{ color, fontWeight: 'bold', fontSize: 13 }}>{value}</Text>
-          <Text numberOfLines={1} style={{ color: '#888', fontSize: 10 }}>{label}</Text>
+      <Card.Content style={{ padding: 10 }}>
+        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <Text numberOfLines={2} style={{ color: '#888', fontSize: 10, flex: 1, textAlign: isRTL ? 'right' : 'left' }}>{label}</Text>
+          <MaterialCommunityIcons name={icon} size={18} color={color} style={{ marginLeft: isRTL ? 0 : 4, marginRight: isRTL ? 4 : 0 }} />
         </View>
+        <Text numberOfLines={1} style={{ color, fontWeight: 'bold', fontSize: 16, textAlign: isRTL ? 'right' : 'left' }}>{value}</Text>
       </Card.Content>
     </Card>
   );
 }
 
-function FinanceRow({ icon, label, formule, value, accent }) {
+function FinanceRow({ icon, label, formule, value, accent, isRTL }) {
   return (
-    <View style={[styles.financeRow, { borderLeftColor: accent }]}>
-      <MaterialCommunityIcons name={icon} size={20} color={accent} style={{ marginRight: 10 }} />
+    <View style={[
+      styles.financeRow,
+      isRTL
+        ? { borderLeftWidth: 0, borderRightWidth: 4, borderRightColor: accent, flexDirection: 'row-reverse' }
+        : { borderLeftColor: accent },
+    ]}>
+      <MaterialCommunityIcons name={icon} size={20} color={accent} style={isRTL ? { marginLeft: 10 } : { marginRight: 10 }} />
       <View style={{ flex: 1 }}>
-        <Text variant="bodyMedium" style={{ fontWeight: '600', color: '#333' }}>{label}</Text>
-        <Text variant="bodySmall" style={{ color: '#aaa', fontSize: 10, fontStyle: 'italic' }}>{formule}</Text>
+        <Text variant="bodyMedium" style={{ fontWeight: '600', color: '#333', textAlign: isRTL ? 'right' : 'left' }}>{label}</Text>
+        <Text variant="bodySmall" style={{ color: '#aaa', fontSize: 10, fontStyle: 'italic', textAlign: isRTL ? 'right' : 'left' }}>{formule}</Text>
       </View>
       <Text style={{ fontWeight: 'bold', color: accent, fontSize: 14 }}>{value}</Text>
     </View>
