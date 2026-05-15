@@ -9,6 +9,9 @@ import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import client from '../../api/client';
 import { useSettings } from '../../contexts/SettingsContext';
+import { useTranslation } from 'react-i18next';
+import { changeLanguage } from '../../i18n';
+import { I18nManager } from 'react-native';
 
 const SCREEN_H = Dimensions.get('window').height;
 const ROLE_COLOR = { admin: '#722ed1', user: '#1677ff' };
@@ -22,6 +25,21 @@ const CURRENCY_OPTIONS = [
 
 export default function Parametres({ navigation }) {
   const { currency, currencySymbol, updateCurrency } = useSettings();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language;
+
+  const LANG_OPTIONS = [
+    { value: 'fr', label: 'Français' },
+    { value: 'en', label: 'English' },
+    { value: 'ar', label: 'العربية' },
+  ];
+
+  const handleLanguageChange = async (lang) => {
+    await changeLanguage(lang);
+    if (lang === 'ar') I18nManager.forceRTL(true);
+    else I18nManager.forceRTL(false);
+  };
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('tous');
@@ -107,6 +125,22 @@ export default function Parametres({ navigation }) {
   return (
     <View style={styles.screen}>
       <AppHeader title="Paramètres" navigation={navigation} />
+      {/* Section Langue */}
+      <View style={styles.sectionHeader}>
+        <MaterialCommunityIcons name="translate" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
+        <Text variant="titleSmall" style={styles.sectionTitle}>{t('mobile.language')}</Text>
+      </View>
+      <Card style={{ marginHorizontal: 12, marginBottom: 8, elevation: 1 }}>
+        <Card.Content>
+          <SelectFilter
+            noAll
+            label={t('mobile.language')}
+            value={currentLang}
+            onChange={handleLanguageChange}
+            options={LANG_OPTIONS}
+          />
+        </Card.Content>
+      </Card>
       {/* Devise — fixe */}
       <View style={styles.sectionHeader}>
         <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
