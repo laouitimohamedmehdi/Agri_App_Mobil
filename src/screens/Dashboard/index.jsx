@@ -181,7 +181,11 @@ export default function DashboardScreen({ navigation }) {
                   <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
                 </View>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}
+              >
                 <LineChart
                   areaChart
                   data={monthlyData.map(d => ({ value: d.revenu }))}
@@ -196,7 +200,7 @@ export default function DashboardScreen({ navigation }) {
                   dataPointsColor1="#2d7a4a"
                   dataPointsColor2="#ff4d4f"
                   dataPointsRadius={3}
-                  xAxisLabelTexts={MOIS}
+                  xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                   noOfSections={4}
@@ -205,6 +209,7 @@ export default function DashboardScreen({ navigation }) {
                   endSpacing={30}
                   hideRules={false}
                   rulesColor="#f0f0f0"
+                  style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}
                 />
               </ScrollView>
             </Card>
