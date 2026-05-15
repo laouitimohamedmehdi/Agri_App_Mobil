@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, RefreshControl } from 'react-native';
+import { ScrollView, StyleSheet, View, RefreshControl, Dimensions } from 'react-native';
 import { Card, Text, Divider, Chip, Snackbar, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
@@ -171,30 +171,29 @@ export default function DashboardScreen({ navigation }) {
           <>
             <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} isRTL={isRTL} />
             <Card style={styles.chartCard}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <LineChart
-                  data={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
-                  data2={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.charges }))}
-                  color1="#2d7a4a"
-                  color2="#ff4d4f"
-                  thickness={2}
-                  dataPointsColor1="#2d7a4a"
-                  dataPointsColor2="#ff4d4f"
-                  dataPointsRadius={3}
-                  xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
-                  xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
-                  yAxisTextStyle={{ color: '#888', fontSize: 9 }}
-                  yAxisLabelWidth={30}
-                  noOfSections={4}
-                  width={Math.max(300, 12 * 34)}
-                  height={140}
-                  endSpacing={30}
-                  hideRules={false}
-                  rulesColor="#e8f0e4"
-                  rulesType="solid"
-                  showVerticalLines={false}
-                />
-              </ScrollView>
+              <LineChart
+                data={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
+                data2={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.charges }))}
+                color1="#2d7a4a"
+                color2="#ff4d4f"
+                thickness={2}
+                dataPointsColor1="#2d7a4a"
+                dataPointsColor2="#ff4d4f"
+                dataPointsRadius={3}
+                xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
+                xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
+                yAxisTextStyle={{ color: '#888', fontSize: 9 }}
+                yAxisLabelWidth={30}
+                yAxisSide={isRTL ? 'right' : 'left'}
+                noOfSections={4}
+                width={Dimensions.get('window').width - 80}
+                height={140}
+                endSpacing={10}
+                hideRules={false}
+                rulesColor="#e8f0e4"
+                rulesType="solid"
+                showVerticalLines={false}
+              />
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', gap: 16, marginTop: 8 }}>
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
                   <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#2d7a4a' }} />
