@@ -102,13 +102,26 @@ export default function TravailAgricole({ navigation }) {
       if (editing) await client.put(`/travaux/${editing.id_travail}`, payload);
       else await client.post('/travaux/', payload);
       await fetchTravaux(); setDialogVisible(false);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogVisible(false);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
 
   const confirmDelete = async () => {
     try { await client.delete(`/travaux/${confirmId}`); await fetchTravaux(); }
-    catch { setSnack('Erreur lors de la suppression'); }
+    catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la suppression');
+      }
+    }
     setConfirmId(null);
   };
 
@@ -124,7 +137,13 @@ export default function TravailAgricole({ navigation }) {
       await soumettreDemande({ type_action: 'modification', entity_type: 'travail', travail_id: demandeModifItem.id_travail, motif: m, nouvelles_donnees: { nom: data.nom, type: data.type, cout: parseFloat(data.cout) || 0, m_o: parseInt(data.m_o) || 0, date: data.date, statut: data.statut, secteur_id: parseInt(data.secteur_id) || null, quantite: data.type === 'Fertilisation' && data.quantite !== '' ? parseFloat(data.quantite) : null, cout_unitaire: data.type === 'Fertilisation' && data.cout_unitaire !== '' ? parseFloat(data.cout_unitaire) : null } });
       setSnack('Demande de modification envoyée');
       setDemandeModifItem(null);
-    } catch { setSnack("Erreur lors de l'envoi"); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack("Erreur lors de l'envoi");
+      }
+    }
     finally { setSavingDemande(false); }
   };
 
@@ -132,7 +151,13 @@ export default function TravailAgricole({ navigation }) {
     try {
       await soumettreDemande({ type_action: 'suppression', entity_type: 'travail', travail_id: demandeSupprItem.id_travail, motif: motifSuppr });
       setSnack('Demande de suppression envoyée');
-    } catch { setSnack("Erreur lors de l'envoi"); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack("Erreur lors de l'envoi");
+      }
+    }
     setDemandeSupprItem(null); setMotifSuppr('');
   };
 

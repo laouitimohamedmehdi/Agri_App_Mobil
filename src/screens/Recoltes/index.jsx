@@ -135,7 +135,14 @@ export default function Recoltes({ navigation }) {
         else await client.post('/recolte-analyse/', ap);
       }
       await fetchAll(); setDialogVisible(false);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogVisible(false);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
   const confirmDelete = async () => {
@@ -144,7 +151,13 @@ export default function Recoltes({ navigation }) {
       if (a) await client.delete(`/recolte-analyse/${a.id_rec_analy ?? a.id}`).catch(() => {});
       await client.delete(`/recoltes/${confirmId}`);
       await fetchAll();
-    } catch { setSnack('Erreur lors de la suppression'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la suppression');
+      }
+    }
     setConfirmId(null);
   };
 
@@ -163,7 +176,14 @@ export default function Recoltes({ navigation }) {
       });
       setAddLineGroup(null); setAddLineForm({ date: '', production: '', huile: '', prix: '' });
       await fetchAll();
-    } catch { setSnack("Erreur lors de l'ajout"); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setAddLineGroup(null);
+      } else {
+        setSnack("Erreur lors de l'ajout");
+      }
+    }
     finally { setSavingLine(false); }
   };
 
@@ -175,7 +195,14 @@ export default function Recoltes({ navigation }) {
     try {
       await client.post('/recolte-charges/', { recolte_id: addingChargeFor, type_frais: chargeForm.type_frais, montant });
       await fetchAll(); setAddingChargeFor(null); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' });
-    } catch { setSnack("Erreur lors de l'ajout"); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setAddingChargeFor(null);
+      } else {
+        setSnack("Erreur lors de l'ajout");
+      }
+    }
     finally { setSavingCharge(false); }
   };
   const deleteCharge = async () => {

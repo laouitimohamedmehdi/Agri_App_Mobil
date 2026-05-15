@@ -122,14 +122,26 @@ export default function Presences({ navigation }) {
       });
       await fetchFeuille();
       setSnack('Sauvegardé ✓');
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
 
   const valider = async () => {
     if (!validerTemporaires()) return;
     try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack('Feuille validée ✓'); }
-    catch { setSnack('Erreur lors de la validation'); }
+    catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la validation');
+      }
+    }
   };
 
   const deverrouiller = async () => {

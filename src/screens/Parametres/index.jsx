@@ -67,7 +67,14 @@ export default function Parametres({ navigation }) {
       if (editing) await client.put(`/users/${editing.id}`, payload);
       else await client.post('/users/', { ...payload, password: form.password });
       await fetchUsers(); setDialogVisible(false);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogVisible(false);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
 
@@ -80,7 +87,13 @@ export default function Parametres({ navigation }) {
 
   const toggleActif = async (u) => {
     try { await client.put(`/users/${u.id}`, { is_active: !u.is_active }); await fetchUsers(); }
-    catch { setSnack('Erreur'); }
+    catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur');
+      }
+    }
   };
 
   const confirmDelete = async () => {

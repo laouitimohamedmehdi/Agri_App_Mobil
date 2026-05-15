@@ -40,13 +40,26 @@ export default function Varietes({ navigation }) {
       if (editing) await client.put(`/varietes/${editing.id_variete}`, { nom: form.nom });
       else await client.post('/varietes/', { nom: form.nom });
       await refreshVarietes(); setDialogVisible(false);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogVisible(false);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
 
   const confirmDelete = async () => {
     try { await client.delete(`/varietes/${confirmId}`); await refreshVarietes(); }
-    catch { setSnack('Erreur lors de la suppression'); }
+    catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la suppression');
+      }
+    }
     setConfirmId(null);
   };
 

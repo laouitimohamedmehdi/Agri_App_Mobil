@@ -74,7 +74,14 @@ export default function ParcellesSecteurs({ navigation }) {
         await refreshSecteurs();
       }
       setDialogType(null);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogType(null);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setLoading(false); }
   };
 
@@ -82,7 +89,13 @@ export default function ParcellesSecteurs({ navigation }) {
     try {
       if (confirmType === 'parcelle') { await client.delete(`/parcelles/${confirmId}`); await refreshParcelles(); await refreshSecteurs(); }
       else { await client.delete(`/secteurs/${confirmId}`); await refreshSecteurs(); }
-    } catch { setSnack('Erreur lors de la suppression'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la suppression');
+      }
+    }
     setConfirmId(null);
   };
 

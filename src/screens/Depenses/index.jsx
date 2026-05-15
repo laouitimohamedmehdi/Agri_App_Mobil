@@ -79,13 +79,26 @@ export default function Depenses({ navigation }) {
       else await client.post('/depenses/', payload);
       await fetchDepenses();
       setDialogVisible(false);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogVisible(false);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
 
   const confirmDelete = async () => {
     try { await client.delete(`/depenses/${confirmId}`); await fetchDepenses(); }
-    catch { setSnack('Erreur lors de la suppression'); }
+    catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la suppression');
+      }
+    }
     setConfirmId(null);
   };
 
@@ -116,7 +129,13 @@ export default function Depenses({ navigation }) {
       await soumettreDemande(payload);
       setSnack('Demande envoyée');
       setDemandeItem(null);
-    } catch { setSnack("Erreur lors de l'envoi"); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack("Erreur lors de l'envoi");
+      }
+    }
     finally { setSavingDemande(false); }
   };
 

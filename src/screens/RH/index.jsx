@@ -56,13 +56,26 @@ export default function RH({ navigation }) {
       if (editing) await client.put(`/rh/employes/${editing.id_employe}`, payload);
       else await client.post('/rh/employes/', payload);
       await refreshEmployes(); setDialogVisible(false);
-    } catch { setSnack('Erreur lors de la sauvegarde'); }
+    } catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setDialogVisible(false);
+      } else {
+        setSnack('Erreur lors de la sauvegarde');
+      }
+    }
     finally { setSaving(false); }
   };
 
   const confirmDelete = async () => {
     try { await client.delete(`/rh/employes/${confirmId}`); await refreshEmployes(); }
-    catch { setSnack('Erreur lors de la suppression'); }
+    catch (e) {
+      if (e?.isQueued) {
+        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+      } else {
+        setSnack('Erreur lors de la suppression');
+      }
+    }
     setConfirmId(null);
   };
 
