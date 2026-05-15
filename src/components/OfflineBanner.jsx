@@ -3,12 +3,15 @@ import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNetwork } from '../contexts/NetworkContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 export default function OfflineBanner() {
   const { isOnline, pendingCount } = useNetwork();
+  const { token } = useAuth();
   const { t } = useTranslation();
 
+  if (!token) return null;
   if (isOnline && pendingCount === 0) return null;
 
   return (
