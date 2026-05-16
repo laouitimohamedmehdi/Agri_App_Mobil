@@ -264,8 +264,8 @@ export default function Presences({ navigation }) {
                     {saving ? '...' : t('presences.btn_save')}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
-                  <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>{t('presences.btn_validate')}</Text>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a', paddingHorizontal: 14 }]} onPress={valider}>
+                  <Text style={[styles.actionBtnTxt, { color: '#fff', textAlign: 'center' }]} numberOfLines={1}>{t('presences.btn_validate')}</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   },
   navBtn: { flexDirection: 'row', alignItems: 'center', padding: 4 },
   actionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#2d7a4a' },
-  actionBtnTxt: { fontSize: 12, fontWeight: '600' },
+  actionBtnTxt: { fontSize: 12, fontWeight: '600', flexShrink: 1 },
   statusBar: {
     flexDirection: 'column',
     backgroundColor: '#f6faf3', paddingHorizontal: 12, paddingVertical: 10,
