@@ -203,7 +203,8 @@ export default function Presences({ navigation }) {
 
   const [year, month] = mois.split('-').map(Number);
   const numLocale = { fr: 'fr-FR', en: 'en-US', ar: 'ar-TN' }[i18n.language] || 'fr-FR';
-  const moisLabel = new Intl.DateTimeFormat(numLocale, { month: 'long' }).format(new Date(year, month - 1, 1)) + ' ' + year;
+  const _moisRaw = new Intl.DateTimeFormat(numLocale, { month: 'long' }).format(new Date(year, month - 1, 1)) + ' ' + year;
+  const moisLabel = _moisRaw.charAt(0).toUpperCase() + _moisRaw.slice(1);
   const nbJours = DAYS_IN_MONTH(mois);
   const days = Array.from({ length: nbJours }, (_, i) => i + 1);
   const canEdit = feuille?.statut !== 'validee';
@@ -238,8 +239,9 @@ export default function Presences({ navigation }) {
 
       {/* Barre statut + actions */}
       {feuille && (
-        <View style={[styles.statusBar, isRTL && { flexDirection: 'row-reverse' }]}>
-          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+        <View style={styles.statusBar}>
+          {/* Ligne 1 : statut */}
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <MaterialCommunityIcons
               name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'}
               size={16}
@@ -250,17 +252,16 @@ export default function Presences({ navigation }) {
             </Text>
             <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} {t('common.per_day_short')}</Text>
           </View>
-          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 6 }}>
+          {/* Ligne 2 : boutons */}
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, flexWrap: 'wrap' }}>
             {feuille.statut !== 'validee' && (
               <>
                 <TouchableOpacity style={[styles.actionBtn, { borderColor: '#fa8c16' }]} onPress={addTemp}>
-                  <MaterialCommunityIcons name="account-plus" size={16} color="#fa8c16" />
-                  <Text style={[styles.actionBtnTxt, { color: '#fa8c16' }]}>{t('mobile.temp_badge')}</Text>
+                  <Text style={[styles.actionBtnTxt, { color: '#fa8c16' }]}>{t('presences.btn_temporary')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionBtn} onPress={saveChanges}>
-                  <MaterialCommunityIcons name="content-save" size={16} color="#2d7a4a" />
                   <Text style={[styles.actionBtnTxt, { color: '#2d7a4a' }]}>
-                    {saving ? '...' : t('mobile.save')}
+                    {saving ? '...' : t('presences.btn_save')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
@@ -269,9 +270,9 @@ export default function Presences({ navigation }) {
               </>
             )}
             {isAdmin && feuille.statut === 'validee' && (
-              <TouchableOpacity style={styles.actionBtn} onPress={deverrouiller}>
+              <TouchableOpacity style={[styles.actionBtn, { borderColor: '#1677ff' }]} onPress={deverrouiller}>
                 <MaterialCommunityIcons name="lock-open-outline" size={16} color="#1677ff" />
-                <Text style={[styles.actionBtnTxt, { color: '#1677ff' }]}>{t('mobile.btn_unlock')}</Text>
+                <Text style={[styles.actionBtnTxt, { color: '#1677ff' }]}>{t('presences.btn_unlock')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -421,8 +422,8 @@ const styles = StyleSheet.create({
   actionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#2d7a4a' },
   actionBtnTxt: { fontSize: 12, fontWeight: '600' },
   statusBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#f6faf3', paddingHorizontal: 12, paddingVertical: 8,
+    flexDirection: 'column',
+    backgroundColor: '#f6faf3', paddingHorizontal: 12, paddingVertical: 10,
     borderBottomWidth: 1, borderColor: '#e0ece0',
   },
   empCard: { marginHorizontal: 12, marginBottom: 10, elevation: 2, overflow: 'hidden' },
