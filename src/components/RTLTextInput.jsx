@@ -10,7 +10,7 @@ export default function RTLTextInput({ contentStyle, labelStyle, label, placehol
       {...props}
       label={isRTL ? undefined : label}
       placeholder={isRTL ? (placeholder || label) : placeholder}
-      contentStyle={[isRTL ? { textAlign: 'right' } : undefined, contentStyle]}
+      contentStyle={isRTL ? { textAlign: 'right', ...(contentStyle || {}) } : contentStyle}
       labelStyle={labelStyle}
     />
   );
