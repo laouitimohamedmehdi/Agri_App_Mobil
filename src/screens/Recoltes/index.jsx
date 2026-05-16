@@ -277,8 +277,8 @@ export default function Recoltes({ navigation }) {
             const isExpanded = expandedGroup === group.key;
 
             return (
+              <View key={group.key} style={{ backgroundColor: '#f6faf3', marginBottom: 2 }}>
               <List.Accordion
-                key={group.key}
                 title={isRTL
                   ? `${getParcelleNom(group.secteur_id)} · ${group.campagne || '—'}`
                   : `${group.campagne || '—'} · ${getParcelleNom(group.secteur_id)}`}
@@ -288,9 +288,7 @@ export default function Recoltes({ navigation }) {
                 expanded={isExpanded}
                 onPress={() => setExpandedGroup(isExpanded ? null : group.key)}
                 left={props => <List.Icon {...props} icon="basket" />}
-                style={{ backgroundColor: '#f6faf3', marginBottom: 2 }}
                 titleStyle={{ color: '#2d7a4a', fontWeight: 'bold', fontSize: 13, textAlign: isRTL ? 'right' : 'left' }}
-                descriptionStyle={{ fontSize: 11 }}
               >
                 {/* Bilan admin */}
                 {isAdmin && (
@@ -400,6 +398,7 @@ export default function Recoltes({ navigation }) {
                   </>
                 )}
               </List.Accordion>
+              </View>
             );
           })}
           <View style={{ height: 80 }} />
