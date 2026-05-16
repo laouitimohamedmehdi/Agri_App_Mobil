@@ -28,8 +28,13 @@ const ENTITY_KEYS = {
   variete: 'demandes.entity_variete',
   depense: 'demandes.entity_depense',
 };
+const MOIS_NOTIF = {
+  fr: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  ar: ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+};
 
-const renderMessage = (message, t) => {
+const renderMessage = (message, t, lang) => {
   try {
     const parsed = typeof message === 'string' ? JSON.parse(message) : message;
     if (parsed?.key) {
@@ -38,6 +43,11 @@ const renderMessage = (message, t) => {
       if (p.entity_type !== undefined && p.entity === undefined) p.entity = p.entity_type;
       if (p.action && ACTION_KEYS[p.action]) p.action = t(ACTION_KEYS[p.action]);
       if (p.entity && ENTITY_KEYS[p.entity]) p.entity = t(ENTITY_KEYS[p.entity]);
+      if (p.mois && /^\d{4}-\d{2}$/.test(p.mois)) {
+        const [year, month] = p.mois.split('-').map(Number);
+        const labels = MOIS_NOTIF[lang] || MOIS_NOTIF.fr;
+        p.mois = `${labels[month - 1]} ${year}`;
+      }
       return t(parsed.key, p);
     }
   } catch {}
@@ -120,7 +130,7 @@ export default function Notifications({ navigation }) {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text variant="bodyMedium" style={{ color: '#333', fontWeight: n.lu ? '400' : '600', lineHeight: 20, textAlign: isRTL ? 'right' : 'left' }}>
-                      {renderMessage(n.message, t)}
+                      {renderMessage(n.message, t, i18n.language)}
                     </Text>
                     <Text variant="bodySmall" style={{ color: '#aaa', marginTop: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       {n.date_creation}
