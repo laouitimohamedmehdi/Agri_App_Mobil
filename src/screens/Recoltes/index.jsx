@@ -291,7 +291,7 @@ export default function Recoltes({ navigation }) {
                 {/* Bilan admin */}
                 {isAdmin && (
                   <View style={styles.bilanRow}>
-                    <BilanBadge label={t('dashboard.oil_production')} value={`${totalHuile.toLocaleString('fr-FR')} L`} color="#08979c" />
+                    <BilanBadge label={t('dashboard.oil_production')} value={`${totalHuile.toLocaleString('fr-FR')} ${t('common.litre_short')}`} color="#08979c" />
                     <BilanBadge label={t('dashboard.frais_recolte')} value={`${totalFrais.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#d46b08" />
                     <BilanBadge label={t('dashboard.revenue')} value={`${revenuBrut.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#3a5a2c" />
                     <BilanBadge label={t('dashboard.marge_nette')} value={`${margeNette.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} />
