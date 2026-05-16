@@ -360,15 +360,15 @@ export default function Recoltes({ navigation }) {
                         {/* Boutons action */}
                         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, marginTop: 6 }}>
                           {isAdmin ? (
-                            <>
+                            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4 }}>
                               <Button icon="pencil" compact mode="text" onPress={() => openEdit(r)} textColor="#1677ff">{t('mobile.edit')}</Button>
                               <Button icon="delete" compact mode="text" onPress={() => setConfirmId(r.id_recolte)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
-                            </>
+                            </View>
                           ) : (
-                            <>
+                            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4 }}>
                               <Button icon="pencil" compact mode="text" onPress={() => { setDemandeModifItem(r); setDemandeForm({ campagne: r.campagne, production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), motif: '' }); }} textColor="#1677ff">{t('mobile.edit')}</Button>
                               <Button icon="delete" compact mode="text" onPress={() => { setDemandeSupprItem(r); setMotifSuppr(''); }} textColor="#ff4d4f">{t('mobile.delete')}</Button>
-                            </>
+                            </View>
                           )}
                         </View>
                       </View>
@@ -377,7 +377,7 @@ export default function Recoltes({ navigation }) {
 
                 {/* Ajout ligne dans le groupe */}
                 {isAdmin && (
-                  <>
+                  <View>
                     <Divider style={{ marginTop: 4 }} />
                     {addLineGroup?.key === group.key ? (
                       <View style={{ padding: 12, backgroundColor: '#f0f9f0', gap: 8 }}>
@@ -396,7 +396,7 @@ export default function Recoltes({ navigation }) {
                         {t('mobile.add')}
                       </Button>
                     )}
-                  </>
+                  </View>
                 )}
               </List.Accordion>
               </View>
@@ -429,11 +429,11 @@ export default function Recoltes({ navigation }) {
               </View>
               <RTLTextInput label={t('recoltes.col_production')} value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               {isAdmin && (
-                <>
+                <View>
                   <Divider style={{ marginBottom: 12 }} />
                   <RTLTextInput label={t('recoltes.form_oil')} value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                   <RTLTextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" />
-                </>
+                </View>
               )}
             </ScrollView>
           </Dialog.Content>
