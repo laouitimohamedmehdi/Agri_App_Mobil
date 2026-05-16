@@ -206,32 +206,34 @@ export default function DashboardScreen({ navigation }) {
                   <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
                 </View>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentOffset={isRTL ? { x: 99999, y: 0 } : { x: 0, y: 0 }}>
-                <LineChart
-                  areaChart
-                  data={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
-                  data2={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.charges }))}
-                  color1="#2d7a4a"
-                  color2="#ff4d4f"
-                  startFillColor1="#2d7a4a"
-                  startFillColor2="#ff4d4f"
-                  startOpacity={0.25}
-                  endOpacity={0.02}
-                  thickness={2}
-                  dataPointsColor1="#2d7a4a"
-                  dataPointsColor2="#ff4d4f"
-                  dataPointsRadius={3}
-                  xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
-                  xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
-                  yAxisTextStyle={{ color: '#888', fontSize: 9 }}
-                  noOfSections={4}
-                  width={Math.max(300, 12 * 45)}
-                  spacing={40}
-                  height={140}
-                  endSpacing={30}
-                  hideRules={false}
-                  rulesColor="#f0f0f0"
-                />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: isRTL ? 'row-reverse' : 'row', minWidth: '100%', paddingBottom: 15 }}>
+                <View style={{ transform: [{ scaleX: isRTL ? -1 : 1 }] }}>
+                  <LineChart
+                    areaChart
+                    data={(monthlyData).map(d => ({ value: d.revenu }))}
+                    data2={(monthlyData).map(d => ({ value: d.charges }))}
+                    color1="#2d7a4a"
+                    color2="#ff4d4f"
+                    startFillColor1="#2d7a4a"
+                    startFillColor2="#ff4d4f"
+                    startOpacity={0.25}
+                    endOpacity={0.02}
+                    thickness={2}
+                    dataPointsColor1="#2d7a4a"
+                    dataPointsColor2="#ff4d4f"
+                    dataPointsRadius={3}
+                    xAxisLabelTexts={MOIS}
+                    xAxisLabelTextStyle={{ color: '#555', fontSize: 8, transform: isRTL ? [{ scaleX: -1 }, { rotate: '45deg' }] : [{ rotate: '-45deg' }], width: 40, textAlign: 'center' }}
+                    yAxisTextStyle={{ color: '#888', fontSize: 9, transform: [{ scaleX: isRTL ? -1 : 1 }] }}
+                    noOfSections={4}
+                    width={Math.max(300, 12 * 35)}
+                    spacing={35}
+                    height={140}
+                    initialSpacing={10}
+                    hideRules={false}
+                    rulesColor="#f0f0f0"
+                  />
+                </View>
               </ScrollView>
             </Card>
           </>
