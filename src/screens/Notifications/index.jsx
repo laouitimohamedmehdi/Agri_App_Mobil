@@ -19,7 +19,12 @@ const TYPE_CONFIG = {
 const renderMessage = (message, t) => {
   try {
     const parsed = typeof message === 'string' ? JSON.parse(message) : message;
-    if (parsed?.key) return t(parsed.key, parsed.params || {});
+    if (parsed?.key) {
+      const p = { ...(parsed.params || {}) };
+      if (p.type_action !== undefined && p.action === undefined) p.action = p.type_action;
+      if (p.entity_type !== undefined && p.entity === undefined) p.entity = p.entity_type;
+      return t(parsed.key, p);
+    }
   } catch {}
   return String(message || '');
 };
