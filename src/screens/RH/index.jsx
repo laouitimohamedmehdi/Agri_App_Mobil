@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Snackbar, SegmentedButtons, Chip, Card, List } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
@@ -173,8 +174,8 @@ export default function RH({ navigation }) {
           <Dialog.Title>{editing ? t('parametres.modal_edit') : t('parametres.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label={`${t('mobile.name')} *`} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
-              <TextInput label={`${t('mobile.first_name')} *`} value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <RTLTextInput label={`${t('mobile.name')} *`} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <RTLTextInput label={`${t('mobile.first_name')} *`} value={form.prenom} onChangeText={v => setForm(f => ({ ...f, prenom: v }))} maxLength={20} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('presences.col_post')} *</Text>
               <View style={{ marginBottom: 12 }}>
@@ -192,7 +193,7 @@ export default function RH({ navigation }) {
                 />
               </View>
 
-              <TextInput label={t('mobile.phone')} value={form.telephone} onChangeText={v => setForm(f => ({ ...f, telephone: v }))} keyboardType="phone-pad" style={{ marginBottom: 12 }} />
+              <RTLTextInput label={t('mobile.phone')} value={form.telephone} onChangeText={v => setForm(f => ({ ...f, telephone: v }))} keyboardType="phone-pad" style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.contract')}</Text>
               <View style={{ marginBottom: 12 }}>
@@ -235,8 +236,8 @@ export default function RH({ navigation }) {
               </View>
 
               {form.type_salaire === 'journalier'
-                ? <TextInput label={t('mobile.daily_rate')} value={form.tarif_journalier} onChangeText={v => setForm(f => ({ ...f, tarif_journalier: v }))} keyboardType="numeric" />
-                : <TextInput label={t('mobile.fixed_salary')} value={form.salaire_fixe} onChangeText={v => setForm(f => ({ ...f, salaire_fixe: v }))} keyboardType="numeric" />
+                ? <RTLTextInput label={t('mobile.daily_rate')} value={form.tarif_journalier} onChangeText={v => setForm(f => ({ ...f, tarif_journalier: v }))} keyboardType="numeric" />
+                : <RTLTextInput label={t('mobile.fixed_salary')} value={form.salaire_fixe} onChangeText={v => setForm(f => ({ ...f, salaire_fixe: v }))} keyboardType="numeric" />
               }
             </ScrollView>
           </Dialog.Content>

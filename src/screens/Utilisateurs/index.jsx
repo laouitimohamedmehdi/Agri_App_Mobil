@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 const SCREEN_H = Dimensions.get('window').height;
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons, Card } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
 import AppHeader from '../../components/AppHeader';
@@ -122,9 +123,9 @@ export default function Utilisateurs({ navigation }) {
           <Dialog.Title>{editing ? 'Modifier' : 'Ajouter'} un utilisateur</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-            <TextInput label="Email" value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" maxLength={50} style={{ marginBottom: 8 }} />
-            <TextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
-            <TextInput label={editing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry maxLength={50} style={{ marginBottom: 8 }} />
+            <RTLTextInput label="Email" value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" maxLength={50} style={{ marginBottom: 8 }} />
+            <RTLTextInput label="Nom" value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
+            <RTLTextInput label={editing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry maxLength={50} style={{ marginBottom: 8 }} />
             <Text variant="labelMedium" style={{ marginBottom: 4 }}>Rôle</Text>
             <View style={{ marginBottom: 12 }}>
               <SelectFilter noAll

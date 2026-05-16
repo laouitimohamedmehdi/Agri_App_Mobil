@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Snackbar, Card, Text } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
@@ -115,7 +116,7 @@ export default function Varietes({ navigation }) {
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
           <Dialog.Title>{editing ? t('varietes.modal_edit') : t('varietes.modal_create')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} />
+            <RTLTextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDialogVisible(false)}>{t('mobile.cancel')}</Button>
@@ -125,7 +126,7 @@ export default function Varietes({ navigation }) {
         <Dialog visible={!!demandeId} onDismiss={() => setDemandeId(null)}>
           <Dialog.Title>{t('demandes.action_delete')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label={t('mobile.demand_reason_required')} value={motif} onChangeText={setMotif} multiline maxLength={200} />
+            <RTLTextInput label={t('mobile.demand_reason_required')} value={motif} onChangeText={setMotif} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeId(null)}>{t('mobile.cancel')}</Button>

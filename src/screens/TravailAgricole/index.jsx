@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Chip, Text, Snackbar } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
 import AppHeader from '../../components/AppHeader';
@@ -293,7 +294,7 @@ export default function TravailAgricole({ navigation }) {
                   </View>
                 </>
               ) : (
-                <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
+                <RTLTextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
               )}
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
@@ -314,19 +315,19 @@ export default function TravailAgricole({ navigation }) {
 
               {form.type === 'Fertilisation' ? (
                 <>
-                  <TextInput label={t('travaux.form_quantity')} value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={t('travaux.form_unit_cost', { currency: currencySymbol })} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  <RTLTextInput label={t('travaux.form_quantity')} value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.form_unit_cost', { currency: currencySymbol })} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                   {form.quantite !== '' && form.cout_unitaire !== '' && (
                     <Text variant="bodySmall" style={{ color: '#13c2c2', marginBottom: 12, fontStyle: 'italic' }}>
                       {t('travaux.form_global_cost')} {(parseFloat(form.quantite) || 0) * (parseFloat(form.cout_unitaire) || 0)} {currencySymbol}
                     </Text>
                   )}
-                  <TextInput label={t('travaux.form_mo')} value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.form_mo')} value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               ) : (
                 <>
-                  <TextInput label={t('travaux.col_cost', { currency: currencySymbol })} value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={t('travaux.form_mo')} value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.col_cost', { currency: currencySymbol })} value={form.cout} onChangeText={v => setForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.form_mo')} value={form.m_o} onChangeText={v => setForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               )}
             </ScrollView>
@@ -340,7 +341,7 @@ export default function TravailAgricole({ navigation }) {
           <Dialog.Title>{t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
-              <TextInput label={t('mobile.demand_reason_required')} value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
+              <RTLTextInput label={t('mobile.demand_reason_required')} value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.type')}</Text>
               <View style={{ marginBottom: 12 }}>
@@ -359,7 +360,7 @@ export default function TravailAgricole({ navigation }) {
                   </View>
                 </>
               ) : (
-                <TextInput label={t('mobile.name')} value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
+                <RTLTextInput label={t('mobile.name')} value={demandeForm.nom} onChangeText={v => setDemandeForm(f => ({ ...f, nom: v }))} maxLength={50} style={{ marginBottom: 12 }} />
               )}
 
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
@@ -373,19 +374,19 @@ export default function TravailAgricole({ navigation }) {
 
               {demandeForm.type === 'Fertilisation' ? (
                 <>
-                  <TextInput label={t('travaux.form_quantity')} value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={t('travaux.form_unit_cost', { currency: currencySymbol })} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  <RTLTextInput label={t('travaux.form_quantity')} value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.form_unit_cost', { currency: currencySymbol })} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                   {demandeForm.quantite !== '' && demandeForm.cout_unitaire !== '' && (
                     <Text variant="bodySmall" style={{ color: '#13c2c2', marginBottom: 12, fontStyle: 'italic' }}>
                       {t('travaux.form_global_cost')} {(parseFloat(demandeForm.quantite) || 0) * (parseFloat(demandeForm.cout_unitaire) || 0)} {currencySymbol}
                     </Text>
                   )}
-                  <TextInput label={t('travaux.form_mo')} value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.form_mo')} value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               ) : (
                 <>
-                  <TextInput label={t('travaux.col_cost', { currency: currencySymbol })} value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={t('travaux.form_mo')} value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.col_cost', { currency: currencySymbol })} value={demandeForm.cout} onChangeText={v => setDemandeForm(f => ({ ...f, cout: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('travaux.form_mo')} value={demandeForm.m_o} onChangeText={v => setDemandeForm(f => ({ ...f, m_o: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
                 </>
               )}
             </ScrollView>
@@ -398,7 +399,7 @@ export default function TravailAgricole({ navigation }) {
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
           <Dialog.Title>{t('demandes.action_delete')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label={t('mobile.demand_reason_required')} value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
+            <RTLTextInput label={t('mobile.demand_reason_required')} value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeSupprItem(null)}>{t('mobile.cancel')}</Button>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 const SCREEN_H = Dimensions.get('window').height;
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Chip, Snackbar } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
@@ -131,52 +132,52 @@ export default function ParcellesSecteurs({ navigation }) {
           .filter(p => !filterParcelle || String(p.id_parcelle) === filterParcelle)
           .map(p => (
             <View key={p.id_parcelle} style={{ backgroundColor: '#f6faf3' }}>
-            <List.Accordion
-              title={p.nom}
-              description={`${t('fields.nb_sectors_col')}: ${secteursOfParcelle(p.id_parcelle).length}`}
-              left={props => <List.Icon {...props} icon="map-marker-multiple" />}
-              expanded={expandedParcelle === p.id_parcelle}
-              onPress={() => setExpandedParcelle(expandedParcelle === p.id_parcelle ? null : p.id_parcelle)}
-              titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
-            >
-              {isAdmin && (
-                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', padding: 8, gap: 8 }}>
-                  <Button icon="pencil" mode="outlined" compact onPress={() => openEditParcelle(p)}>{t('fields.edit_field')}</Button>
-                  <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>{t('mobile.delete')}</Button>
-                </View>
-              )}
-              {secteursOfParcelle(p.id_parcelle)
-                .filter(s => !filterSecteur || String(s.id_secteur) === filterSecteur)
-                .map(s => (
-                  <View key={s.id_secteur} style={[styles.secteurCard, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: '#2d7a4a' }]}>
-                    <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text variant="titleSmall" style={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{s.nom}</Text>
-                      <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{tStatut(s.statut)}</Chip>
-                    </View>
-                    <View style={[styles.secteurDetails, isRTL && { flexDirection: 'row-reverse' }]}>
-                      <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.area_ha')} {s.surface} {t('common.ha_short')}</Text>
-                      <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.nb_arbres_col')} {s.nb_arbre}</Text>
-                      <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.age_moy_col')} {s.age_moy} {t('sectors.years')}</Text>
-                      <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.variete_col')} {getVarieteNom(s.variete_id)}</Text>
-                    </View>
-                    {isAdmin && (
-                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginTop: 4 }}>
-                        <Button icon="pencil" compact mode="text" onPress={() => openEditSecteur(s)}>{t('mobile.edit')}</Button>
-                        <Button icon="delete" compact mode="text" textColor="#d32f2f" onPress={() => { setConfirmType('secteur'); setConfirmId(s.id_secteur); }}>{t('mobile.delete')}</Button>
-                      </View>
-                    )}
+              <List.Accordion
+                title={p.nom}
+                description={`${t('fields.nb_sectors_col')}: ${secteursOfParcelle(p.id_parcelle).length}`}
+                left={props => <List.Icon {...props} icon="map-marker-multiple" />}
+                expanded={expandedParcelle === p.id_parcelle}
+                onPress={() => setExpandedParcelle(expandedParcelle === p.id_parcelle ? null : p.id_parcelle)}
+                titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
+              >
+                {isAdmin && (
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', padding: 8, gap: 8 }}>
+                    <Button icon="pencil" mode="outlined" compact onPress={() => openEditParcelle(p)}>{t('fields.edit_field')}</Button>
+                    <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>{t('mobile.delete')}</Button>
                   </View>
-                ))}
-              {isAdmin && (
-                <List.Item
-                  title={t('mobile.add')}
-                  left={isRTL ? undefined : props => <List.Icon {...props} icon="plus-circle" />}
-                  right={isRTL ? props => <List.Icon {...props} icon="plus-circle" /> : undefined}
-                  titleStyle={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}
-                  onPress={() => openCreateSecteur(p.id_parcelle)}
-                />
-              )}
-            </List.Accordion>
+                )}
+                {secteursOfParcelle(p.id_parcelle)
+                  .filter(s => !filterSecteur || String(s.id_secteur) === filterSecteur)
+                  .map(s => (
+                    <View key={s.id_secteur} style={[styles.secteurCard, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: '#2d7a4a' }]}>
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text variant="titleSmall" style={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{s.nom}</Text>
+                        <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{tStatut(s.statut)}</Chip>
+                      </View>
+                      <View style={[styles.secteurDetails, isRTL && { flexDirection: 'row-reverse' }]}>
+                        <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.area_ha')} {s.surface} {t('common.ha_short')}</Text>
+                        <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.nb_arbres_col')} {s.nb_arbre}</Text>
+                        <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.age_moy_col')} {s.age_moy} {t('sectors.years')}</Text>
+                        <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.variete_col')} {getVarieteNom(s.variete_id)}</Text>
+                      </View>
+                      {isAdmin && (
+                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginTop: 4 }}>
+                          <Button icon="pencil" compact mode="text" onPress={() => openEditSecteur(s)}>{t('mobile.edit')}</Button>
+                          <Button icon="delete" compact mode="text" textColor="#d32f2f" onPress={() => { setConfirmType('secteur'); setConfirmId(s.id_secteur); }}>{t('mobile.delete')}</Button>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                {isAdmin && (
+                  <List.Item
+                    title={t('mobile.add')}
+                    left={isRTL ? undefined : props => <List.Icon {...props} icon="plus-circle" />}
+                    right={isRTL ? props => <List.Icon {...props} icon="plus-circle" /> : undefined}
+                    titleStyle={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}
+                    onPress={() => openCreateSecteur(p.id_parcelle)}
+                  />
+                )}
+              </List.Accordion>
             </View>
           ))}
         <View style={{ height: 80 }} />
@@ -191,12 +192,12 @@ export default function ParcellesSecteurs({ navigation }) {
           </Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
+              <RTLTextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
               {dialogType === 'secteur' && (
                 <>
-                  <TextInput label={t('sectors.area_ha')} value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
-                  <TextInput label={t('sectors.nb_arbres_col')} value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
-                  <TextInput label={t('sectors.age_moyen_label')} value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
+                  <RTLTextInput label={t('sectors.area_ha')} value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  <RTLTextInput label={t('sectors.nb_arbres_col')} value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
+                  <RTLTextInput label={t('sectors.age_moyen_label')} value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
                   <Text variant="labelMedium" style={{ marginBottom: 4, textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.variete_col')} *</Text>
                   <View style={{ marginBottom: 12 }}>
                     <SelectFilter noAll

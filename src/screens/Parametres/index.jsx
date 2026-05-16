@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons, Card } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SelectFilter from '../../components/SelectFilter';
 import AppHeader from '../../components/AppHeader';
@@ -213,9 +214,9 @@ export default function Parametres({ navigation }) {
           <Dialog.Title>{editing ? t('parametres.modal_edit') : t('parametres.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label={t('auth.email')} value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" maxLength={50} style={{ marginBottom: 8 }} />
-              <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
-              <TextInput label={editing ? t('parametres.form_password_edit') : t('auth.password')} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry maxLength={50} style={{ marginBottom: 8 }} />
+              <RTLTextInput label={t('auth.email')} value={form.email} onChangeText={v => setForm(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" maxLength={50} style={{ marginBottom: 8 }} />
+              <RTLTextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
+              <RTLTextInput label={editing ? t('parametres.form_password_edit') : t('auth.password')} value={form.password} onChangeText={v => setForm(f => ({ ...f, password: v }))} secureTextEntry maxLength={50} style={{ marginBottom: 8 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('parametres.form_role')}</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label={t('parametres.form_role')} value={form.role}

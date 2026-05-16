@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { List, FAB, Portal, Dialog, TextInput, Button, Text, Divider, Snackbar, Card, Chip } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
@@ -344,7 +345,7 @@ export default function Recoltes({ navigation }) {
                             <SelectFilter noAll label={t('mobile.type')} value={chargeForm.type_frais}
                               onChange={v => setChargeForm(f => ({ ...f, type_frais: v }))}
                               options={TYPES_FRAIS.map(tf => ({ value: tf, label: tf }))} />
-                            <TextInput label={`${t('recoltes.montant_placeholder')} (${currencySymbol})`} value={chargeForm.montant}
+                            <RTLTextInput label={`${t('recoltes.montant_placeholder')} (${currencySymbol})`} value={chargeForm.montant}
                               onChangeText={v => setChargeForm(f => ({ ...f, montant: v }))} keyboardType="numeric" dense />
                             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }}>
                               <Button compact onPress={() => setAddingChargeFor(null)}>{t('mobile.cancel')}</Button>
@@ -382,9 +383,9 @@ export default function Recoltes({ navigation }) {
                       <View style={{ padding: 12, backgroundColor: '#f0f9f0', gap: 8 }}>
                         <Text variant="bodySmall" style={{ color: '#389e0d', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.add')}</Text>
                         <DatePickerInput label={t('travaux.col_date')} value={addLineForm.date} onChange={v => setAddLineForm(f => ({ ...f, date: v }))} />
-                        <TextInput label={t('recoltes.col_production')} value={addLineForm.production} onChangeText={v => setAddLineForm(f => ({ ...f, production: v }))} keyboardType="numeric" dense style={{ marginTop: 4 }} />
-                        <TextInput label={t('recoltes.form_oil')} value={addLineForm.huile} onChangeText={v => setAddLineForm(f => ({ ...f, huile: v }))} keyboardType="numeric" dense />
-                        <TextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={addLineForm.prix} onChangeText={v => setAddLineForm(f => ({ ...f, prix: v }))} keyboardType="numeric" dense />
+                        <RTLTextInput label={t('recoltes.col_production')} value={addLineForm.production} onChangeText={v => setAddLineForm(f => ({ ...f, production: v }))} keyboardType="numeric" dense style={{ marginTop: 4 }} />
+                        <RTLTextInput label={t('recoltes.form_oil')} value={addLineForm.huile} onChangeText={v => setAddLineForm(f => ({ ...f, huile: v }))} keyboardType="numeric" dense />
+                        <RTLTextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={addLineForm.prix} onChangeText={v => setAddLineForm(f => ({ ...f, prix: v }))} keyboardType="numeric" dense />
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
                           <Button compact onPress={() => setAddLineGroup(null)}>{t('mobile.cancel')}</Button>
                           <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addLine} loading={savingLine}>{t('mobile.add')}</Button>
@@ -412,7 +413,7 @@ export default function Recoltes({ navigation }) {
           <Dialog.Title>{editing ? t('recoltes.modal_edit') : t('recoltes.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
-              <TextInput label={t('mobile.campaign')} value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
+              <RTLTextInput label={t('mobile.campaign')} value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
               <DatePickerInput label={t('travaux.col_date')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4, textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.plot')}</Text>
               <View style={{ marginBottom: 12 }}>
@@ -426,12 +427,12 @@ export default function Recoltes({ navigation }) {
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
                   options={secteursForForm.map(s => ({ value: String(s.id_secteur), label: s.nom }))} />
               </View>
-              <TextInput label={t('recoltes.col_production')} value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
+              <RTLTextInput label={t('recoltes.col_production')} value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
               {isAdmin && (
                 <>
                   <Divider style={{ marginBottom: 12 }} />
-                  <TextInput label={t('recoltes.form_oil')} value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
-                  <TextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
+                  <RTLTextInput label={t('recoltes.form_oil')} value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" />
                 </>
               )}
             </ScrollView>
@@ -445,9 +446,9 @@ export default function Recoltes({ navigation }) {
         <Dialog visible={!!demandeModifItem} onDismiss={() => setDemandeModifItem(null)}>
           <Dialog.Title>{t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label={t('mobile.demand_reason_required')} value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
-            <TextInput label={t('mobile.campaign')} value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
-            <TextInput label={t('recoltes.col_production')} value={demandeForm.production} onChangeText={v => setDemandeForm(f => ({ ...f, production: v }))} keyboardType="numeric" />
+            <RTLTextInput label={t('mobile.demand_reason_required')} value={demandeForm.motif} onChangeText={v => setDemandeForm(f => ({ ...f, motif: v }))} multiline maxLength={200} style={{ marginBottom: 12 }} />
+            <RTLTextInput label={t('mobile.campaign')} value={demandeForm.campagne} onChangeText={v => setDemandeForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+            <RTLTextInput label={t('recoltes.col_production')} value={demandeForm.production} onChangeText={v => setDemandeForm(f => ({ ...f, production: v }))} keyboardType="numeric" />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeModifItem(null)}>{t('mobile.cancel')}</Button>
@@ -458,7 +459,7 @@ export default function Recoltes({ navigation }) {
         <Dialog visible={!!demandeSupprItem} onDismiss={() => setDemandeSupprItem(null)}>
           <Dialog.Title>{t('demandes.action_delete')}</Dialog.Title>
           <Dialog.Content>
-            <TextInput label={t('mobile.demand_reason_required')} value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
+            <RTLTextInput label={t('mobile.demand_reason_required')} value={motifSuppr} onChangeText={setMotifSuppr} multiline maxLength={200} />
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDemandeSupprItem(null)}>{t('mobile.cancel')}</Button>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Text, Snackbar, Card } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
@@ -222,10 +223,10 @@ export default function Depenses({ navigation }) {
           <Dialog.Title>{editing ? t('depenses.modal_edit') : t('depenses.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label={t('depenses.form_title')} value={form.titre} onChangeText={v => setForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
+              <RTLTextInput label={t('depenses.form_title')} value={form.titre} onChangeText={v => setForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
               <DatePickerInput label={t('travaux.col_date')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-              <TextInput label={t('depenses.form_quantity')} value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-              <TextInput label={t('depenses.form_unit_cost', { currency: currencySymbol })} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
+              <RTLTextInput label={t('depenses.form_quantity')} value={form.quantite} onChangeText={v => setForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <RTLTextInput label={t('depenses.form_unit_cost', { currency: currencySymbol })} value={form.cout_unitaire} onChangeText={v => setForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
             </ScrollView>
           </Dialog.Content>
           <Dialog.Actions>
@@ -238,13 +239,13 @@ export default function Depenses({ navigation }) {
           <Dialog.Title>{demandeAction === 'suppression' ? t('demandes.action_delete') : t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label={t('mobile.demand_reason_required')} value={demandeMotif} onChangeText={setDemandeMotif} multiline maxLength={200} style={{ marginBottom: 12 }} />
+              <RTLTextInput label={t('mobile.demand_reason_required')} value={demandeMotif} onChangeText={setDemandeMotif} multiline maxLength={200} style={{ marginBottom: 12 }} />
               {demandeAction === 'modification' && (
                 <>
-                  <TextInput label={t('depenses.form_title')} value={demandeForm.titre} onChangeText={v => setDemandeForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('depenses.form_title')} value={demandeForm.titre} onChangeText={v => setDemandeForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
                   <DatePickerInput label={t('travaux.col_date')} value={demandeForm.date} onChange={v => setDemandeForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-                  <TextInput label={t('depenses.form_quantity')} value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={t('depenses.form_unit_cost', { currency: currencySymbol })} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
+                  <RTLTextInput label={t('depenses.form_quantity')} value={demandeForm.quantite} onChangeText={v => setDemandeForm(f => ({ ...f, quantite: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+                  <RTLTextInput label={t('depenses.form_unit_cost', { currency: currencySymbol })} value={demandeForm.cout_unitaire} onChangeText={v => setDemandeForm(f => ({ ...f, cout_unitaire: v }))} keyboardType="numeric" />
                 </>
               )}
             </ScrollView>

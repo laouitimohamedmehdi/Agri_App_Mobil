@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput, Card } from 'react-native-paper';
+import RTLTextInput from '../../components/RTLTextInput';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -330,14 +331,14 @@ export default function Presences({ navigation }) {
                   <View style={{ flex: 1 }}>
                     {isTemp && canEdit && !l.confirmed ? (
                       <>
-                        <TextInput
+                        <RTLTextInput
                           label={t('presences.temp_name_placeholder')}
                           value={l.nom_temp || ''}
                           onChangeText={v => updateTemp(l._originalIdx, 'nom_temp', v)}
                           dense
                           style={{ marginBottom: 4 }}
                         />
-                        <TextInput
+                        <RTLTextInput
                           label={`${t('presences.col_total')} (${currencySymbol}/${t('common.per_day_short')}) *`}
                           value={l.tarif_temp ? String(l.tarif_temp) : ''}
                           onChangeText={v => updateTemp(l._originalIdx, 'tarif_temp', v)}
@@ -391,14 +392,12 @@ export default function Presences({ navigation }) {
 
                 {/* Remarque */}
                 {canEdit ? (
-                  <TextInput
-                    label={isRTL ? undefined : t('presences.col_remark')}
-                    placeholder={isRTL ? t('presences.col_remark') : undefined}
+                  <RTLTextInput
+                    label={t('presences.col_remark')}
                     value={l.remarque || ''}
                     onChangeText={v => setRemarque(l._originalIdx, v)}
                     dense
                     style={{ marginHorizontal: 12, marginBottom: 8 }}
-                    contentStyle={isRTL ? { textAlign: 'right' } : undefined}
                   />
                 ) : l.remarque ? (
                   <Text style={[styles.remarque, isRTL && { textAlign: 'right' }]}>
