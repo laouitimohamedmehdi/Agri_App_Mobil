@@ -16,6 +16,14 @@ const TYPE_CONFIG = {
   warning: { color: '#fa8c16', bg: '#fff7e6', icon: 'alert-outline'          },
 };
 
+const renderMessage = (message, t) => {
+  try {
+    const parsed = typeof message === 'string' ? JSON.parse(message) : message;
+    if (parsed?.key) return t(parsed.key, parsed.params || {});
+  } catch {}
+  return String(message || '');
+};
+
 export default function Notifications({ navigation }) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -92,7 +100,7 @@ export default function Notifications({ navigation }) {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text variant="bodyMedium" style={{ color: '#333', fontWeight: n.lu ? '400' : '600', lineHeight: 20, textAlign: isRTL ? 'right' : 'left' }}>
-                      {n.message}
+                      {renderMessage(n.message, t)}
                     </Text>
                     <Text variant="bodySmall" style={{ color: '#aaa', marginTop: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       {n.date_creation}
