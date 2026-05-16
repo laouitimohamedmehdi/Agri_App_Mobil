@@ -206,35 +206,84 @@ export default function DashboardScreen({ navigation }) {
                   <Text style={{ fontSize: 10, color: '#555' }}>{t('dashboard.charges')}</Text>
                 </View>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: isRTL ? 'row-reverse' : 'row', minWidth: '100%', paddingBottom: 15 }}>
-                <View style={{ transform: [{ scaleX: isRTL ? -1 : 1 }] }}>
+              <View style={{
+                flexDirection: isRTL ? 'row-reverse' : 'row',
+                minWidth: '100%',
+                paddingBottom: 15,
+                position: 'relative',
+              }}>
+                <View style={{
+                  transform: [{ scaleX: isRTL ? -1 : 1 }],
+                  zIndex: 2,
+                  width: 35,
+                  alignItems: isRTL ? 'flex-start' : 'flex-end'
+                }}>
                   <LineChart
                     areaChart
-                    data={(monthlyData).map(d => ({ value: d.revenu }))}
-                    data2={(monthlyData).map(d => ({ value: d.charges }))}
-                    color1="#2d7a4a"
-                    color2="#ff4d4f"
-                    startFillColor1="#2d7a4a"
-                    startFillColor2="#ff4d4f"
-                    startOpacity={0.25}
-                    endOpacity={0.02}
-                    thickness={2}
-                    dataPointsColor1="#2d7a4a"
-                    dataPointsColor2="#ff4d4f"
-                    dataPointsRadius={3}
-                    xAxisLabelTexts={MOIS}
-                    xAxisLabelTextStyle={{ color: '#555', fontSize: 8, transform: isRTL ? [{ scaleX: -1 }, { rotate: '45deg' }] : [{ rotate: '-45deg' }], ...(isRTL ? {} : { width: 40 }), textAlign: 'center' }}
+                    data={[{ value: 0 }]}
+                    hideDataPoints
+                    xAxisThickness={0}
                     yAxisTextStyle={{ color: '#888', fontSize: 9, transform: [{ scaleX: isRTL ? -1 : 1 }] }}
                     noOfSections={4}
-                    width={Math.max(300, 12 * 35)}
-                    spacing={35}
                     height={140}
-                    initialSpacing={10}
+                    width={0}
+                    chartProfiles={[]}
                     hideRules={false}
                     rulesColor="#f0f0f0"
                   />
                 </View>
-              </ScrollView>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
+                  contentOffset={{ x: isRTL ? 1000 : 0, y: 0 }}
+                  style={{
+                    zIndex: 1,
+                    marginLeft: 0,
+                    marginRight: 0,
+                  }}
+                >
+
+                  <View style={{ transform: [{ scaleX: isRTL ? -1 : 1 }], marginLeft: isRTL ? 0 : -10, marginRight: isRTL ? -10 : 0 }}>
+                    <LineChart
+                      areaChart
+                      data={(monthlyData).map(d => ({ value: d.revenu }))}
+                      data2={(monthlyData).map(d => ({ value: d.charges }))}
+                      color1="#2d7a4a"
+                      color2="#ff4d4f"
+                      startFillColor1="#2d7a4a"
+                      startFillColor2="#ff4d4f"
+                      startOpacity={0.25}
+                      endOpacity={0.02}
+                      thickness={2}
+                      dataPointsColor1="#2d7a4a"
+                      dataPointsColor2="#ff4d4f"
+                      dataPointsRadius={3}
+                      xAxisLabelTexts={MOIS}
+                      xAxisLabelTextStyle={{
+                        color: '#555',
+                        fontSize: 8,
+                        transform: isRTL ? [{ scaleX: -1 }, { rotate: '45deg' }] : [{ rotate: '-45deg' }],
+                        width: 40,
+                        textAlign: 'center'
+                      }}
+
+                      hideYAxisText={true}
+                      yAxisThickness={0}
+                      hideRules={true}
+
+                      noOfSections={4}
+                      width={Math.max(300, 12 * 35)}
+                      spacing={35}
+                      height={140}
+                      initialSpacing={15}
+                      endSpacing={15}
+                    />
+                  </View>
+                </ScrollView>
+
+              </View>
             </Card>
           </>
         )}
@@ -318,7 +367,7 @@ export default function DashboardScreen({ navigation }) {
         <View style={{ height: 32 }} />
       </ScrollView>
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
-    </View>
+    </View >
   );
 }
 
