@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { Text, Snackbar, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import AppHeader from '../../components/AppHeader';
 import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
@@ -15,6 +16,8 @@ const TYPE_CONFIG = {
 };
 
 export default function Notifications({ navigation }) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState('');
@@ -33,7 +36,7 @@ export default function Notifications({ navigation }) {
 
   const fetchNotifs = async () => {
     try { const res = await client.get('/notifications/'); setNotifs(res.data); }
-    catch { setSnack('Erreur de chargement'); }
+    catch { setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
@@ -47,38 +50,42 @@ export default function Notifications({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Notifications" navigation={navigation} />
+      <AppHeader title={t('notif.title')} navigation={navigation} />
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
 
-        <View style={styles.sectionHeader}>
-          <MaterialCommunityIcons name="bell-outline" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-          <Text variant="titleSmall" style={styles.sectionTitle}>
-            {notifs.length} notification(s)
+        <View style={[styles.sectionHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+          <MaterialCommunityIcons name="bell-outline" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+          <Text variant="titleSmall" style={[styles.sectionTitle, isRTL && { textAlign: 'right' }]}>
+            {notifs.length} {t('notif.title').toLowerCase()}
             {unreadCount > 0 && (
-              <Text style={{ color: '#fa8c16' }}>  · {unreadCount} non lue(s)</Text>
+              <Text style={{ color: '#fa8c16' }}>  · {unreadCount} {t('notif.click_to_read')}</Text>
             )}
           </Text>
         </View>
 
         {notifs.length === 0 ? (
-          <EmptyState message="Aucune notification" />
+          <EmptyState message={t('notif.no_notifications')} />
         ) : (
           notifs.map(n => {
             const cfg = TYPE_CONFIG[n.type] || { color: '#888', bg: '#f5f5f5', icon: 'bell-outline' };
             return (
               <Card
                 key={n.id}
-                style={[styles.card, { borderLeftColor: cfg.color }, !n.lu && { backgroundColor: cfg.bg }]}
+                style={[
+                  styles.card,
+                  isRTL ? { borderRightColor: cfg.color, borderRightWidth: 4, borderLeftWidth: 0 } : { borderLeftColor: cfg.color },
+                  !n.lu && { backgroundColor: cfg.bg },
+                ]}
               >
-                <View style={styles.cardRow}>
+                <View style={[styles.cardRow, isRTL && { flexDirection: 'row-reverse' }]}>
                   <View style={[styles.iconWrap, { backgroundColor: cfg.color + '22' }]}>
                     <MaterialCommunityIcons name={cfg.icon} size={22} color={cfg.color} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text variant="bodyMedium" style={{ color: '#333', fontWeight: n.lu ? '400' : '600', lineHeight: 20 }}>
+                    <Text variant="bodyMedium" style={{ color: '#333', fontWeight: n.lu ? '400' : '600', lineHeight: 20, textAlign: isRTL ? 'right' : 'left' }}>
                       {n.message}
                     </Text>
-                    <Text variant="bodySmall" style={{ color: '#aaa', marginTop: 2 }}>
+                    <Text variant="bodySmall" style={{ color: '#aaa', marginTop: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       {n.date_creation}
                     </Text>
                   </View>
