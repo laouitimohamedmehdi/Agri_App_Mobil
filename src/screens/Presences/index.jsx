@@ -31,6 +31,7 @@ export default function Presences({ navigation }) {
   const { employes } = useData();
   const { currencySymbol } = useSettings();
   const tPoste = (p) => p ? t(`presences.poste_${POSTE_KEYS[p] || 'autre'}`, { defaultValue: p }) : '';
+  const isRTL = i18n.language === 'ar';
   const isAdmin = user?.role === 'admin';
   const [mois, setMois] = useState(() => new Date().toISOString().slice(0, 7));
   const [feuille, setFeuille] = useState(null);
@@ -218,16 +219,16 @@ export default function Presences({ navigation }) {
       <AppHeader title={t('presences.title')} navigation={navigation} />
 
       {/* Navigation mois */}
-      <View style={styles.monthNav}>
+      <View style={[styles.monthNav, isRTL && { flexDirection: 'row-reverse' }]}>
         <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.navBtn}>
-          <MaterialCommunityIcons name="chevron-left" size={28} color="#2d7a4a" />
+          <MaterialCommunityIcons name={isRTL ? 'chevron-right' : 'chevron-left'} size={28} color="#2d7a4a" />
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Text variant="titleMedium" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{moisLabel}</Text>
           <Text variant="bodySmall" style={{ color: '#888' }}>{nbJours} {t('common.per_day_short')}</Text>
         </View>
         <TouchableOpacity onPress={() => changeMonth(1)} style={styles.navBtn}>
-          <MaterialCommunityIcons name="chevron-right" size={28} color="#2d7a4a" />
+          <MaterialCommunityIcons name={isRTL ? 'chevron-left' : 'chevron-right'} size={28} color="#2d7a4a" />
         </TouchableOpacity>
         <TouchableOpacity onPress={exportPDF} style={[styles.navBtn, { backgroundColor: '#fff7e6', borderRadius: 8, paddingHorizontal: 8 }]}>
           <MaterialCommunityIcons name="file-pdf-box" size={22} color="#fa8c16" />
@@ -237,8 +238,8 @@ export default function Presences({ navigation }) {
 
       {/* Barre statut + actions */}
       {feuille && (
-        <View style={styles.statusBar}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View style={[styles.statusBar, isRTL && { flexDirection: 'row-reverse' }]}>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
             <MaterialCommunityIcons
               name={feuille.statut === 'validee' ? 'check-circle' : 'pencil-circle'}
               size={16}
@@ -249,7 +250,7 @@ export default function Presences({ navigation }) {
             </Text>
             <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} {t('common.per_day_short')}</Text>
           </View>
-          <View style={{ flexDirection: 'row', gap: 6 }}>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 6 }}>
             {feuille.statut !== 'validee' && (
               <>
                 <TouchableOpacity style={[styles.actionBtn, { borderColor: '#fa8c16' }]} onPress={addTemp}>
@@ -301,9 +302,9 @@ export default function Presences({ navigation }) {
             const total = Object.values(l.jours).filter(v => v === 1).length;
             const poste = getEmployePoste(l);
             return (
-              <Card key={idx} style={[styles.empCard, isTemp && { borderLeftWidth: 3, borderLeftColor: '#fa8c16' }]}>
+              <Card key={idx} style={[styles.empCard, isTemp && (isRTL ? { borderRightWidth: 3, borderRightColor: '#fa8c16' } : { borderLeftWidth: 3, borderLeftColor: '#fa8c16' })]}>
                 {/* En-tête carte employé */}
-                <View style={styles.empHeader}>
+                <View style={[styles.empHeader, isRTL && { flexDirection: 'row-reverse' }]}>
                   <View style={[styles.empAvatar, isTemp && { backgroundColor: '#fff7e6' }]}>
                     <MaterialCommunityIcons name={isTemp ? 'account-clock' : 'account'} size={22} color={isTemp ? '#fa8c16' : '#2d7a4a'} />
                   </View>
@@ -327,12 +328,12 @@ export default function Presences({ navigation }) {
                       </>
                     ) : (
                       <>
-                        <Text style={styles.empName} numberOfLines={1}>{getEmployeNom(l)}</Text>
+                        <Text style={[styles.empName, { textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>{getEmployeNom(l)}</Text>
                         {isTemp ? (
-                          <Text style={[styles.empPoste, { color: '#fa8c16' }]}>
+                          <Text style={[styles.empPoste, { color: '#fa8c16', textAlign: isRTL ? 'right' : 'left' }]}>
                             {l.tarif_temp > 0 ? `${l.tarif_temp} ${currencySymbol}/${t('common.per_day_short')} · ` : ''}{t('mobile.temp_badge')}
                           </Text>
-                        ) : poste ? <Text style={styles.empPoste}>{tPoste(poste)}</Text> : null}
+                        ) : poste ? <Text style={[styles.empPoste, { textAlign: isRTL ? 'right' : 'left' }]}>{tPoste(poste)}</Text> : null}
                       </>
                     )}
                   </View>
@@ -362,8 +363,8 @@ export default function Presences({ navigation }) {
 
                 {/* Grille jours */}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daysScroll}>
-                  <View style={{ flexDirection: 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
-                    {days.map(d => {
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
+                    {(isRTL ? [...days].reverse() : days).map(d => {
                       const val = l.jours[String(d)] === 1;
                       return (
                         <TouchableOpacity
@@ -394,7 +395,7 @@ export default function Presences({ navigation }) {
                     style={{ marginHorizontal: 12, marginBottom: 8 }}
                   />
                 ) : l.remarque ? (
-                  <Text style={styles.remarque}>
+                  <Text style={[styles.remarque, isRTL && { textAlign: 'right' }]}>
                     <Text style={{ fontWeight: '600' }}>{t('presences.col_remark')} : </Text>{l.remarque}
                   </Text>
                 ) : null}
