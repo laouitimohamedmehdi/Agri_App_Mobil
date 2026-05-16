@@ -121,10 +121,12 @@ export default function DashboardScreen({ navigation }) {
   const derniersTravaux = (data?.travaux || []).slice(-5).reverse();
 
   // Activité financière — Jan → Déc année courante
-  const locale = i18n.language === 'ar' ? 'ar-TN' : i18n.language === 'en' ? 'en-US' : 'fr-FR';
-  const MOIS = Array.from({ length: 12 }, (_, i) =>
-    new Intl.DateTimeFormat(locale, { month: 'short' }).format(new Date(2024, i, 1))
-  );
+  const MOIS_LABELS = {
+    fr: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+    en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    ar: ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+  };
+  const MOIS = MOIS_LABELS[i18n.language] || MOIS_LABELS.fr;
   const currentMonthIdx = new Date().getMonth();
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const moisKey = `${currentYear}-${String(i + 1).padStart(2, '0')}`;
