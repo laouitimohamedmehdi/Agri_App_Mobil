@@ -391,20 +391,15 @@ export default function Presences({ navigation }) {
 
                 {/* Remarque */}
                 {canEdit ? (
-                  <View style={{ marginHorizontal: 12, marginBottom: 8 }}>
-                    {isRTL && (
-                      <Text style={{ fontSize: 12, color: '#888', textAlign: 'right', marginBottom: 2 }}>
-                        {t('presences.col_remark')}
-                      </Text>
-                    )}
-                    <TextInput
-                      label={isRTL ? '' : t('presences.col_remark')}
-                      value={l.remarque || ''}
-                      onChangeText={v => setRemarque(l._originalIdx, v)}
-                      dense
-                      contentStyle={isRTL ? { textAlign: 'right' } : undefined}
-                    />
-                  </View>
+                  <TextInput
+                    label={t('presences.col_remark')}
+                    value={l.remarque || ''}
+                    onChangeText={v => setRemarque(l._originalIdx, v)}
+                    dense
+                    style={{ marginHorizontal: 12, marginBottom: 8 }}
+                    contentStyle={isRTL ? { textAlign: 'right' } : undefined}
+                    labelStyle={isRTL ? { textAlign: 'right' } : undefined}
+                  />
                 ) : l.remarque ? (
                   <Text style={[styles.remarque, isRTL && { textAlign: 'right' }]}>
                     <Text style={{ fontWeight: '600' }}>{t('presences.col_remark')} : </Text>{l.remarque}
