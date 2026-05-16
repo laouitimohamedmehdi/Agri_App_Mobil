@@ -42,13 +42,22 @@ export default function Presences({ navigation }) {
   const [filterNom, setFilterNom] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchFeuille();
-    setRefreshing(false);
-  };
-
-  useEffect(() => { fetchFeuille(); }, [mois]);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setFilterNom('');
+    client.get(`/feuilles/?mois=${mois}`, { signal: controller.signal })
+      .then(res => {
+        setFeuille(res.data);
+        setLignes(initLignes(res.data.lignes || []));
+      })
+      .catch(e => {
+        if (e?.code === 'ERR_CANCELED' || e?.name === 'AbortError' || e?.name === 'CanceledError') return;
+        setSnack(t('mobile.error_load'));
+      })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [mois]);
 
   const fetchFeuille = async () => {
     setLoading(true);
@@ -57,8 +66,16 @@ export default function Presences({ navigation }) {
       const res = await client.get(`/feuilles/?mois=${mois}`);
       setFeuille(res.data);
       setLignes(initLignes(res.data.lignes || []));
-    } catch { setSnack(t('mobile.error_load')); }
-    finally { setLoading(false); }
+    } catch (e) {
+      if (e?.code === 'ERR_CANCELED' || e?.name === 'AbortError') return;
+      setSnack(t('mobile.error_load'));
+    } finally { setLoading(false); }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchFeuille();
+    setRefreshing(false);
   };
 
   const initLignes = (rawLignes) => rawLignes.map(l => ({
