@@ -184,20 +184,20 @@ export default function ParcellesSecteurs({ navigation }) {
       {isAdmin && <FAB icon="plus" style={styles.fab} onPress={openCreateParcelle} />}
       <Portal>
         <Dialog visible={!!dialogType} onDismiss={() => setDialogType(null)}>
-          <Dialog.Title>
+          <Dialog.Title style={{ textAlign: isRTL ? 'right' : 'left' }}>
             {dialogType === 'parcelle'
               ? (editing ? t('fields.edit_field') : t('fields.new_field'))
               : (editing ? t('sectors.edit_sector') : t('sectors.new_sector'))}
           </Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
-              <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} />
+              <TextInput label={t('mobile.name')} value={form.nom} onChangeText={v => setForm(f => ({ ...f, nom: v }))} maxLength={20} style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
               {dialogType === 'secteur' && (
                 <>
-                  <TextInput label={t('sectors.area_ha')} value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                  <TextInput label={t('sectors.nb_arbres_col')} value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                  <TextInput label={t('sectors.age_moyen_label')} value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} />
-                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('sectors.variete_col')} *</Text>
+                  <TextInput label={t('sectors.area_ha')} value={form.surface} onChangeText={v => setForm(f => ({ ...f, surface: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
+                  <TextInput label={t('sectors.nb_arbres_col')} value={form.nb_arbre} onChangeText={v => setForm(f => ({ ...f, nb_arbre: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
+                  <TextInput label={t('sectors.age_moyen_label')} value={form.age_moy} onChangeText={v => setForm(f => ({ ...f, age_moy: v }))} keyboardType="numeric" style={{ marginBottom: 8 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} labelStyle={isRTL ? { textAlign: 'right' } : undefined} />
+                  <Text variant="labelMedium" style={{ marginBottom: 4, textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.variete_col')} *</Text>
                   <View style={{ marginBottom: 12 }}>
                     <SelectFilter noAll
                       label={t('sectors.select_species')}
@@ -206,7 +206,7 @@ export default function ParcellesSecteurs({ navigation }) {
                       options={varietes.map(v => ({ value: String(v.id_variete), label: v.nom }))}
                     />
                   </View>
-                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
+                  <Text variant="labelMedium" style={{ marginBottom: 4, textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.status')}</Text>
                   <View style={{ marginBottom: 8 }}>
                     <SelectFilter noAll
                       label={t('mobile.status')}
