@@ -56,9 +56,9 @@ export default function Notifications({ navigation }) {
         <View style={[styles.sectionHeader, isRTL && { flexDirection: 'row-reverse' }]}>
           <MaterialCommunityIcons name="bell-outline" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
           <Text variant="titleSmall" style={[styles.sectionTitle, isRTL && { textAlign: 'right' }]}>
-            {notifs.length} {t('notif.title').toLowerCase()}
+            {t('notif.title')} ({notifs.length})
             {unreadCount > 0 && (
-              <Text style={{ color: '#fa8c16' }}>  · {unreadCount} {t('notif.click_to_read')}</Text>
+              <Text style={{ color: '#fa8c16' }}>  · {unreadCount} ●</Text>
             )}
           </Text>
         </View>
