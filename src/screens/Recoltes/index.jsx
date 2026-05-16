@@ -285,8 +285,8 @@ export default function Recoltes({ navigation }) {
                 onPress={() => setExpandedGroup(isExpanded ? null : group.key)}
                 left={props => <List.Icon {...props} icon="basket" />}
                 style={{ backgroundColor: '#f6faf3', marginBottom: 2 }}
-                titleStyle={{ color: '#2d7a4a', fontWeight: 'bold', fontSize: 13 }}
-                descriptionStyle={{ fontSize: 11 }}
+                titleStyle={{ color: '#2d7a4a', fontWeight: 'bold', fontSize: 13, textAlign: isRTL ? 'right' : 'left' }}
+                descriptionStyle={{ fontSize: 11, textAlign: isRTL ? 'right' : 'left' }}
               >
                 {/* Bilan admin */}
                 {isAdmin && (
