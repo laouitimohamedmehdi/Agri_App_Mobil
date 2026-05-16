@@ -171,43 +171,44 @@ export default function Depenses({ navigation }) {
 
       <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
         <MaterialCommunityIcons name="receipt" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} dépense(s)</Text>
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} {t('depenses.btn_add')}</Text>
       </View>
 
       {filtered.length === 0 ? <EmptyState message={t('mobile.no_expense')} /> : (
         <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-          {filtered.map((d, idx) => {
+          {filtered.map((d) => {
             const total = (d.quantite || 0) * (d.cout_unitaire || 0);
             return (
-              <Card key={d.id_depense} style={{ margin: 8, elevation: 1 }}>
-                <Card.Content>
-                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <View style={{ flex: 1 }}>
-                      <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{d.titre}</Text>
-                      <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{d.date || '—'}</Text>
-                      <Text variant="bodySmall" style={{ color: '#555', marginTop: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                        {d.quantite} × {d.cout_unitaire?.toLocaleString('fr-FR')} {currencySymbol}
-                      </Text>
-                    </View>
-                    <Text style={{ fontWeight: 'bold', color: '#ff4d4f', fontSize: 15, textAlign: isRTL ? 'right' : 'left' }}>
-                      {total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {currencySymbol}
+              <View key={d.id_depense} style={[
+                { margin: 8, padding: 12, backgroundColor: '#fff', borderRadius: 8, elevation: 1, borderLeftWidth: 3, borderLeftColor: '#2d7a4a' },
+                isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: '#2d7a4a' }
+              ]}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{d.titre}</Text>
+                    <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{d.date || '—'}</Text>
+                    <Text variant="bodySmall" style={{ color: '#555', marginTop: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                      {d.quantite} × {d.cout_unitaire?.toLocaleString('fr-FR')} {currencySymbol}
                     </Text>
                   </View>
-                </Card.Content>
-                <Card.Actions>
+                  <Text style={{ fontWeight: 'bold', color: '#ff4d4f', fontSize: 15 }}>
+                    {total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {currencySymbol}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, marginTop: 6 }}>
                   {isAdmin ? (
                     <>
-                      <Button icon="pencil" compact onPress={() => openEdit(d)} textColor="#1677ff">{t('mobile.edit')}</Button>
-                      <Button icon="delete" compact onPress={() => setConfirmId(d.id_depense)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
+                      <Button icon="pencil" compact mode="text" onPress={() => openEdit(d)} textColor="#1677ff">{t('mobile.edit')}</Button>
+                      <Button icon="delete" compact mode="text" onPress={() => setConfirmId(d.id_depense)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
                     </>
                   ) : (
                     <>
-                      <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => openDemande('modification', d)} textColor="#1677ff" />
-                      <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => openDemande('suppression', d)} textColor="#ff4d4f" />
+                      <Button icon="pencil" compact mode="text" onPress={() => openDemande('modification', d)} textColor="#1677ff">{t('mobile.edit')}</Button>
+                      <Button icon="delete" compact mode="text" onPress={() => openDemande('suppression', d)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
                     </>
                   )}
-                </Card.Actions>
-              </Card>
+                </View>
+              </View>
             );
           })}
           <View style={{ height: 80 }} />
