@@ -163,7 +163,7 @@ export default function Recoltes({ navigation }) {
   const confirmDelete = async () => {
     try {
       const a = getAnalyse(confirmId);
-      if (a) await client.delete(`/recolte-analyse/${a.id_rec_analy ?? a.id}`).catch(() => {});
+      if (a) await client.delete(`/recolte-analyse/${a.id_rec_analy ?? a.id}`).catch(() => { });
       await client.delete(`/recoltes/${confirmId}`);
       await fetchAll();
     } catch (e) {
@@ -294,14 +294,12 @@ export default function Recoltes({ navigation }) {
               >
                 {/* Bilan admin */}
                 {isAdmin && (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: '#e8f5e9' }}>
-                    <View style={[styles.bilanRow, { gap: 16, paddingHorizontal: 14 }]}>
-                      <BilanBadge label={t('dashboard.oil_production')} value={`${totalHuile.toLocaleString('fr-FR')} ${t('common.litre_short')}`} color="#08979c" />
-                      <BilanBadge label={t('dashboard.frais_recolte')} value={`${totalFrais.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#d46b08" />
-                      <BilanBadge label={t('dashboard.revenue')} value={`${revenuBrut.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#3a5a2c" />
-                      <BilanBadge label={t('dashboard.marge_nette')} value={`${margeNette.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} />
-                    </View>
-                  </ScrollView>
+                  <View style={styles.bilanRow}>
+                    <BilanBadge label={t('dashboard.oil_production')} value={`${totalHuile.toLocaleString('fr-FR')} ${t('common.litre_short')}`} color="#08979c" />
+                    <BilanBadge label={t('dashboard.frais_recolte')} value={`${totalFrais.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#d46b08" />
+                    <BilanBadge label={t('dashboard.revenue')} value={`${revenuBrut.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color="#3a5a2c" />
+                    <BilanBadge label={t('dashboard.marge_nette')} value={`${margeNette.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`} color={margeNette >= 0 ? '#52c41a' : '#ff4d4f'} />
+                  </View>
                 )}
 
                 <Divider />
@@ -476,7 +474,7 @@ function BilanBadge({ label, value, color }) {
   const isRTL = i18n.language === 'ar';
   return (
     <View style={{
-      alignItems: 'center', minWidth: 90,
+      alignItems: 'center', flex: 1,
       borderLeftWidth: isRTL ? 0 : 3, borderLeftColor: isRTL ? 'transparent' : color, paddingLeft: isRTL ? 0 : 8,
       borderRightWidth: isRTL ? 3 : 0, borderRightColor: isRTL ? color : 'transparent', paddingRight: isRTL ? 8 : 0,
     }}>
