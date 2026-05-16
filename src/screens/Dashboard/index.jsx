@@ -224,8 +224,6 @@ export default function DashboardScreen({ navigation }) {
                   xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
-                  yAxisLabelWidth={isRTL ? 38 : 30}
-                  yAxisSide={isRTL ? 1 : 0}
                   noOfSections={4}
                   width={Math.max(300, 12 * 34)}
                   height={140}
