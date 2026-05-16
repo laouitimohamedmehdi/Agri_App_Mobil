@@ -425,9 +425,7 @@ function DaysGrid({ days, isRTL, jours, canEdit, onToggle }) {
       horizontal
       showsHorizontalScrollIndicator={false}
       style={styles.daysScroll}
-      onContentSizeChange={() => {
-        if (isRTL) ref.current?.scrollToEnd({ animated: false });
-      }}
+      contentOffset={isRTL ? { x: 99999, y: 0 } : { x: 0, y: 0 }}
     >
       <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
         {days.map(d => {
