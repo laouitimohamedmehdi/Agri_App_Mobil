@@ -26,6 +26,7 @@ const CURRENCY_OPTIONS = [
 export default function Parametres({ navigation }) {
   const { currency, currencySymbol, updateCurrency } = useSettings();
   const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const currentLang = i18n.language;
 
   const LANG_OPTIONS = [
@@ -131,9 +132,9 @@ export default function Parametres({ navigation }) {
     <View style={styles.screen}>
       <AppHeader title={t('menu.settings')} navigation={navigation} />
       {/* Section Langue */}
-      <View style={styles.sectionHeader}>
-        <MaterialCommunityIcons name="translate" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={styles.sectionTitle}>{t('mobile.language')}</Text>
+      <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <MaterialCommunityIcons name="translate" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="titleSmall" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('mobile.language')}</Text>
       </View>
       <Card style={{ marginHorizontal: 12, marginBottom: 8, elevation: 1 }}>
         <Card.Content>
@@ -147,13 +148,13 @@ export default function Parametres({ navigation }) {
         </Card.Content>
       </Card>
       {/* Devise — fixe */}
-      <View style={styles.sectionHeader}>
-        <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={styles.sectionTitle}>{t('parametres.title_general')}</Text>
+      <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <MaterialCommunityIcons name="currency-usd" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="titleSmall" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('parametres.title_general')}</Text>
       </View>
       <Card style={{ marginHorizontal: 12, marginBottom: 8, elevation: 1 }}>
         <Card.Content>
-          <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#555' }}>{t('parametres.currency_label')}</Text>
+          <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#555', textAlign: isRTL ? 'right' : 'left' }}>{t('parametres.currency_label')}</Text>
           <SelectFilter noAll label={t('parametres.currency_label')} value={currency} onChange={handleCurrencyChange} options={CURRENCY_OPTIONS} />
           <Text variant="bodySmall" style={{ color: '#888', marginTop: 6 }}>
             Symbole actuel : <Text style={{ fontWeight: 'bold', color: '#2d7a4a' }}>{currencySymbol}</Text>
@@ -162,9 +163,9 @@ export default function Parametres({ navigation }) {
       </Card>
 
       {/* Filtres utilisateurs — fixes */}
-      <View style={styles.sectionHeader}>
-        <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={styles.sectionTitle}>{t('parametres.title_users')}</Text>
+      <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="titleSmall" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('parametres.title_users')}</Text>
       </View>
       <View style={styles.filtersBox}>
         <SegmentedButtons value={filterRole} onValueChange={setFilterRole} style={{ marginBottom: 8 }}
@@ -183,19 +184,19 @@ export default function Parametres({ navigation }) {
                   <MaterialCommunityIcons name={u.role === 'admin' ? 'shield-account' : 'account'} size={24} color={ROLE_COLOR[u.role]} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{u.nom}</Text>
-                  <Text variant="bodySmall" style={{ color: '#888' }}>{u.email}</Text>
-                  <Chip style={{ marginTop: 4, alignSelf: 'flex-start', backgroundColor: ROLE_BG[u.role] }}
+                  <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{u.nom}</Text>
+                  <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{u.email}</Text>
+                  <Chip style={{ marginTop: 4, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: ROLE_BG[u.role] }}
                     textStyle={{ color: ROLE_COLOR[u.role], fontSize: 10 }}>{u.role}</Chip>
                 </View>
                 <View style={{ alignItems: 'center', gap: 4 }}>
                   <Switch value={u.is_active} onValueChange={() => toggleActif(u)} color="#2d7a4a" />
-                  <Text variant="bodySmall" style={{ color: u.is_active ? '#52c41a' : '#aaa', fontSize: 10 }}>
+                  <Text variant="bodySmall" style={{ color: u.is_active ? '#52c41a' : '#aaa', fontSize: 10, textAlign: isRTL ? 'right' : 'left' }}>
                     {u.is_active ? t('mobile.active') : t('mobile.inactive')}
                   </Text>
                 </View>
               </View>
-              <View style={styles.cardActions}>
+              <View style={[styles.cardActions, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                 <Button icon="pencil" compact onPress={() => openEdit(u)} textColor="#1677ff">{t('mobile.edit')}</Button>
                 <Button icon="delete" compact onPress={() => setConfirmId(u.id)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
               </View>
@@ -221,8 +222,8 @@ export default function Parametres({ navigation }) {
                   onChange={v => setForm(f => ({ ...f, role: v }))}
                   options={[{ value: 'user', label: 'Utilisateur' }, { value: 'admin', label: 'Administrateur' }]} />
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text>{t('mobile.active')}</Text>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.active')}</Text>
                 <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} color="#2d7a4a" />
               </View>
             </ScrollView>

@@ -17,7 +17,8 @@ import DatePickerInput from '../../components/DatePickerInput';
 const SCREEN_H = Dimensions.get('window').height;
 
 export default function Fertilisation({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { secteurs, parcelles } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -152,40 +153,40 @@ export default function Fertilisation({ navigation }) {
           />
         </ScrollView>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
-        <MaterialCommunityIcons name="sprout" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} fertilisation(s)</Text>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
+        <MaterialCommunityIcons name="sprout" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} fertilisation(s)</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucune fertilisation" /> : (
         <ScrollView horizontal style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
           <View style={{ width: 640 }}>
             {/* Header */}
-            <View style={styles.tableHeader}>
-              <Text style={[styles.th, { width: 130 }]}>Produit</Text>
-              <Text style={[styles.th, { width: 90 }]}>Parcelle</Text>
-              <Text style={[styles.th, { width: 90 }]}>Secteur</Text>
-              <Text style={[styles.th, { width: 60, textAlign: 'right' }]}>Qté</Text>
-              <Text style={[styles.th, { width: 75, textAlign: 'right' }]}>Coût/u</Text>
-              <Text style={[styles.th, { width: 90 }]}>Date</Text>
-              <Text style={[styles.th, { width: 105 }]}>Actions</Text>
+            <View style={[styles.tableHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <Text style={[styles.th, { width: 130, textAlign: isRTL ? 'right' : 'left' }]}>Produit</Text>
+              <Text style={[styles.th, { width: 90, textAlign: isRTL ? 'right' : 'left' }]}>Parcelle</Text>
+              <Text style={[styles.th, { width: 90, textAlign: isRTL ? 'right' : 'left' }]}>Secteur</Text>
+              <Text style={[styles.th, { width: 60, textAlign: isRTL ? 'left' : 'right' }]}>Qté</Text>
+              <Text style={[styles.th, { width: 75, textAlign: isRTL ? 'left' : 'right' }]}>Coût/u</Text>
+              <Text style={[styles.th, { width: 90, textAlign: isRTL ? 'right' : 'left' }]}>Date</Text>
+              <Text style={[styles.th, { width: 105, textAlign: isRTL ? 'right' : 'left' }]}>Actions</Text>
             </View>
             {/* Rows */}
             {filtered.map((item, idx) => (
-              <View key={item.id_fertilisation} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
-                <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{item.produit}</Text>
-                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getParcelleNom(item.secteur_id)}</Text>
-                <Text style={[styles.td, { width: 90 }]} numberOfLines={1}>{getSecteurNom(item.secteur_id)}</Text>
-                <Text style={[styles.td, { width: 60, textAlign: 'right' }]}>{item.quantite}</Text>
-                <Text style={[styles.td, { width: 75, textAlign: 'right' }]}>{item.cout_unitaire} DT</Text>
-                <Text style={[styles.td, { width: 90 }]}>{item.date}</Text>
-                <View style={{ width: 105, justifyContent: 'center', flexDirection: 'row' }}>
+              <View key={item.id_fertilisation} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                <Text style={[styles.td, { width: 130, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>{item.produit}</Text>
+                <Text style={[styles.td, { width: 90, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>{getParcelleNom(item.secteur_id)}</Text>
+                <Text style={[styles.td, { width: 90, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>{getSecteurNom(item.secteur_id)}</Text>
+                <Text style={[styles.td, { width: 60, textAlign: isRTL ? 'left' : 'right' }]}>{item.quantite}</Text>
+                <Text style={[styles.td, { width: 75, textAlign: isRTL ? 'left' : 'right' }]}>{item.cout_unitaire} DT</Text>
+                <Text style={[styles.td, { width: 90, textAlign: isRTL ? 'right' : 'left' }]}>{item.date}</Text>
+                <View style={{ width: 105, justifyContent: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                   {isAdmin ? (
                     <>
                       <Button icon="pencil" compact onPress={() => openEdit(item)} textColor="#1677ff" />
                       <Button icon="delete" compact onPress={() => setConfirmId(item.id_fertilisation)} textColor="#ff4d4f" />
                     </>
                   ) : (
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                       <Button icon="pencil" compact onPress={() => openDemandeModif(item)} textColor="#1677ff" />
                       <Button icon="delete" compact onPress={() => { setDemandeSupprItem(item); setMotifSuppr(''); }} textColor="#ff4d4f" />
                     </View>

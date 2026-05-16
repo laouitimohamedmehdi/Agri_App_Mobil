@@ -19,7 +19,8 @@ const SCREEN_H = Dimensions.get('window').height;
 const TYPES_FRAIS = ['Récolte', 'Transport', "Main d'œuvre", 'Trituration', 'Emballage', 'Autre'];
 
 export default function Recoltes({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { secteurs, parcelles } = useData();
   const { user } = useAuth();
   const { currencySymbol } = useSettings();
@@ -252,15 +253,15 @@ export default function Recoltes({ navigation }) {
       <AppHeader title={t('menu.harvests')} navigation={navigation} />
 
       {/* Filtres */}
-      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8, flexDirection: 'row', gap: 8 }}>
+      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8, flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8 }}>
         <SelectFilter label={t('mobile.campaign')} value={filterCampagne} onChange={setFilterCampagne} options={campagnes.map(c => ({ value: c, label: c }))} />
         <SelectFilter label={t('mobile.location')} value={filterLieu} onChange={setFilterLieu} options={lieuOptions} />
       </View>
 
       {/* Compteur */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
-        <MaterialCommunityIcons name="basket" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{groups.length} groupe(s) · {filtered.length} récolte(s)</Text>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
+        <MaterialCommunityIcons name="basket" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{groups.length} groupe(s) · {filtered.length} récolte(s)</Text>
       </View>
 
       {groups.length === 0 ? <EmptyState message={t('mobile.no_harvest')} /> : (
@@ -307,9 +308,9 @@ export default function Recoltes({ navigation }) {
                     return (
                       <View key={r.id_recolte} style={styles.recolteRow}>
                         <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                            {r.date && <Text variant="bodySmall" style={{ color: '#888' }}>{r.date}</Text>}
-                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#2d7a4a' }}>{r.production?.toLocaleString('fr-FR')} kg</Text>
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                            {r.date && <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{r.date}</Text>}
+                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{r.production?.toLocaleString('fr-FR')} kg</Text>
                           </View>
                           {isAdmin && a && (
                             <Text variant="bodySmall" style={{ color: '#555' }}>
@@ -349,12 +350,12 @@ export default function Recoltes({ navigation }) {
                           )}
                         </View>
                         {isAdmin ? (
-                          <View style={{ flexDirection: 'row' }}>
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                             <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => openEdit(r)} textColor="#1677ff" />
                             <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => setConfirmId(r.id_recolte)} textColor="#ff4d4f" />
                           </View>
                         ) : (
-                          <View style={{ flexDirection: 'row' }}>
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                             <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => { setDemandeModifItem(r); setDemandeForm({ campagne: r.campagne, production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), motif: '' }); }} textColor="#1677ff" />
                             <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => { setDemandeSupprItem(r); setMotifSuppr(''); }} textColor="#ff4d4f" />
                           </View>
@@ -463,10 +464,16 @@ export default function Recoltes({ navigation }) {
 }
 
 function BilanBadge({ label, value, color }) {
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   return (
-    <View style={{ alignItems: 'center', flex: 1, borderLeftWidth: 3, borderLeftColor: color, paddingLeft: 8 }}>
-      <Text style={{ fontSize: 13, fontWeight: '700', color }}>{value}</Text>
-      <Text style={{ fontSize: 10, color: '#888' }}>{label}</Text>
+    <View style={{
+      alignItems: 'center', flex: 1,
+      borderLeftWidth: isRTL ? 0 : 3, borderLeftColor: isRTL ? 'transparent' : color, paddingLeft: isRTL ? 0 : 8,
+      borderRightWidth: isRTL ? 3 : 0, borderRightColor: isRTL ? color : 'transparent', paddingRight: isRTL ? 8 : 0,
+    }}>
+      <Text style={{ fontSize: 13, fontWeight: '700', color, textAlign: 'center' }}>{value}</Text>
+      <Text style={{ fontSize: 10, color: '#888', textAlign: 'center' }}>{label}</Text>
     </View>
   );
 }

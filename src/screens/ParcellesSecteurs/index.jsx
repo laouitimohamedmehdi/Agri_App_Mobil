@@ -15,7 +15,8 @@ import client from '../../api/client';
 const STATUT_COLORS = { actif: '#388e3c', jeune: '#1976d2', inactif: '#757575' };
 
 export default function ParcellesSecteurs({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { secteurs, parcelles, varietes, refreshSecteurs, refreshParcelles } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -106,7 +107,7 @@ export default function ParcellesSecteurs({ navigation }) {
       <AppHeader title={t('fields.page_title')} navigation={navigation} />
 
       {/* Filtres */}
-      <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0', flexDirection: 'row', gap: 8 }}>
+      <View style={{ backgroundColor: '#fff', padding: 8, borderBottomWidth: 1, borderColor: '#e0ece0', flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8 }}>
         <SelectFilter
           label={t('mobile.plot')}
           value={filterParcelle}
@@ -139,7 +140,7 @@ export default function ParcellesSecteurs({ navigation }) {
             titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
           >
             {isAdmin && (
-              <View style={{ flexDirection: 'row', padding: 8, gap: 8 }}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', padding: 8, gap: 8 }}>
                 <Button icon="pencil" mode="outlined" compact onPress={() => openEditParcelle(p)}>{t('fields.edit_field')}</Button>
                 <Button icon="delete" mode="outlined" compact textColor="#d32f2f" onPress={() => { setConfirmType('parcelle'); setConfirmId(p.id_parcelle); }}>{t('mobile.delete')}</Button>
               </View>
@@ -147,19 +148,19 @@ export default function ParcellesSecteurs({ navigation }) {
             {secteursOfParcelle(p.id_parcelle)
               .filter(s => !filterSecteur || String(s.id_secteur) === filterSecteur)
               .map(s => (
-              <View key={s.id_secteur} style={styles.secteurCard}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="titleSmall" style={{ color: '#2d7a4a' }}>{s.nom}</Text>
+              <View key={s.id_secteur} style={[styles.secteurCard, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: '#2d7a4a' }]}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text variant="titleSmall" style={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{s.nom}</Text>
                   <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{s.statut}</Chip>
                 </View>
                 <View style={styles.secteurDetails}>
-                  <Text variant="bodySmall">{t('sectors.area_ha')} {s.surface} ha</Text>
-                  <Text variant="bodySmall">{t('sectors.nb_arbres_col')} {s.nb_arbre}</Text>
-                  <Text variant="bodySmall">{t('sectors.age_moy_col')} {s.age_moy} ans</Text>
-                  <Text variant="bodySmall">{t('sectors.variete_col')} {getVarieteNom(s.variete_id)}</Text>
+                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.area_ha')} {s.surface} ha</Text>
+                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.nb_arbres_col')} {s.nb_arbre}</Text>
+                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.age_moy_col')} {s.age_moy} ans</Text>
+                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.variete_col')} {getVarieteNom(s.variete_id)}</Text>
                 </View>
                 {isAdmin && (
-                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginTop: 4 }}>
                     <Button icon="pencil" compact mode="text" onPress={() => openEditSecteur(s)}>{t('mobile.edit')}</Button>
                     <Button icon="delete" compact mode="text" textColor="#d32f2f" onPress={() => { setConfirmType('secteur'); setConfirmId(s.id_secteur); }}>{t('mobile.delete')}</Button>
                   </View>

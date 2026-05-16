@@ -12,7 +12,8 @@ import client from '../../api/client';
 import { soumettreDemande } from '../../utils/demandeHelper';
 
 export default function Varietes({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { varietes, refreshVarietes } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -77,25 +78,25 @@ export default function Varietes({ navigation }) {
     <View style={styles.screen}>
       <AppHeader title={t('varietes.title')} navigation={navigation} />
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-        <View style={styles.sectionHeader}>
-          <MaterialCommunityIcons name="leaf" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-          <Text variant="titleSmall" style={styles.sectionTitle}>{t('varietes.title')} ({varietes.length})</Text>
+        <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+          <MaterialCommunityIcons name="leaf" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+          <Text variant="titleSmall" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('varietes.title')} ({varietes.length})</Text>
         </View>
         {varietes.length === 0 ? <EmptyState message={t('mobile.no_variety')} /> : (
           <Card style={{ elevation: 2, overflow: 'hidden' }}>
             {/* Header */}
-            <View style={styles.tableHeader}>
-              <Text style={[styles.th, { flex: 2 }]}>{t('varietes.col_name', 'Nom de la variété')}</Text>
-              <Text style={[styles.th, { width: 120 }]}>{t('common.actions')}</Text>
+            <View style={isRTL ? styles.tableHeaderRTL : styles.tableHeader}>
+              <Text style={[styles.th, { flex: 2, textAlign: isRTL ? 'right' : 'left' }]}>{t('varietes.col_name', 'Nom de la variété')}</Text>
+              <Text style={[styles.th, { width: 120, textAlign: isRTL ? 'right' : 'left' }]}>{t('common.actions')}</Text>
             </View>
             {/* Rows */}
             {varietes.map((v, i) => (
-              <View key={v.id_variete} style={[styles.tableRow, i % 2 !== 0 && styles.tableRowAlt]}>
-                <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View key={v.id_variete} style={[isRTL ? styles.tableRowRTL : styles.tableRow, i % 2 !== 0 && styles.tableRowAlt]}>
+                <View style={{ flex: 2, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
                   <View style={styles.dot} />
-                  <Text style={styles.td}>{v.nom}</Text>
+                  <Text style={[styles.td, { textAlign: isRTL ? 'right' : 'left' }]}>{v.nom}</Text>
                 </View>
-                <View style={{ width: 120, flexDirection: 'row' }}>
+                <View style={{ width: 120, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                   <Button icon="pencil" compact onPress={() => openEdit(v)} textColor="#1677ff" />
                   {isAdmin ? (
                     <Button icon="delete" compact onPress={() => setConfirmId(v.id_variete)} textColor="#ff4d4f" />
@@ -143,7 +144,9 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 4 },
   sectionTitle: { color: '#2d7a4a', fontWeight: 'bold' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 2, borderColor: '#2d7a4a' },
+  tableHeaderRTL: { flexDirection: 'row-reverse', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 2, borderColor: '#2d7a4a' },
   tableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
+  tableRowRTL: { flexDirection: 'row-reverse', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
   tableRowAlt: { backgroundColor: '#f0f7f0' },
   th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a' },
   td: { fontSize: 12, color: '#333' },

@@ -20,7 +20,8 @@ const TYPE_CONFIG = {
 };
 
 export default function Demandes({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [demandes, setDemandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatut, setFilterStatut] = useState('tous');
@@ -91,9 +92,9 @@ export default function Demandes({ navigation }) {
 
         {pending.length > 0 && (
           <>
-            <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons name="clock-alert" size={18} color="#fa8c16" style={{ marginRight: 6 }} />
-              <Text variant="titleSmall" style={[styles.sectionTitle, { color: '#fa8c16' }]}>{t('demandes.status_pending')} ({pending.length})</Text>
+            <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <MaterialCommunityIcons name="clock-alert" size={18} color="#fa8c16" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+              <Text variant="titleSmall" style={[styles.sectionTitle, { color: '#fa8c16', textAlign: isRTL ? 'right' : 'left' }]}>{t('demandes.status_pending')} ({pending.length})</Text>
             </View>
             {pending.map(d => <DemandeCard key={d.id} d={d} expanded={expanded} setExpanded={setExpanded} onDecide={decide} />)}
           </>
@@ -101,9 +102,9 @@ export default function Demandes({ navigation }) {
 
         {others.length > 0 && (
           <>
-            <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons name="history" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-              <Text variant="titleSmall" style={styles.sectionTitle}>{t('demandes.status_approved')} ({others.length})</Text>
+            <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <MaterialCommunityIcons name="history" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+              <Text variant="titleSmall" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t('demandes.status_approved')} ({others.length})</Text>
             </View>
             {others.map(d => <DemandeCard key={d.id} d={d} expanded={expanded} setExpanded={setExpanded} onDecide={decide} />)}
           </>
@@ -116,21 +117,24 @@ export default function Demandes({ navigation }) {
 }
 
 function DemandeCard({ d, expanded, setExpanded, onDecide }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const sc = STATUT_CONFIG[d.statut] || { color: '#888', bg: '#f5f5f5', icon: 'help-circle', labelKey: null };
   const tc = TYPE_CONFIG[d.type_action] || { color: '#888', icon: 'circle' };
   const isOpen = expanded === d.id;
   const statusLabel = sc.labelKey ? t(sc.labelKey) : d.statut;
 
   return (
-    <Card style={[styles.card, { borderLeftWidth: 4, borderLeftColor: sc.color }]}>
-      <TouchableOpacity onPress={() => setExpanded(isOpen ? null : d.id)} style={styles.cardHeader}>
-        <MaterialCommunityIcons name={tc.icon} size={22} color={tc.color} style={{ marginRight: 10 }} />
+    <Card style={[styles.card, isRTL
+      ? { borderRightWidth: 4, borderRightColor: sc.color }
+      : { borderLeftWidth: 4, borderLeftColor: sc.color }]}>
+      <TouchableOpacity onPress={() => setExpanded(isOpen ? null : d.id)} style={[styles.cardHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <MaterialCommunityIcons name={tc.icon} size={22} color={tc.color} style={isRTL ? { marginLeft: 10 } : { marginRight: 10 }} />
         <View style={{ flex: 1 }}>
-          <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
+          <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>
             {d.type_action ? d.type_action.charAt(0).toUpperCase() + d.type_action.slice(1) : ''} — {d.entity_type || 'travail'} #{d.entity_id || d.travail_id || ''}
           </Text>
-          <Text variant="bodySmall" style={{ color: '#888' }}>Par: {d.user_id} • {d.date_demande || ''}</Text>
+          <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>Par: {d.user_id} • {d.date_demande || ''}</Text>
         </View>
         <Chip style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>
           {statusLabel}
@@ -139,15 +143,15 @@ function DemandeCard({ d, expanded, setExpanded, onDecide }) {
 
       {isOpen && (
         <View style={[styles.cardBody, { backgroundColor: sc.bg }]}>
-          {!!d.motif && <Text variant="bodySmall"><Text style={{ fontWeight: 'bold' }}>Motif : </Text>{d.motif}</Text>}
+          {!!d.motif && <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}><Text style={{ fontWeight: 'bold' }}>Motif : </Text>{d.motif}</Text>}
           {!!d.nouvelles_donnees && d.nouvelles_donnees !== '' && (
-            <Text variant="bodySmall" style={{ color: '#555', marginTop: 4 }}>Données : {d.nouvelles_donnees}</Text>
+            <Text variant="bodySmall" style={{ color: '#555', marginTop: 4, textAlign: isRTL ? 'right' : 'left' }}>Données : {d.nouvelles_donnees}</Text>
           )}
           {!!d.note_admin && (
-            <Text variant="bodySmall" style={{ color: '#2d7a4a', marginTop: 4 }}>Note admin : {d.note_admin}</Text>
+            <Text variant="bodySmall" style={{ color: '#2d7a4a', marginTop: 4, textAlign: isRTL ? 'right' : 'left' }}>Note admin : {d.note_admin}</Text>
           )}
           {d.statut === 'en_attente' && d.type_action !== 'notification' && (
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10, marginTop: 10 }}>
               <Button mode="contained" buttonColor="#52c41a" compact onPress={() => onDecide(d.id, 'approuvee')}>{t('demandes.btn_approve')}</Button>
               <Button mode="outlined" textColor="#ff4d4f" compact onPress={() => onDecide(d.id, 'rejetee')}>{t('demandes.btn_reject')}</Button>
             </View>

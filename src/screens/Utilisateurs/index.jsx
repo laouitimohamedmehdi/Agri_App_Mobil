@@ -15,7 +15,8 @@ const ROLE_COLOR = { admin: '#722ed1', user: '#1677ff' };
 const ROLE_BG    = { admin: '#f9f0ff', user: '#e6f4ff' };
 
 export default function Utilisateurs({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('tous');
@@ -82,9 +83,9 @@ export default function Utilisateurs({ navigation }) {
             buttons={[{ value: 'tous', label: 'Tous' }, { value: 'actif', label: 'Actifs' }, { value: 'inactif', label: 'Inactifs' }]} />
         </View>
 
-        <View style={styles.sectionHeader}>
-          <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-          <Text variant="titleSmall" style={styles.sectionTitle}>{filtered.length} utilisateur(s)</Text>
+        <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+          <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+          <Text variant="titleSmall" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{filtered.length} utilisateur(s)</Text>
         </View>
 
         {filtered.length === 0 ? <EmptyState message="Aucun utilisateur" /> : (
@@ -95,19 +96,19 @@ export default function Utilisateurs({ navigation }) {
                   <MaterialCommunityIcons name={u.role === 'admin' ? 'shield-account' : 'account'} size={24} color={ROLE_COLOR[u.role]} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{u.nom}</Text>
-                  <Text variant="bodySmall" style={{ color: '#888' }}>{u.email}</Text>
-                  <Chip style={{ marginTop: 4, alignSelf: 'flex-start', backgroundColor: ROLE_BG[u.role] }}
+                  <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{u.nom}</Text>
+                  <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{u.email}</Text>
+                  <Chip style={{ marginTop: 4, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: ROLE_BG[u.role] }}
                     textStyle={{ color: ROLE_COLOR[u.role], fontSize: 10 }}>{u.role}</Chip>
                 </View>
                 <View style={{ alignItems: 'center', gap: 4 }}>
                   <Switch value={u.is_active} onValueChange={() => toggleActif(u)} color="#2d7a4a" />
-                  <Text variant="bodySmall" style={{ color: u.is_active ? '#52c41a' : '#aaa', fontSize: 10 }}>
+                  <Text variant="bodySmall" style={{ color: u.is_active ? '#52c41a' : '#aaa', fontSize: 10, textAlign: isRTL ? 'right' : 'left' }}>
                     {u.is_active ? 'Actif' : 'Inactif'}
                   </Text>
                 </View>
               </View>
-              <View style={styles.cardActions}>
+              <View style={[styles.cardActions, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                 <Button icon="pencil" compact onPress={() => openEdit(u)} textColor="#1677ff">Modifier</Button>
                 <Button icon="delete" compact onPress={() => setConfirmId(u.id)} textColor="#ff4d4f">Supprimer</Button>
               </View>
@@ -136,8 +137,8 @@ export default function Utilisateurs({ navigation }) {
                 ]}
               />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text>Compte actif</Text>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ textAlign: isRTL ? 'right' : 'left' }}>Compte actif</Text>
               <Switch value={form.is_active} onValueChange={v => setForm(f => ({ ...f, is_active: v }))} color="#2d7a4a" />
             </View>
             </ScrollView>

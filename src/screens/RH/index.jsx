@@ -19,7 +19,8 @@ const SALAIRE_CONFIG = {
 };
 
 export default function RH({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { employes, refreshEmployes } = useData();
   const [tab, setTab] = useState('employes');
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -125,9 +126,9 @@ export default function RH({ navigation }) {
 
       {tab === 'employes' ? (
         <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-            <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{employesFiltres.length} employé(s)</Text>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MaterialCommunityIcons name="account-group" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+            <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{employesFiltres.length} employé(s)</Text>
           </View>
           {employesFiltres.length === 0 && employes.length > 0 ? <EmptyState message={t('mobile.no_employee')} /> : employesFiltres.length === 0 ? <EmptyState message={t('mobile.no_employee')} /> : (
             employesFiltres.map((e, i) => {
@@ -140,10 +141,10 @@ export default function RH({ navigation }) {
                       <MaterialCommunityIcons name={e.statut === 'actif' ? 'account' : 'account-off'} size={26} color={e.statut === 'actif' ? '#2d7a4a' : '#aaa'} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text variant="bodyMedium" style={{ fontWeight: '700' }}>{e.nom} {e.prenom ?? ''}</Text>
-                      <Text variant="bodySmall" style={{ color: '#666' }}>{e.poste ?? '—'}</Text>
-                      {e.telephone ? <Text variant="bodySmall" style={{ color: '#888', fontSize: 11 }}>{e.telephone}</Text> : null}
-                      <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
+                      <Text variant="bodyMedium" style={{ fontWeight: '700', textAlign: isRTL ? 'right' : 'left' }}>{e.nom} {e.prenom ?? ''}</Text>
+                      <Text variant="bodySmall" style={{ color: '#666', textAlign: isRTL ? 'right' : 'left' }}>{e.poste ?? '—'}</Text>
+                      {e.telephone ? <Text variant="bodySmall" style={{ color: '#888', fontSize: 11, textAlign: isRTL ? 'right' : 'left' }}>{e.telephone}</Text> : null}
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 6, marginTop: 4 }}>
                         <Chip icon={sc.icon} style={{ backgroundColor: sc.bg }} textStyle={{ color: sc.color, fontSize: 10 }}>{salaire}</Chip>
                         <Chip style={{ backgroundColor: e.statut === 'actif' ? '#e8f5e9' : '#f5f5f5' }} textStyle={{ color: e.statut === 'actif' ? '#2d7a4a' : '#aaa', fontSize: 10 }}>
                           {e.statut === 'actif' ? t('mobile.active') : t('mobile.inactive')}
@@ -252,7 +253,8 @@ export default function RH({ navigation }) {
 }
 
 function PresencesResume({ employes }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [feuille, setFeuille] = useState(null);
   const [loading, setLoading] = useState(true);
   const mois = new Date().toISOString().slice(0, 7);
@@ -271,9 +273,9 @@ function PresencesResume({ employes }) {
 
   return (
     <ScrollView style={{ padding: 12 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-        <MaterialCommunityIcons name="calendar-month" size={18} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{t('presences.title')} — {mois}</Text>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 8 }}>
+        <MaterialCommunityIcons name="calendar-month" size={18} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="titleSmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{t('presences.title')} — {mois}</Text>
       </View>
       {feuille.lignes.map((l, i) => {
         const emp = employes.find(e => e.id_employe === l.employe_id);
@@ -281,9 +283,9 @@ function PresencesResume({ employes }) {
         const jours = l.nb_jours_present ?? 0;
         return (
           <Card key={i} style={{ marginBottom: 8, elevation: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
-              <MaterialCommunityIcons name="account-circle" size={32} color="#2d7a4a" style={{ marginRight: 10 }} />
-              <Text variant="bodyMedium" style={{ flex: 1, fontWeight: '600' }}>{nom}</Text>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 12 }}>
+              <MaterialCommunityIcons name="account-circle" size={32} color="#2d7a4a" style={isRTL ? { marginLeft: 10 } : { marginRight: 10 }} />
+              <Text variant="bodyMedium" style={{ flex: 1, fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{nom}</Text>
               <View style={{ backgroundColor: '#2d7a4a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, alignItems: 'center' }}>
                 <Text style={{ color: '#fff', fontWeight: 'bold' }}>{jours}</Text>
                 <Text style={{ color: '#fff', fontSize: 9 }}>jours</Text>

@@ -25,7 +25,8 @@ export default function TravailAgricole({ navigation }) {
   const { secteurs, parcelles } = useData();
   const { user } = useAuth();
   const { currencySymbol } = useSettings();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const isAdmin = user?.role === 'admin';
   const [travaux, setTravaux] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -208,21 +209,21 @@ export default function TravailAgricole({ navigation }) {
           />
         </ScrollView>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
-        <MaterialCommunityIcons name="shovel" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} {t('travaux.title').toLowerCase()}</Text>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
+        <MaterialCommunityIcons name="shovel" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} {t('travaux.title').toLowerCase()}</Text>
       </View>
       {filtered.length === 0 ? <EmptyState message="Aucun travail" /> : (
         <ScrollView style={{ flex: 1 }} nestedScrollEnabled refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2d7a4a']} />}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ width: 666 }}>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.th, { width: 88 }]}>{t('travaux.col_date')}</Text>
-                <Text style={[styles.th, { width: 130 }]}>{t('travaux.col_name')}</Text>
-                <Text style={[styles.th, { width: 110 }]}>{t('travaux.col_type')}</Text>
-                <Text style={[styles.th, { width: 114 }]}>{t('travaux.col_location')}</Text>
-                <Text style={[styles.th, { width: 76 }]}>{t('travaux.col_cost', { currency: currencySymbol })}</Text>
-                <Text style={[styles.th, { width: 68 }]}>{t('travaux.col_status')}</Text>
+              <View style={isRTL ? styles.tableHeaderRTL : styles.tableHeader}>
+                <Text style={[styles.th, { width: 88, textAlign: isRTL ? 'right' : 'left' }]}>{t('travaux.col_date')}</Text>
+                <Text style={[styles.th, { width: 130, textAlign: isRTL ? 'right' : 'left' }]}>{t('travaux.col_name')}</Text>
+                <Text style={[styles.th, { width: 110, textAlign: isRTL ? 'right' : 'left' }]}>{t('travaux.col_type')}</Text>
+                <Text style={[styles.th, { width: 114, textAlign: isRTL ? 'right' : 'left' }]}>{t('travaux.col_location')}</Text>
+                <Text style={[styles.th, { width: 76, textAlign: isRTL ? 'right' : 'left' }]}>{t('travaux.col_cost', { currency: currencySymbol })}</Text>
+                <Text style={[styles.th, { width: 68, textAlign: isRTL ? 'right' : 'left' }]}>{t('travaux.col_status')}</Text>
                 <Text style={[styles.th, { width: 80, textAlign: 'center', paddingRight: 0 }]}>{t('common.actions')}</Text>
               </View>
               {filtered.map((t, idx) => {
@@ -231,13 +232,13 @@ export default function TravailAgricole({ navigation }) {
                 const isFert = t.type === 'Fertilisation' && t.quantite > 0 && t.cout_unitaire > 0;
                 const coutAffiche = isFert ? t.quantite * t.cout_unitaire : t.cout;
                 return (
-                  <View key={t.id_travail} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
-                    <Text style={[styles.td, { width: 88 }]}>{t.date || '—'}</Text>
-                    <Text style={[styles.td, { width: 130 }]} numberOfLines={1}>{t.nom}</Text>
-                    <Text style={[styles.td, { width: 110 }]} numberOfLines={1}>{t.type}</Text>
-                    <View style={{ width: 114, paddingRight: 8, justifyContent: 'center' }}>
-                      <Text style={{ fontSize: 12, fontWeight: '600', color: '#333' }} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
-                      <Text style={{ fontSize: 11, color: '#8c8c8c' }} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
+                  <View key={t.id_travail} style={[isRTL ? styles.tableRowRTL : styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
+                    <Text style={[styles.td, { width: 88, textAlign: isRTL ? 'right' : 'left' }]}>{t.date || '—'}</Text>
+                    <Text style={[styles.td, { width: 130, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>{t.nom}</Text>
+                    <Text style={[styles.td, { width: 110, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>{t.type}</Text>
+                    <View style={{ width: 114, paddingRight: isRTL ? 0 : 8, paddingLeft: isRTL ? 8 : 0, justifyContent: 'center' }}>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: '#333', textAlign: isRTL ? 'right' : 'left' }} numberOfLines={1}>{getParcelleNom(t.secteur_id)}</Text>
+                      <Text style={{ fontSize: 11, color: '#8c8c8c', textAlign: isRTL ? 'right' : 'left' }} numberOfLines={1}>{getSecteurNom(t.secteur_id)}</Text>
                     </View>
                     <View style={{ width: 76, paddingRight: 8, justifyContent: 'center' }}>
                       <Text style={[styles.td, { paddingRight: 0 }]}>{coutAffiche?.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}</Text>
@@ -415,7 +416,9 @@ const styles = StyleSheet.create({
   chip: { marginRight: 6 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 8, borderBottomWidth: 2, borderColor: '#2d7a4a' },
+  tableHeaderRTL: { flexDirection: 'row-reverse', backgroundColor: '#e8f5e9', paddingVertical: 10, paddingHorizontal: 8, borderBottomWidth: 2, borderColor: '#2d7a4a' },
   tableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
+  tableRowRTL: { flexDirection: 'row-reverse', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e0ece0' },
   tableRowAlt: { backgroundColor: '#f0f7f0' },
   th: { fontSize: 12, fontWeight: 'bold', color: '#2d7a4a', paddingRight: 8 },
   td: { fontSize: 12, color: '#333', paddingRight: 8 },

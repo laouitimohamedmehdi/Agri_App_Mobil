@@ -17,7 +17,8 @@ import { soumettreDemande } from '../../utils/demandeHelper';
 const SCREEN_H = Dimensions.get('window').height;
 
 export default function Depenses({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { user } = useAuth();
   const { currencySymbol } = useSettings();
   const isAdmin = user?.role === 'admin';
@@ -154,7 +155,7 @@ export default function Depenses({ navigation }) {
     <View style={{ flex: 1, backgroundColor: '#f0f4f0' }}>
       <AppHeader title={t('depenses.title')} navigation={navigation} />
 
-      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#eee', padding: 8, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
         <SelectFilter
           label={t('mobile.year')}
           value={filterAnnee}
@@ -168,9 +169,9 @@ export default function Depenses({ navigation }) {
         )}
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
-        <MaterialCommunityIcons name="receipt" size={16} color="#2d7a4a" style={{ marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{filtered.length} dépense(s)</Text>
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
+        <MaterialCommunityIcons name="receipt" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} dépense(s)</Text>
       </View>
 
       {filtered.length === 0 ? <EmptyState message={t('mobile.no_expense')} /> : (
@@ -180,15 +181,15 @@ export default function Depenses({ navigation }) {
             return (
               <Card key={d.id_depense} style={{ margin: 8, elevation: 1 }}>
                 <Card.Content>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <View style={{ flex: 1 }}>
-                      <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{d.titre}</Text>
-                      <Text variant="bodySmall" style={{ color: '#888' }}>{d.date || '—'}</Text>
-                      <Text variant="bodySmall" style={{ color: '#555', marginTop: 2 }}>
+                      <Text variant="bodyMedium" style={{ fontWeight: '600', textAlign: isRTL ? 'right' : 'left' }}>{d.titre}</Text>
+                      <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{d.date || '—'}</Text>
+                      <Text variant="bodySmall" style={{ color: '#555', marginTop: 2, textAlign: isRTL ? 'right' : 'left' }}>
                         {d.quantite} × {d.cout_unitaire?.toLocaleString('fr-FR')} {currencySymbol}
                       </Text>
                     </View>
-                    <Text style={{ fontWeight: 'bold', color: '#ff4d4f', fontSize: 15 }}>
+                    <Text style={{ fontWeight: 'bold', color: '#ff4d4f', fontSize: 15, textAlign: isRTL ? 'right' : 'left' }}>
                       {total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {currencySymbol}
                     </Text>
                   </View>
