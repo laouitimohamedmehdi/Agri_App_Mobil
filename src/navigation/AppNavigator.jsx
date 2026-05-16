@@ -122,6 +122,7 @@ function TabsWithDrawer() {
                     key={lang.code}
                     onPress={async () => {
                       await changeLanguage(lang.code);
+                      closeDrawer();
                     }}
                     style={{
                       paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
