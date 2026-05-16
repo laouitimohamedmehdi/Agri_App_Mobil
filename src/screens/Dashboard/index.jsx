@@ -225,7 +225,7 @@ export default function DashboardScreen({ navigation }) {
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                   noOfSections={4}
-                  width={Math.max(300, 12 * 38)}
+                  width={Math.max(300, 12 * 28)}
                   height={140}
                   endSpacing={30}
                   hideRules={false}
