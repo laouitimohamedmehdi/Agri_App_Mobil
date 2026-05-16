@@ -16,6 +16,19 @@ const TYPE_CONFIG = {
   warning: { color: '#fa8c16', bg: '#fff7e6', icon: 'alert-outline'          },
 };
 
+const ACTION_KEYS = {
+  suppression: 'demandes.action_delete',
+  modification: 'demandes.action_modify',
+  notification: 'demandes.action_notify',
+};
+const ENTITY_KEYS = {
+  travail: 'demandes.entity_travail',
+  recolte: 'demandes.entity_recolte',
+  fertilisation: 'demandes.entity_fertilisation',
+  variete: 'demandes.entity_variete',
+  depense: 'demandes.entity_depense',
+};
+
 const renderMessage = (message, t) => {
   try {
     const parsed = typeof message === 'string' ? JSON.parse(message) : message;
@@ -23,6 +36,8 @@ const renderMessage = (message, t) => {
       const p = { ...(parsed.params || {}) };
       if (p.type_action !== undefined && p.action === undefined) p.action = p.type_action;
       if (p.entity_type !== undefined && p.entity === undefined) p.entity = p.entity_type;
+      if (p.action && ACTION_KEYS[p.action]) p.action = t(ACTION_KEYS[p.action]);
+      if (p.entity && ENTITY_KEYS[p.entity]) p.entity = t(ENTITY_KEYS[p.entity]);
       return t(parsed.key, p);
     }
   } catch {}
