@@ -171,7 +171,7 @@ export default function Depenses({ navigation }) {
 
       <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
         <MaterialCommunityIcons name="receipt" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} {t('depenses.btn_add')}</Text>
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{filtered.length} {t('depenses.btn_add')}{isRTL ? '' : '(s)'}</Text>
       </View>
 
       {filtered.length === 0 ? <EmptyState message={t('mobile.no_expense')} /> : (
