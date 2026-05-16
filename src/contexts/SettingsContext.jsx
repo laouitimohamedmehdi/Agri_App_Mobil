@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import client from '../api/client';
 
 const CURRENCY_SYMBOLS = {
@@ -11,8 +11,14 @@ const CURRENCY_SYMBOLS = {
 const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
-  const { i18n } = useTranslation();
   const [currency, setCurrency] = useState('dinar');
+  const [lang, setLang] = useState(i18n.language || 'fr');
+
+  useEffect(() => {
+    const handler = (lng) => setLang(lng);
+    i18n.on('languageChanged', handler);
+    return () => i18n.off('languageChanged', handler);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -30,7 +36,7 @@ export function SettingsProvider({ children }) {
   };
 
   const currencySymbol = currency === 'dinar'
-    ? (i18n.language === 'ar' ? 'دت' : 'DT')
+    ? (lang === 'ar' ? 'دت' : 'DT')
     : (CURRENCY_SYMBOLS[currency] ?? 'DT');
 
   return (
