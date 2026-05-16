@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, Button, Chip, Snackbar, ActivityIndicator, TextInput, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -380,28 +380,13 @@ export default function Presences({ navigation }) {
                 </View>
 
                 {/* Grille jours */}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daysScroll}>
-                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
-                    {days.map(d => {
-                      const val = l.jours[String(d)] === 1;
-                      return (
-                        <TouchableOpacity
-                          key={d}
-                          style={[styles.dayBtn, val ? styles.dayPresent : styles.dayAbsent]}
-                          onPress={() => canEdit && toggleJour(l._originalIdx, String(d))}
-                          activeOpacity={canEdit ? 0.65 : 1}
-                        >
-                          <Text style={[styles.dayNum, { color: val ? '#fff' : '#aaa' }]}>{d}</Text>
-                          <MaterialCommunityIcons
-                            name={val ? 'check' : 'minus'}
-                            size={14}
-                            color={val ? '#fff' : '#ddd'}
-                          />
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </ScrollView>
+                <DaysGrid
+                  days={days}
+                  isRTL={isRTL}
+                  jours={l.jours}
+                  canEdit={canEdit}
+                  onToggle={(d) => toggleJour(l._originalIdx, d)}
+                />
 
                 {/* Remarque */}
                 {canEdit ? (
@@ -426,6 +411,42 @@ export default function Presences({ navigation }) {
 
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
     </View>
+  );
+}
+
+function DaysGrid({ days, isRTL, jours, canEdit, onToggle }) {
+  const ref = useRef(null);
+  return (
+    <ScrollView
+      ref={ref}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.daysScroll}
+      onContentSizeChange={() => {
+        if (isRTL) ref.current?.scrollToEnd({ animated: false });
+      }}
+    >
+      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
+        {days.map(d => {
+          const val = jours[String(d)] === 1;
+          return (
+            <TouchableOpacity
+              key={d}
+              style={[styles.dayBtn, val ? styles.dayPresent : styles.dayAbsent]}
+              onPress={() => canEdit && onToggle(String(d))}
+              activeOpacity={canEdit ? 0.65 : 1}
+            >
+              <Text style={[styles.dayNum, { color: val ? '#fff' : '#aaa' }]}>{d}</Text>
+              <MaterialCommunityIcons
+                name={val ? 'check' : 'minus'}
+                size={14}
+                color={val ? '#fff' : '#ddd'}
+              />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </ScrollView>
   );
 }
 
