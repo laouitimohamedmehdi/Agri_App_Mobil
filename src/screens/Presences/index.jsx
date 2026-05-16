@@ -301,11 +301,12 @@ export default function Presences({ navigation }) {
         placeholder={t('presences.filter_name')}
         value={filterNom}
         onChangeText={setFilterNom}
-        left={<TextInput.Icon icon="magnify" />}
-        right={filterNom ? <TextInput.Icon icon="close" onPress={() => setFilterNom('')} /> : null}
+        left={isRTL ? null : <TextInput.Icon icon="magnify" />}
+        right={isRTL ? <TextInput.Icon icon="magnify" /> : (filterNom ? <TextInput.Icon icon="close" onPress={() => setFilterNom('')} /> : null)}
         mode="outlined"
         dense
         style={{ marginHorizontal: 12, marginTop: 8, backgroundColor: '#fff' }}
+        contentStyle={isRTL ? { textAlign: 'right' } : undefined}
       />
 
       {/* Contenu */}
@@ -396,6 +397,7 @@ export default function Presences({ navigation }) {
                     onChangeText={v => setRemarque(l._originalIdx, v)}
                     dense
                     style={{ marginHorizontal: 12, marginBottom: 8 }}
+                    contentStyle={isRTL ? { textAlign: 'right' } : undefined}
                   />
                 ) : l.remarque ? (
                   <Text style={[styles.remarque, isRTL && { textAlign: 'right' }]}>
