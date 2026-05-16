@@ -10,19 +10,27 @@ import EmptyState from '../../components/EmptyState';
 import client from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
+import { useSettings } from '../../contexts/SettingsContext';
 
 const DAYS_IN_MONTH = (mois) => {
   const [y, m] = mois.split('-').map(Number);
   return new Date(y, m, 0).getDate();
 };
 
-const MOIS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+const POSTE_KEYS = {
+  'Ouvrier': 'ouvrier',
+  "Chef d'équipe": 'chef_equipe',
+  'Technicien': 'technicien',
+  'Chauffeur': 'chauffeur',
+  'Autre': 'autre',
+};
 
 export default function Presences({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { employes } = useData();
+  const { currencySymbol } = useSettings();
+  const tPoste = (p) => p ? t(`presences.poste_${POSTE_KEYS[p] || 'autre'}`, { defaultValue: p }) : '';
   const isAdmin = user?.role === 'admin';
   const [mois, setMois] = useState(() => new Date().toISOString().slice(0, 7));
   const [feuille, setFeuille] = useState(null);
@@ -126,7 +134,7 @@ export default function Presences({ navigation }) {
       setSnack(t('mobile.saved'));
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
       } else {
         setSnack(t('mobile.error_save'));
       }
@@ -139,7 +147,7 @@ export default function Presences({ navigation }) {
     try { await client.put(`/feuilles/${feuille.id}/valider`); await fetchFeuille(); setSnack(t('presences.success_validated')); }
     catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
       } else {
         setSnack(t('mobile.error_save'));
       }
@@ -193,7 +201,8 @@ export default function Presences({ navigation }) {
   };
 
   const [year, month] = mois.split('-').map(Number);
-  const moisLabel = `${MOIS_FR[month - 1]} ${year}`;
+  const numLocale = { fr: 'fr-FR', en: 'en-US', ar: 'ar-TN' }[i18n.language] || 'fr-FR';
+  const moisLabel = new Intl.DateTimeFormat(numLocale, { month: 'long' }).format(new Date(year, month - 1, 1)) + ' ' + year;
   const nbJours = DAYS_IN_MONTH(mois);
   const days = Array.from({ length: nbJours }, (_, i) => i + 1);
   const canEdit = feuille?.statut !== 'validee';
@@ -215,7 +224,7 @@ export default function Presences({ navigation }) {
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Text variant="titleMedium" style={{ color: '#2d7a4a', fontWeight: 'bold' }}>{moisLabel}</Text>
-          <Text variant="bodySmall" style={{ color: '#888' }}>{nbJours} jours ouvrables</Text>
+          <Text variant="bodySmall" style={{ color: '#888' }}>{nbJours} {t('common.per_day_short')}</Text>
         </View>
         <TouchableOpacity onPress={() => changeMonth(1)} style={styles.navBtn}>
           <MaterialCommunityIcons name="chevron-right" size={28} color="#2d7a4a" />
@@ -238,7 +247,7 @@ export default function Presences({ navigation }) {
             <Text style={{ fontSize: 12, fontWeight: '600', color: feuille.statut === 'validee' ? '#52c41a' : '#fa8c16' }}>
               {feuille.statut === 'validee' ? t('presences.validated_on', { date: feuille.date_validation || '' }) : t('presences.draft')}
             </Text>
-            <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} j</Text>
+            <Text style={{ fontSize: 11, color: '#aaa' }}>· {totalPresents} {t('common.per_day_short')}</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {feuille.statut !== 'validee' && (
@@ -310,7 +319,7 @@ export default function Presences({ navigation }) {
                           style={{ marginBottom: 4 }}
                         />
                         <TextInput
-                          label="Tarif (DT/j) *"
+                          label={`${t('presences.col_total')} (${currencySymbol}/${t('common.per_day_short')}) *`}
                           value={l.tarif_temp ? String(l.tarif_temp) : ''}
                           onChangeText={v => updateTemp(l._originalIdx, 'tarif_temp', v)}
                           keyboardType="numeric"
@@ -322,16 +331,16 @@ export default function Presences({ navigation }) {
                         <Text style={styles.empName} numberOfLines={1}>{getEmployeNom(l)}</Text>
                         {isTemp ? (
                           <Text style={[styles.empPoste, { color: '#fa8c16' }]}>
-                            {l.tarif_temp > 0 ? `${l.tarif_temp} DT/j · ` : ''}{t('mobile.temp_badge')}
+                            {l.tarif_temp > 0 ? `${l.tarif_temp} ${currencySymbol}/${t('common.per_day_short')} · ` : ''}{t('mobile.temp_badge')}
                           </Text>
-                        ) : poste ? <Text style={styles.empPoste}>{poste}</Text> : null}
+                        ) : poste ? <Text style={styles.empPoste}>{tPoste(poste)}</Text> : null}
                       </>
                     )}
                   </View>
                   <View style={{ alignItems: 'center', gap: 4 }}>
                     <View style={styles.totalBadge}>
                       <Text style={styles.totalNum}>{total}</Text>
-                      <Text style={styles.totalLabel}>jours</Text>
+                      <Text style={styles.totalLabel}>{t('common.per_day_short')}</Text>
                     </View>
                     {isTemp && canEdit && (
                       <View style={{ flexDirection: 'row', gap: 4, marginTop: 4 }}>
@@ -379,7 +388,7 @@ export default function Presences({ navigation }) {
                 {/* Remarque */}
                 {canEdit ? (
                   <TextInput
-                    label="Remarque"
+                    label={t('presences.col_remark')}
                     value={l.remarque || ''}
                     onChangeText={v => setRemarque(l._originalIdx, v)}
                     dense
@@ -387,7 +396,7 @@ export default function Presences({ navigation }) {
                   />
                 ) : l.remarque ? (
                   <Text style={styles.remarque}>
-                    <Text style={{ fontWeight: '600' }}>Remarque : </Text>{l.remarque}
+                    <Text style={{ fontWeight: '600' }}>{t('presences.col_remark')} : </Text>{l.remarque}
                   </Text>
                 ) : null}
               </Card>
