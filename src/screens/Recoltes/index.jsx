@@ -279,8 +279,12 @@ export default function Recoltes({ navigation }) {
             return (
               <List.Accordion
                 key={group.key}
-                title={`${group.campagne || '—'} · ${getParcelleNom(group.secteur_id)}`}
-                description={`${getSecteurNom(group.secteur_id)} · ${totalProd.toLocaleString('fr-FR')} ${t('common.kg_short')} · ${group.recoltes.length} ${t('recoltes.entries_many')}`}
+                title={isRTL
+                  ? `${getParcelleNom(group.secteur_id)} · ${group.campagne || '—'}`
+                  : `${group.campagne || '—'} · ${getParcelleNom(group.secteur_id)}`}
+                description={isRTL
+                  ? `${group.recoltes.length} ${t('recoltes.entries_many')} · ${totalProd.toLocaleString('fr-FR')} ${t('common.kg_short')} · ${getSecteurNom(group.secteur_id)}`
+                  : `${getSecteurNom(group.secteur_id)} · ${totalProd.toLocaleString('fr-FR')} ${t('common.kg_short')} · ${group.recoltes.length} ${t('recoltes.entries_many')}`}
                 expanded={isExpanded}
                 onPress={() => setExpandedGroup(isExpanded ? null : group.key)}
                 left={props => <List.Icon {...props} icon="basket" />}
