@@ -152,7 +152,7 @@ export default function Recoltes({ navigation }) {
       await fetchAll(); setDialogVisible(false);
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
         setDialogVisible(false);
       } else {
         setSnack(t('mobile.error_save'));
@@ -168,7 +168,7 @@ export default function Recoltes({ navigation }) {
       await fetchAll();
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
       } else {
         setSnack(t('mobile.error_delete'));
       }
@@ -178,7 +178,7 @@ export default function Recoltes({ navigation }) {
 
   // ── Ajout ligne inline ────────────────────────────────────────────
   const addLine = async () => {
-    if (!addLineForm.production || parseFloat(addLineForm.production) <= 0) { setSnack('Production invalide'); return; }
+    if (!addLineForm.production || parseFloat(addLineForm.production) <= 0) { setSnack(t('recoltes.production_invalid')); return; }
     setSavingLine(true);
     try {
       const res = await client.post('/recoltes/', {
@@ -193,7 +193,7 @@ export default function Recoltes({ navigation }) {
       await fetchAll();
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
         setAddLineGroup(null);
       } else {
         setSnack(t('mobile.error_save'));
@@ -205,14 +205,14 @@ export default function Recoltes({ navigation }) {
   // ── Frais ─────────────────────────────────────────────────────────
   const addCharge = async () => {
     const montant = parseFloat(chargeForm.montant);
-    if (!montant || montant <= 0) { setSnack('Montant invalide'); return; }
+    if (!montant || montant <= 0) { setSnack(t('recoltes.montant_invalid')); return; }
     setSavingCharge(true);
     try {
       await client.post('/recolte-charges/', { recolte_id: addingChargeFor, type_frais: chargeForm.type_frais, montant });
       await fetchAll(); setAddingChargeFor(null); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' });
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
         setAddingChargeFor(null);
       } else {
         setSnack(t('mobile.error_save'));
@@ -261,7 +261,9 @@ export default function Recoltes({ navigation }) {
       {/* Compteur */}
       <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 8, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e8f5e9' }}>
         <MaterialCommunityIcons name="basket" size={16} color="#2d7a4a" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
-        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>{groups.length} groupe(s) · {filtered.length} récolte(s)</Text>
+        <Text variant="bodySmall" style={{ color: '#2d7a4a', fontWeight: 'bold', textAlign: isRTL ? 'right' : 'left' }}>
+          {groups.length} {t('mobile.campaign')}{isRTL ? '' : '(s)'} · {filtered.length} {t('menu.harvests').toLowerCase()}{isRTL ? '' : '(s)'}
+        </Text>
       </View>
 
       {groups.length === 0 ? <EmptyState message={t('mobile.no_harvest')} /> : (
@@ -278,7 +280,7 @@ export default function Recoltes({ navigation }) {
               <List.Accordion
                 key={group.key}
                 title={`${group.campagne || '—'} · ${getParcelleNom(group.secteur_id)}`}
-                description={`${getSecteurNom(group.secteur_id)} · ${totalProd.toLocaleString('fr-FR')} kg · ${group.recoltes.length} entrée(s)`}
+                description={`${getSecteurNom(group.secteur_id)} · ${totalProd.toLocaleString('fr-FR')} ${t('common.kg_short')} · ${group.recoltes.length} ${t('recoltes.entries_many')}`}
                 expanded={isExpanded}
                 onPress={() => setExpandedGroup(isExpanded ? null : group.key)}
                 left={props => <List.Icon {...props} icon="basket" />}
@@ -306,15 +308,15 @@ export default function Recoltes({ navigation }) {
                     const rCharges = getCharges(r.id_recolte);
                     const totalRFrais = rCharges.reduce((s, c) => s + (c.montant || 0), 0);
                     return (
-                      <View key={r.id_recolte} style={styles.recolteRow}>
+                      <View key={r.id_recolte} style={[styles.recolteRow, isRTL && { flexDirection: 'row-reverse' }]}>
                         <View style={{ flex: 1 }}>
                           <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                             {r.date && <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{r.date}</Text>}
-                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{r.production?.toLocaleString('fr-FR')} kg</Text>
+                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{r.production?.toLocaleString('fr-FR')} {t('common.kg_short')}</Text>
                           </View>
                           {isAdmin && a && (
                             <Text variant="bodySmall" style={{ color: '#555' }}>
-                              {a.huile} L · {a.prix} {currencySymbol}/L
+                              {a.huile} {t('common.litre_short')} · {a.prix} {currencySymbol}/{t('common.litre_short')}
                               {totalRFrais > 0 && <Text style={{ color: '#d46b08' }}> · {t('dashboard.frais_recolte')} : {totalRFrais.toLocaleString('fr-FR')} {currencySymbol}</Text>}
                             </Text>
                           )}
@@ -323,7 +325,7 @@ export default function Recoltes({ navigation }) {
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
                               {rCharges.map(c => (
                                 <View key={c.id} style={styles.chargePill}>
-                                  <Text style={{ fontSize: 10, color: '#d46b08', fontWeight: '600' }}>{c.type_frais}</Text>
+                                  <Text style={{ fontSize: 10, color: '#d46b08', fontWeight: '600' }}>{t(`recoltes.frais_types.${c.type_frais}`, { defaultValue: c.type_frais })}</Text>
                                   <Text style={{ fontSize: 10, color: '#555' }}> {c.montant?.toLocaleString('fr-FR')} {currencySymbol}</Text>
                                   <Button icon="close" compact contentStyle={{ margin: -10 }} onPress={() => setConfirmChargeId(c.id)} textColor="#ff4d4f" />
                                 </View>
@@ -336,7 +338,7 @@ export default function Recoltes({ navigation }) {
                               <SelectFilter noAll label={t('mobile.type')} value={chargeForm.type_frais}
                                 onChange={v => setChargeForm(f => ({ ...f, type_frais: v }))}
                                 options={TYPES_FRAIS.map(t => ({ value: t, label: t }))} />
-                              <TextInput label={`Montant (${currencySymbol})`} value={chargeForm.montant}
+                              <TextInput label={`${t('recoltes.montant_placeholder')} (${currencySymbol})`} value={chargeForm.montant}
                                 onChangeText={v => setChargeForm(f => ({ ...f, montant: v }))} keyboardType="numeric" dense />
                               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }}>
                                 <Button compact onPress={() => setAddingChargeFor(null)}>{t('mobile.cancel')}</Button>
@@ -374,7 +376,7 @@ export default function Recoltes({ navigation }) {
                         <DatePickerInput label={t('travaux.col_date')} value={addLineForm.date} onChange={v => setAddLineForm(f => ({ ...f, date: v }))} />
                         <TextInput label={t('recoltes.col_production')} value={addLineForm.production} onChangeText={v => setAddLineForm(f => ({ ...f, production: v }))} keyboardType="numeric" dense style={{ marginTop: 4 }} />
                         <TextInput label={t('recoltes.form_oil')} value={addLineForm.huile} onChangeText={v => setAddLineForm(f => ({ ...f, huile: v }))} keyboardType="numeric" dense />
-                        <TextInput label={`Prix (${currencySymbol}/L)`} value={addLineForm.prix} onChangeText={v => setAddLineForm(f => ({ ...f, prix: v }))} keyboardType="numeric" dense />
+                        <TextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={addLineForm.prix} onChangeText={v => setAddLineForm(f => ({ ...f, prix: v }))} keyboardType="numeric" dense />
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
                           <Button compact onPress={() => setAddLineGroup(null)}>{t('mobile.cancel')}</Button>
                           <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addLine} loading={savingLine}>{t('mobile.add')}</Button>
@@ -398,20 +400,20 @@ export default function Recoltes({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? t('mobile.edit') : t('mobile.add')} une récolte</Dialog.Title>
+          <Dialog.Title>{editing ? t('recoltes.modal_edit') : t('recoltes.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
               <TextInput label={t('mobile.campaign')} value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
               <DatePickerInput label={t('travaux.col_date')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.plot')}</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir une parcelle" value={formParcelle}
+                <SelectFilter noAll label={t('recoltes.choose_parcelle')} value={formParcelle}
                   onChange={v => { setFormParcelle(v); setForm(f => ({ ...f, secteur_id: '' })); }}
                   options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))} />
               </View>
               <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.sector')} *</Text>
               <View style={{ marginBottom: 12 }}>
-                <SelectFilter noAll label="Choisir un secteur" value={form.secteur_id}
+                <SelectFilter noAll label={t('recoltes.choose_secteur')} value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
                   options={secteursForForm.map(s => ({ value: String(s.id_secteur), label: s.nom }))} />
               </View>
