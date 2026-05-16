@@ -223,7 +223,7 @@ export default function DashboardScreen({ navigation }) {
                     dataPointsColor2="#ff4d4f"
                     dataPointsRadius={3}
                     xAxisLabelTexts={MOIS}
-                    xAxisLabelTextStyle={isRTL ? { color: '#555', fontSize: 8, transform: [{ scaleX: -1 }], width: 60, textAlign: 'center' } : { color: '#555', fontSize: 8, transform: [{ rotate: '-45deg' }], width: 40, textAlign: 'center' }}
+                    xAxisLabelTextStyle={{ color: '#555', fontSize: 8, transform: isRTL ? [{ scaleX: -1 }, { rotate: '45deg' }] : [{ rotate: '-45deg' }], width: isRTL ? 80 : 40, textAlign: 'center' }}
                     yAxisTextStyle={{ color: '#888', fontSize: 9, transform: [{ scaleX: isRTL ? -1 : 1 }] }}
                     noOfSections={4}
                     width={Math.max(300, 12 * 35)}
