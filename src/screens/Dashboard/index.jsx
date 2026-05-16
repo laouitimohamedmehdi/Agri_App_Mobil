@@ -196,7 +196,7 @@ export default function DashboardScreen({ navigation }) {
           <>
             <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} isRTL={isRTL} />
             <Card style={styles.chartCard}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled={true}>
                 <LineChart
                   data={(isRTL ? [...monthlyData.slice(0, currentMonthIdx + 1)].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
                   data2={(isRTL ? [...monthlyData.slice(0, currentMonthIdx + 1)].reverse() : monthlyData).map(d => ({ value: d.charges }))}
