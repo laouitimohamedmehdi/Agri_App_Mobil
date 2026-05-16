@@ -130,14 +130,13 @@ export default function ParcellesSecteurs({ navigation }) {
         {parcelles
           .filter(p => !filterParcelle || String(p.id_parcelle) === filterParcelle)
           .map(p => (
+            <View key={p.id_parcelle} style={{ backgroundColor: '#f6faf3' }}>
             <List.Accordion
-              key={p.id_parcelle}
               title={p.nom}
               description={`${t('fields.nb_sectors_col')}: ${secteursOfParcelle(p.id_parcelle).length}`}
               left={props => <List.Icon {...props} icon="map-marker-multiple" />}
               expanded={expandedParcelle === p.id_parcelle}
               onPress={() => setExpandedParcelle(expandedParcelle === p.id_parcelle ? null : p.id_parcelle)}
-              style={{ backgroundColor: '#f6faf3' }}
               titleStyle={{ color: '#2d7a4a', fontWeight: 'bold' }}
             >
               {isAdmin && (
@@ -178,6 +177,7 @@ export default function ParcellesSecteurs({ navigation }) {
                 />
               )}
             </List.Accordion>
+            </View>
           ))}
         <View style={{ height: 80 }} />
       </ScrollView>
