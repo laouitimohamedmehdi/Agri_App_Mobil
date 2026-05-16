@@ -97,11 +97,11 @@ function TabsWithDrawer() {
           tabBarActiveTintColor: '#2d7a4a',
         })}
       >
-        <Tab.Screen name="Dashboard" component={DashboardScreen} />
-        <Tab.Screen name="Travaux" component={TravailAgricoleScreen} />
-        <Tab.Screen name="Récoltes" component={RecoltesScreen} />
-        <Tab.Screen name="Présences" component={PresencesScreen} />
-        {isAdmin && <Tab.Screen name="Demandes" component={DemandesScreen} />}
+        <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ tabBarLabel: t('menu.dashboard') }} />
+        <Tab.Screen name="Travaux" component={TravailAgricoleScreen} options={{ tabBarLabel: t('menu.works') }} />
+        <Tab.Screen name="Récoltes" component={RecoltesScreen} options={{ tabBarLabel: t('menu.harvests') }} />
+        <Tab.Screen name="Présences" component={PresencesScreen} options={{ tabBarLabel: t('menu.presences') }} />
+        {isAdmin && <Tab.Screen name="Demandes" component={DemandesScreen} options={{ tabBarLabel: t('menu.requests') }} />}
         <Tab.Screen
           name="Extra"
           component={ExtraScreens}
