@@ -197,15 +197,15 @@ export default function DashboardScreen({ navigation }) {
             <SectionHeader icon="chart-line" title={`${t('mobile.financial_activity')} ${currentYear}`} isRTL={isRTL} />
             <Card style={styles.chartCard}>
               <LineChart
-                data={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
-                data2={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.charges }))}
+                data={(isRTL ? [...monthlyData.slice(0, currentMonthIdx + 1)].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
+                data2={(isRTL ? [...monthlyData.slice(0, currentMonthIdx + 1)].reverse() : monthlyData).map(d => ({ value: d.charges }))}
                 color1="#2d7a4a"
                 color2="#ff4d4f"
                 thickness={2}
                 dataPointsColor1="#2d7a4a"
                 dataPointsColor2="#ff4d4f"
                 dataPointsRadius={3}
-                xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
+                xAxisLabelTexts={isRTL ? [...MOIS.slice(0, currentMonthIdx + 1)].reverse() : MOIS}
                 xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                 yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                 yAxisLabelWidth={isRTL ? 38 : 30}
