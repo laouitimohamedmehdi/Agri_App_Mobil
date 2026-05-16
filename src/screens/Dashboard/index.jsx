@@ -124,7 +124,7 @@ export default function DashboardScreen({ navigation }) {
   const MOIS_LABELS = {
     fr: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
     en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    ar: ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+    ar: ['جان', 'فيف', 'مار', 'أفر', 'ماي', 'جوا', 'جوي', 'أوت', 'سبت', 'أكت', 'نوف', 'ديس'],
   };
   const MOIS = MOIS_LABELS[i18n.language] || MOIS_LABELS.fr;
   const currentMonthIdx = new Date().getMonth();
@@ -225,7 +225,7 @@ export default function DashboardScreen({ navigation }) {
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
                   noOfSections={4}
-                  width={Math.max(300, 12 * 34)}
+                  width={Math.max(300, 12 * 38)}
                   height={140}
                   endSpacing={30}
                   hideRules={false}
