@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderColor: '#e0ece0',
   },
   navBtn: { flexDirection: 'row', alignItems: 'center', padding: 4 },
-  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#2d7a4a' },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#2d7a4a' },
   actionBtnTxt: { fontSize: 12, fontWeight: '600' },
   statusBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
