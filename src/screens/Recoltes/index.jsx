@@ -485,7 +485,7 @@ function BilanBadge({ label, value, color }) {
 }
 
 const styles = StyleSheet.create({
-  bilanRow: { flexDirection: 'row', padding: 10, backgroundColor: '#e8f5e9', gap: 8 },
+  bilanRow: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 4, backgroundColor: '#e8f5e9', justifyContent: 'space-evenly', alignItems: 'center' },
   recolteRow: { flexDirection: 'row', alignItems: 'flex-start', padding: 12, borderBottomWidth: 1, borderColor: '#f0f0f0', backgroundColor: '#fff' },
   chargePill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff7e6', borderWidth: 1, borderColor: '#ffd591', borderRadius: 12, paddingLeft: 8, paddingVertical: 1 },
   fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#2d7a4a' },
