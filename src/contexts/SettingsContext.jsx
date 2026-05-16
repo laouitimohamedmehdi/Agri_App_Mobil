@@ -1,16 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import { useTranslation } from 'react-i18next';
 import client from '../api/client';
 
 const CURRENCY_SYMBOLS = {
   euro: '€',
   dollar: '$',
-  dinar: 'دت',
 };
 
 const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
+  const { i18n } = useTranslation();
   const [currency, setCurrency] = useState('dinar');
 
   useEffect(() => {
@@ -28,7 +29,9 @@ export function SettingsProvider({ children }) {
     setCurrency(value);
   };
 
-  const currencySymbol = CURRENCY_SYMBOLS[currency] ?? 'DT';
+  const currencySymbol = currency === 'dinar'
+    ? (i18n.language === 'ar' ? 'دت' : 'DT')
+    : (CURRENCY_SYMBOLS[currency] ?? 'DT');
 
   return (
     <SettingsContext.Provider value={{ currency, currencySymbol, updateCurrency }}>
