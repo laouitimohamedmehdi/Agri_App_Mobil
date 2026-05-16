@@ -171,8 +171,9 @@ export default function ParcellesSecteurs({ navigation }) {
               {isAdmin && (
                 <List.Item
                   title={t('mobile.add')}
-                  left={props => <List.Icon {...props} icon="plus-circle" />}
-                  titleStyle={{ color: '#2d7a4a' }}
+                  left={isRTL ? undefined : props => <List.Icon {...props} icon="plus-circle" />}
+                  right={isRTL ? props => <List.Icon {...props} icon="plus-circle" /> : undefined}
+                  titleStyle={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}
                   onPress={() => openCreateSecteur(p.id_parcelle)}
                 />
               )}

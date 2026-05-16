@@ -352,7 +352,7 @@ export default function Recoltes({ navigation }) {
                             </View>
                           </View>
                         ) : isAdmin && (
-                          <Button icon="plus" compact onPress={() => { setAddingChargeFor(r.id_recolte); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' }); }} textColor="#d46b08" style={{ alignSelf: isRTL ? 'flex-end' : 'flex-start' }}>
+                          <Button icon="plus" compact onPress={() => { setAddingChargeFor(r.id_recolte); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' }); }} textColor="#d46b08" style={{ alignSelf: isRTL ? 'flex-end' : 'flex-start' }} labelStyle={isRTL ? { textAlign: 'right' } : undefined}>
                             {t('dashboard.frais_recolte')}
                           </Button>
                         )}
@@ -380,7 +380,7 @@ export default function Recoltes({ navigation }) {
                     <Divider style={{ marginTop: 4 }} />
                     {addLineGroup?.key === group.key ? (
                       <View style={{ padding: 12, backgroundColor: '#f0f9f0', gap: 8 }}>
-                        <Text variant="bodySmall" style={{ color: '#389e0d', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 }}>{t('mobile.add')}</Text>
+                        <Text variant="bodySmall" style={{ color: '#389e0d', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.add')}</Text>
                         <DatePickerInput label={t('travaux.col_date')} value={addLineForm.date} onChange={v => setAddLineForm(f => ({ ...f, date: v }))} />
                         <TextInput label={t('recoltes.col_production')} value={addLineForm.production} onChangeText={v => setAddLineForm(f => ({ ...f, production: v }))} keyboardType="numeric" dense style={{ marginTop: 4 }} />
                         <TextInput label={t('recoltes.form_oil')} value={addLineForm.huile} onChangeText={v => setAddLineForm(f => ({ ...f, huile: v }))} keyboardType="numeric" dense />
