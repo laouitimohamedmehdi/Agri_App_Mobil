@@ -220,7 +220,7 @@ export default function Depenses({ navigation }) {
 
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-          <Dialog.Title>{editing ? t('depenses.modal_edit') : t('depenses.modal_create')}</Dialog.Title>
+          <Dialog.Title style={{ textAlign: isRTL ? 'right' : 'left' }}>{editing ? t('depenses.modal_edit') : t('depenses.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <RTLTextInput label={t('depenses.form_title')} value={form.titre} onChangeText={v => setForm(f => ({ ...f, titre: v }))} maxLength={120} style={{ marginBottom: 12 }} />
@@ -236,7 +236,7 @@ export default function Depenses({ navigation }) {
         </Dialog>
 
         <Dialog visible={!!demandeItem} onDismiss={() => setDemandeItem(null)}>
-          <Dialog.Title>{demandeAction === 'suppression' ? t('demandes.action_delete') : t('demandes.action_modify')}</Dialog.Title>
+          <Dialog.Title style={{ textAlign: isRTL ? 'right' : 'left' }}>{demandeAction === 'suppression' ? t('demandes.action_delete') : t('demandes.action_modify')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
               <RTLTextInput label={t('mobile.demand_reason_required')} value={demandeMotif} onChangeText={setDemandeMotif} multiline maxLength={200} style={{ marginBottom: 12 }} />
