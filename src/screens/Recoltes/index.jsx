@@ -312,60 +312,66 @@ export default function Recoltes({ navigation }) {
                     const rCharges = getCharges(r.id_recolte);
                     const totalRFrais = rCharges.reduce((s, c) => s + (c.montant || 0), 0);
                     return (
-                      <View key={r.id_recolte} style={[styles.recolteRow, isRTL && { flexDirection: 'row-reverse' }]}>
-                        <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                            {r.date && <Text variant="bodySmall" style={{ color: '#888', textAlign: isRTL ? 'right' : 'left' }}>{r.date}</Text>}
-                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{r.production?.toLocaleString('fr-FR')} {t('common.kg_short')}</Text>
-                          </View>
-                          {isAdmin && a && (
-                            <Text variant="bodySmall" style={{ color: '#555' }}>
-                              {a.huile} {t('common.litre_short')} · {a.prix} {currencySymbol}/{t('common.litre_short')}
-                              {totalRFrais > 0 && <Text style={{ color: '#d46b08' }}> · {t('dashboard.frais_recolte')} : {totalRFrais.toLocaleString('fr-FR')} {currencySymbol}</Text>}
-                            </Text>
-                          )}
-                          {/* Frais pills */}
-                          {isAdmin && rCharges.length > 0 && (
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-                              {rCharges.map(c => (
-                                <View key={c.id} style={styles.chargePill}>
-                                  <Text style={{ fontSize: 10, color: '#d46b08', fontWeight: '600' }}>{t(`recoltes.frais_types.${c.type_frais}`, { defaultValue: c.type_frais })}</Text>
-                                  <Text style={{ fontSize: 10, color: '#555' }}> {c.montant?.toLocaleString('fr-FR')} {currencySymbol}</Text>
-                                  <Button icon="close" compact contentStyle={{ margin: -10 }} onPress={() => setConfirmChargeId(c.id)} textColor="#ff4d4f" />
-                                </View>
-                              ))}
-                            </View>
-                          )}
-                          {/* Ajout frais inline */}
-                          {isAdmin && addingChargeFor === r.id_recolte ? (
-                            <View style={{ marginTop: 6, gap: 6 }}>
-                              <SelectFilter noAll label={t('mobile.type')} value={chargeForm.type_frais}
-                                onChange={v => setChargeForm(f => ({ ...f, type_frais: v }))}
-                                options={TYPES_FRAIS.map(t => ({ value: t, label: t }))} />
-                              <TextInput label={`${t('recoltes.montant_placeholder')} (${currencySymbol})`} value={chargeForm.montant}
-                                onChangeText={v => setChargeForm(f => ({ ...f, montant: v }))} keyboardType="numeric" dense />
-                              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }}>
-                                <Button compact onPress={() => setAddingChargeFor(null)}>{t('mobile.cancel')}</Button>
-                                <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addCharge} loading={savingCharge}>{t('mobile.add')}</Button>
-                              </View>
-                            </View>
-                          ) : isAdmin && (
-                            <Button icon="plus" compact onPress={() => { setAddingChargeFor(r.id_recolte); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' }); }} textColor="#d46b08" style={{ alignSelf: 'flex-start', marginTop: 2 }}>
-                              {t('dashboard.frais_recolte')}
-                            </Button>
-                          )}
+                      <View key={r.id_recolte} style={[
+                        { margin: 8, padding: 12, backgroundColor: '#fff', borderRadius: 8, elevation: 1, borderLeftWidth: 3, borderLeftColor: '#2d7a4a' },
+                        isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: '#2d7a4a' }
+                      ]}>
+                        {/* Ligne principale : date + production */}
+                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                          <Text style={{ fontSize: 15, fontWeight: '700', color: '#2d7a4a' }}>{r.production?.toLocaleString('fr-FR')} {t('common.kg_short')}</Text>
+                          {r.date && <Text variant="bodySmall" style={{ color: '#888' }}>{r.date}</Text>}
                         </View>
-                        {isAdmin ? (
-                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                            <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => openEdit(r)} textColor="#1677ff" />
-                            <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => setConfirmId(r.id_recolte)} textColor="#ff4d4f" />
-                          </View>
-                        ) : (
-                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                            <Button icon="pencil" compact contentStyle={{ margin: -4 }} onPress={() => { setDemandeModifItem(r); setDemandeForm({ campagne: r.campagne, production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), motif: '' }); }} textColor="#1677ff" />
-                            <Button icon="delete" compact contentStyle={{ margin: -4 }} onPress={() => { setDemandeSupprItem(r); setMotifSuppr(''); }} textColor="#ff4d4f" />
+                        {/* Analyse */}
+                        {isAdmin && a && (
+                          <Text variant="bodySmall" style={{ color: '#555', textAlign: isRTL ? 'right' : 'left', marginBottom: 4 }}>
+                            {a.huile} {t('common.litre_short')} · {a.prix} {currencySymbol}/{t('common.litre_short')}
+                            {totalRFrais > 0 && <Text style={{ color: '#d46b08' }}> · {t('dashboard.frais_recolte')} : {totalRFrais.toLocaleString('fr-FR')} {currencySymbol}</Text>}
+                          </Text>
+                        )}
+                        {/* Frais pills */}
+                        {isAdmin && rCharges.length > 0 && (
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
+                            {rCharges.map(c => (
+                              <View key={c.id} style={styles.chargePill}>
+                                <Text style={{ fontSize: 10, color: '#d46b08', fontWeight: '600' }}>{t(`recoltes.frais_types.${c.type_frais}`, { defaultValue: c.type_frais })}</Text>
+                                <Text style={{ fontSize: 10, color: '#555' }}> {c.montant?.toLocaleString('fr-FR')} {currencySymbol}</Text>
+                                <Button icon="close" compact contentStyle={{ margin: -10 }} onPress={() => setConfirmChargeId(c.id)} textColor="#ff4d4f" />
+                              </View>
+                            ))}
                           </View>
                         )}
+                        {/* Ajout frais inline */}
+                        {isAdmin && addingChargeFor === r.id_recolte ? (
+                          <View style={{ marginTop: 6, gap: 6 }}>
+                            <SelectFilter noAll label={t('mobile.type')} value={chargeForm.type_frais}
+                              onChange={v => setChargeForm(f => ({ ...f, type_frais: v }))}
+                              options={TYPES_FRAIS.map(tf => ({ value: tf, label: tf }))} />
+                            <TextInput label={`${t('recoltes.montant_placeholder')} (${currencySymbol})`} value={chargeForm.montant}
+                              onChangeText={v => setChargeForm(f => ({ ...f, montant: v }))} keyboardType="numeric" dense />
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }}>
+                              <Button compact onPress={() => setAddingChargeFor(null)}>{t('mobile.cancel')}</Button>
+                              <Button compact mode="contained" buttonColor="#2d7a4a" onPress={addCharge} loading={savingCharge}>{t('mobile.add')}</Button>
+                            </View>
+                          </View>
+                        ) : isAdmin && (
+                          <Button icon="plus" compact onPress={() => { setAddingChargeFor(r.id_recolte); setChargeForm({ type_frais: TYPES_FRAIS[0], montant: '' }); }} textColor="#d46b08" style={{ alignSelf: isRTL ? 'flex-end' : 'flex-start' }}>
+                            {t('dashboard.frais_recolte')}
+                          </Button>
+                        )}
+                        {/* Boutons action */}
+                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, marginTop: 6 }}>
+                          {isAdmin ? (
+                            <>
+                              <Button icon="pencil" compact mode="text" onPress={() => openEdit(r)} textColor="#1677ff">{t('mobile.edit')}</Button>
+                              <Button icon="delete" compact mode="text" onPress={() => setConfirmId(r.id_recolte)} textColor="#ff4d4f">{t('mobile.delete')}</Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button icon="pencil" compact mode="text" onPress={() => { setDemandeModifItem(r); setDemandeForm({ campagne: r.campagne, production: String(r.production ?? ''), secteur_id: String(r.secteur_id ?? ''), motif: '' }); }} textColor="#1677ff">{t('mobile.edit')}</Button>
+                              <Button icon="delete" compact mode="text" onPress={() => { setDemandeSupprItem(r); setMotifSuppr(''); }} textColor="#ff4d4f">{t('mobile.delete')}</Button>
+                            </>
+                          )}
+                        </View>
                       </View>
                     );
                   })}
