@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-/**
- * Champ date avec calendrier natif.
- * @param {string} label   Label du champ
- * @param {string} value   Valeur au format YYYY-MM-DD
- * @param {function} onChange  Callback appelé avec la nouvelle valeur YYYY-MM-DD
- * @param {object} style   Style optionnel sur le conteneur
- */
 export default function DatePickerInput({ label, value, onChange, style }) {
   const [show, setShow] = useState(false);
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   const toDate = (str) => {
     if (!str) return new Date();
@@ -36,12 +32,15 @@ export default function DatePickerInput({ label, value, onChange, style }) {
       <TouchableOpacity onPress={() => setShow(true)} activeOpacity={0.8}>
         <View pointerEvents="none">
           <TextInput
-            label={label}
+            label={isRTL ? undefined : label}
+            placeholder={isRTL ? label : undefined}
             value={value || ''}
             editable={false}
             mode="outlined"
-            right={<TextInput.Icon icon="calendar" color="#2d7a4a" />}
+            left={isRTL ? <TextInput.Icon icon="calendar" color="#2d7a4a" /> : undefined}
+            right={isRTL ? undefined : <TextInput.Icon icon="calendar" color="#2d7a4a" />}
             style={{ backgroundColor: '#fff' }}
+            contentStyle={isRTL ? { textAlign: 'right' } : undefined}
           />
         </View>
       </TouchableOpacity>
