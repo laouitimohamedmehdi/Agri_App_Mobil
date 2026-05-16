@@ -263,7 +263,6 @@ export default function Presences({ navigation }) {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2d7a4a', borderColor: '#2d7a4a' }]} onPress={valider}>
-                  <MaterialCommunityIcons name="check" size={16} color="#fff" />
                   <Text style={[styles.actionBtnTxt, { color: '#fff' }]}>{t('presences.btn_validate')}</Text>
                 </TouchableOpacity>
               </>
