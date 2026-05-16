@@ -40,6 +40,7 @@ export default function ParcellesSecteurs({ navigation }) {
 
   const secteursOfParcelle = (parcelleId) => secteurs.filter(s => s.parcelle_id === parcelleId);
   const getVarieteNom = (id) => varietes.find(v => v.id_variete === id)?.nom || '-';
+  const tStatut = (s) => ({ actif: t('sectors.en_production'), jeune: t('sectors.jeune'), inactif: t('rh.status_inactive') }[s] || s);
 
   const openCreateSecteur = (parcelleId) => {
     setEditing(null);
@@ -79,7 +80,7 @@ export default function ParcellesSecteurs({ navigation }) {
       setDialogType(null);
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
         setDialogType(null);
       } else {
         setSnack(t('mobile.error_save'));
@@ -94,7 +95,7 @@ export default function ParcellesSecteurs({ navigation }) {
       else { await client.delete(`/secteurs/${confirmId}`); await refreshSecteurs(); }
     } catch (e) {
       if (e?.isQueued) {
-        setSnack('Saisie enregistrée hors-ligne — sera envoyée au retour du réseau');
+        setSnack(t('mobile.offline_queued'));
       } else {
         setSnack(t('mobile.error_delete'));
       }
@@ -132,7 +133,7 @@ export default function ParcellesSecteurs({ navigation }) {
           <List.Accordion
             key={p.id_parcelle}
             title={p.nom}
-            description={`${secteursOfParcelle(p.id_parcelle).length} secteur(s)`}
+            description={`${secteursOfParcelle(p.id_parcelle).length} ${t('fields.nb_sectors_col')}`}
             left={props => <List.Icon {...props} icon="map-marker-multiple" />}
             expanded={expandedParcelle === p.id_parcelle}
             onPress={() => setExpandedParcelle(expandedParcelle === p.id_parcelle ? null : p.id_parcelle)}
@@ -151,12 +152,12 @@ export default function ParcellesSecteurs({ navigation }) {
               <View key={s.id_secteur} style={[styles.secteurCard, isRTL && { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: '#2d7a4a' }]}>
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text variant="titleSmall" style={{ color: '#2d7a4a', textAlign: isRTL ? 'right' : 'left' }}>{s.nom}</Text>
-                  <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{s.statut}</Chip>
+                  <Chip style={{ backgroundColor: (STATUT_COLORS[s.statut] || '#888') + '22' }}>{tStatut(s.statut)}</Chip>
                 </View>
-                <View style={styles.secteurDetails}>
-                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.area_ha')} {s.surface} ha</Text>
+                <View style={[styles.secteurDetails, isRTL && { flexDirection: 'row-reverse' }]}>
+                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.area_ha')} {s.surface} {t('common.ha_short')}</Text>
                   <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.nb_arbres_col')} {s.nb_arbre}</Text>
-                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.age_moy_col')} {s.age_moy} ans</Text>
+                  <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.age_moy_col')} {s.age_moy} {t('sectors.years')}</Text>
                   <Text variant="bodySmall" style={{ textAlign: isRTL ? 'right' : 'left' }}>{t('sectors.variete_col')} {getVarieteNom(s.variete_id)}</Text>
                 </View>
                 {isAdmin && (
@@ -183,7 +184,9 @@ export default function ParcellesSecteurs({ navigation }) {
       <Portal>
         <Dialog visible={!!dialogType} onDismiss={() => setDialogType(null)}>
           <Dialog.Title>
-            {editing ? t('mobile.edit') : t('mobile.add')} {dialogType === 'parcelle' ? 'une parcelle' : 'un secteur'}
+            {dialogType === 'parcelle'
+              ? (editing ? t('fields.edit_field') : t('fields.new_field'))
+              : (editing ? t('sectors.edit_sector') : t('sectors.new_sector'))}
           </Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.45 }}>
@@ -196,7 +199,7 @@ export default function ParcellesSecteurs({ navigation }) {
                 <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('sectors.variete_col')} *</Text>
                 <View style={{ marginBottom: 12 }}>
                   <SelectFilter noAll
-                    label="Choisir une variété"
+                    label={t('sectors.select_species')}
                     value={form.variete_id}
                     onChange={v => setForm(f => ({ ...f, variete_id: v }))}
                     options={varietes.map(v => ({ value: String(v.id_variete), label: v.nom }))}
@@ -205,13 +208,13 @@ export default function ParcellesSecteurs({ navigation }) {
                 <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.status')}</Text>
                 <View style={{ marginBottom: 8 }}>
                   <SelectFilter noAll
-                    label="Choisir un statut"
+                    label={t('mobile.status')}
                     value={form.statut}
                     onChange={v => setForm(f => ({ ...f, statut: v }))}
                     options={[
-                      { value: 'actif', label: 'En production' },
-                      { value: 'jeune', label: 'Jeune' },
-                      { value: 'inactif', label: 'Inactif' },
+                      { value: 'actif', label: t('sectors.en_production') },
+                      { value: 'jeune', label: t('sectors.jeune') },
+                      { value: 'inactif', label: t('rh.status_inactive') },
                     ]}
                   />
                 </View>
@@ -227,8 +230,8 @@ export default function ParcellesSecteurs({ navigation }) {
       </Portal>
       <ConfirmDialog
         visible={!!confirmId}
-        title="Confirmer la suppression"
-        message={confirmType === 'parcelle' ? 'Supprimer cette parcelle et tous ses secteurs associés ?' : 'Supprimer ce secteur et tous ses travaux, récoltes et fertilisations associés ?'}
+        title={t('mobile.confirm_delete')}
+        message={confirmType === 'parcelle' ? t('fields.delete_warning') : t('sectors.delete_warning')}
         onConfirm={confirmDelete}
         onDismiss={() => setConfirmId(null)}
         confirmLabel={t('mobile.delete')}
