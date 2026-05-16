@@ -365,7 +365,7 @@ export default function Presences({ navigation }) {
                 {/* Grille jours */}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daysScroll}>
                   <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, paddingHorizontal: 12, paddingBottom: 12 }}>
-                    {(isRTL ? [...days].reverse() : days).map(d => {
+                    {days.map(d => {
                       const val = l.jours[String(d)] === 1;
                       return (
                         <TouchableOpacity
