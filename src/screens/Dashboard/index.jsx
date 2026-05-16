@@ -209,8 +209,8 @@ export default function DashboardScreen({ navigation }) {
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <LineChart
                   areaChart
-                  data={monthlyData.map(d => ({ value: d.revenu }))}
-                  data2={monthlyData.map(d => ({ value: d.charges }))}
+                  data={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.revenu }))}
+                  data2={(isRTL ? [...monthlyData].reverse() : monthlyData).map(d => ({ value: d.charges }))}
                   color1="#2d7a4a"
                   color2="#ff4d4f"
                   startFillColor1="#2d7a4a"
@@ -221,9 +221,11 @@ export default function DashboardScreen({ navigation }) {
                   dataPointsColor1="#2d7a4a"
                   dataPointsColor2="#ff4d4f"
                   dataPointsRadius={3}
-                  xAxisLabelTexts={MOIS}
+                  xAxisLabelTexts={isRTL ? [...MOIS].reverse() : MOIS}
                   xAxisLabelTextStyle={{ color: '#555', fontSize: 8 }}
                   yAxisTextStyle={{ color: '#888', fontSize: 9 }}
+                  yAxisLabelWidth={isRTL ? 38 : 30}
+                  yAxisSide={isRTL ? 1 : 0}
                   noOfSections={4}
                   width={Math.max(300, 12 * 34)}
                   height={140}
