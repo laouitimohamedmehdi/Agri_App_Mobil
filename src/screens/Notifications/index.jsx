@@ -24,6 +24,20 @@ export default function Notifications({ navigation }) {
   const [snack, setSnack] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  const fetchNotifs = async () => {
+    try {
+      const res = await client.get('/notifications/');
+      setNotifs(res.data);
+      markAllRead();
+    } catch (e) {
+      if (!isCancelled(e)) setSnack(t('mobile.error_load'));
+    } finally { setLoading(false); }
+  };
+
+  const markAllRead = async () => {
+    try { await client.put('/notifications/read-all'); } catch {}
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchNotifs();
@@ -38,10 +52,6 @@ export default function Notifications({ navigation }) {
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, []);
-
-  const markAllRead = async () => {
-    try { await client.put('/notifications/read-all'); } catch {}
-  };
 
   if (loading) return <LoadingOverlay />;
 
@@ -99,7 +109,9 @@ export default function Notifications({ navigation }) {
 
         <View style={{ height: 32 }} />
       </ScrollView>
-      <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000}>{snack}</Snackbar>
+      <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={3000} style={isRTL ? { alignSelf: 'flex-end' } : undefined}>
+        <Text style={isRTL ? { textAlign: 'right', color: '#fff', flex: 1 } : { color: '#fff' }}>{snack}</Text>
+      </Snackbar>
     </View>
   );
 }

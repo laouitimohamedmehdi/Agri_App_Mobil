@@ -398,6 +398,7 @@ export default function Presences({ navigation }) {
                     dense
                     style={{ marginHorizontal: 12, marginBottom: 8 }}
                     contentStyle={isRTL ? { textAlign: 'right' } : undefined}
+                    labelStyle={isRTL ? { textAlign: 'right' } : undefined}
                   />
                 ) : l.remarque ? (
                   <Text style={[styles.remarque, isRTL && { textAlign: 'right' }]}>
