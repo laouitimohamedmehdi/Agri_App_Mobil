@@ -63,7 +63,19 @@ export default function Recoltes({ navigation }) {
 
   const [snack, setSnack] = useState('');
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    const sig = { signal: controller.signal };
+    Promise.all([
+      client.get('/recoltes/', sig),
+      client.get('/recolte-analyse/', sig).catch(() => ({ data: [] })),
+      client.get('/recolte-charges/', sig).catch(() => ({ data: [] })),
+    ])
+      .then(([r, a, c]) => { setRecoltes(r.data); setAnalyses(a.data); setCharges(c.data); })
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchAll = async () => {
     try {
@@ -75,7 +87,7 @@ export default function Recoltes({ navigation }) {
       setRecoltes(r.data);
       setAnalyses(a.data);
       setCharges(c.data);
-    } catch { setSnack(t('mobile.error_load')); }
+    } catch (e) { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError') setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 

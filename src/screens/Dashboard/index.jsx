@@ -32,13 +32,36 @@ export default function DashboardScreen({ navigation }) {
     setRefreshing(false);
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    const sig = { signal: controller.signal };
+    const now = new Date();
+    const yr = now.getFullYear();
+    const months = Array.from({ length: now.getMonth() + 1 }, (_, i) =>
+      `${yr}-${String(i + 1).padStart(2, '0')}`
+    );
+    Promise.all([
+      client.get('/travaux/', sig),
+      client.get('/recoltes/', sig),
+      client.get('/recolte-analyse/', sig).catch(() => ({ data: [] })),
+      client.get('/recolte-charges/', sig).catch(() => ({ data: [] })),
+      client.get('/depenses/', sig).catch(() => ({ data: [] })),
+      ...months.map(m => client.get(`/feuilles/?mois=${m}`, sig).catch(() => ({ data: null }))),
+    ])
+      .then(([travaux, recoltes, analyses, charges, depenses, ...feuillesRes]) => {
+        const allFeuilles = months.map((mois, i) => ({ mois, lignes: feuillesRes[i]?.data?.lignes || [] }));
+        setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, depenses: depenses.data, allFeuilles });
+      })
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchAll = async () => {
     try {
       const now = new Date();
       const currentYear = now.getFullYear();
-      const currentMonthIdx = now.getMonth(); // 0-based
+      const currentMonthIdx = now.getMonth();
       const months = Array.from({ length: currentMonthIdx + 1 }, (_, i) =>
         `${currentYear}-${String(i + 1).padStart(2, '0')}`
       );
@@ -52,7 +75,7 @@ export default function DashboardScreen({ navigation }) {
       ]);
       const allFeuilles = months.map((mois, i) => ({ mois, lignes: feuillesRes[i]?.data?.lignes || [] }));
       setData({ travaux: travaux.data, recoltes: recoltes.data, analyses: analyses.data, charges: charges.data, depenses: depenses.data, allFeuilles });
-    } catch { setSnack(t('mobile.error_load')); }
+    } catch (e) { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError') setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 

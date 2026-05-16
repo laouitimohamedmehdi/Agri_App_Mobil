@@ -43,13 +43,20 @@ export default function Depenses({ navigation }) {
     setRefreshing(false);
   };
 
-  useEffect(() => { fetchDepenses(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    client.get('/depenses/', { signal: controller.signal })
+      .then(res => setDepenses(res.data.sort((a, b) => (b.date || '').localeCompare(a.date || ''))))
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchDepenses = async () => {
     try {
       const res = await client.get('/depenses/');
       setDepenses(res.data.sort((a, b) => (b.date || '').localeCompare(a.date || '')));
-    } catch { setSnack(t('mobile.error_load')); }
+    } catch (e) { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError') setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 

@@ -52,17 +52,25 @@ export default function TravailAgricole({ navigation }) {
     setRefreshing(false);
   };
 
-  useEffect(() => { fetchTravaux(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    client.get('/travaux/', { signal: controller.signal })
+      .then(res => setTravaux(res.data))
+      .catch(e => {
+        if (e?.code === 'ERR_CANCELED' || e?.name === 'AbortError' || e?.name === 'CanceledError') return;
+        setSnack(t('mobile.error_load'));
+      })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchTravaux = async () => {
     try {
       const res = await client.get('/travaux/');
       setTravaux(res.data);
     } catch (e) {
-      const msg = e?.response?.status
-        ? `Erreur ${e.response.status}: ${JSON.stringify(e.response.data)}`
-        : e?.message || t('mobile.error_load');
-      setSnack(msg);
+      if (e?.code === 'ERR_CANCELED' || e?.name === 'AbortError') return;
+      setSnack(t('mobile.error_load'));
     } finally {
       setLoading(false);
     }

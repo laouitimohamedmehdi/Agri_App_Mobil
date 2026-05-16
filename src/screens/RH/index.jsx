@@ -258,10 +258,12 @@ function PresencesResume({ employes }) {
   const mois = new Date().toISOString().slice(0, 7);
 
   useEffect(() => {
-    client.get(`/feuilles/?mois=${mois}`)
+    const controller = new AbortController();
+    client.get(`/feuilles/?mois=${mois}`, { signal: controller.signal })
       .then(r => setFeuille(r.data))
       .catch(() => { })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading) return <Text style={{ padding: 16, color: '#888' }}>{t('common.loading')}</Text>;

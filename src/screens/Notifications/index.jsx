@@ -7,6 +7,7 @@ import AppHeader from '../../components/AppHeader';
 import EmptyState from '../../components/EmptyState';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import client from '../../api/client';
+import { isCancelled } from '../../utils/abortHelper';
 
 const TYPE_CONFIG = {
   info:    { color: '#1677ff', bg: '#e6f4ff', icon: 'information-outline'   },
@@ -30,15 +31,13 @@ export default function Notifications({ navigation }) {
   };
 
   useEffect(() => {
-    fetchNotifs();
-    markAllRead();
+    const controller = new AbortController();
+    client.get('/notifications/', { signal: controller.signal })
+      .then(res => { setNotifs(res.data); markAllRead(); })
+      .catch(e => { if (!isCancelled(e)) setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
-
-  const fetchNotifs = async () => {
-    try { const res = await client.get('/notifications/'); setNotifs(res.data); }
-    catch { setSnack(t('mobile.error_load')); }
-    finally { setLoading(false); }
-  };
 
   const markAllRead = async () => {
     try { await client.put('/notifications/read-all'); } catch {}

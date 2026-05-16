@@ -57,11 +57,18 @@ export default function Parametres({ navigation }) {
     setRefreshing(false);
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    client.get('/users/', { signal: controller.signal })
+      .then(res => setUsers(res.data))
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchUsers = async () => {
     try { const res = await client.get('/users/'); setUsers(res.data); }
-    catch { setSnack(t('mobile.error_load')); }
+    catch (e) { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError') setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 

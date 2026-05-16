@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 const SCREEN_H = Dimensions.get('window').height;
 import { FAB, Portal, Dialog, TextInput, Button, Switch, Text, Chip, Snackbar, SegmentedButtons, Card } from 'react-native-paper';
@@ -14,6 +15,7 @@ const ROLE_COLOR = { admin: '#722ed1', user: '#1677ff' };
 const ROLE_BG    = { admin: '#f9f0ff', user: '#e6f4ff' };
 
 export default function Utilisateurs({ navigation }) {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('tous');
@@ -25,13 +27,14 @@ export default function Utilisateurs({ navigation }) {
   const [confirmId, setConfirmId] = useState(null);
   const [snack, setSnack] = useState('');
 
-  useEffect(() => { fetchUsers(); }, []);
-
-  const fetchUsers = async () => {
-    try { const res = await client.get('/users/'); setUsers(res.data); }
-    catch { setSnack('Erreur de chargement'); }
-    finally { setLoading(false); }
-  };
+  useEffect(() => {
+    const controller = new AbortController();
+    client.get('/users/', { signal: controller.signal })
+      .then(res => setUsers(res.data))
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const filtered = users.filter(u => {
     if (filterRole !== 'tous' && u.role !== filterRole) return false;

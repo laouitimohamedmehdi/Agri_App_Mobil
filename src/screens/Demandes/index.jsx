@@ -35,11 +35,18 @@ export default function Demandes({ navigation }) {
     setRefreshing(false);
   };
 
-  useEffect(() => { fetchDemandes(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    client.get('/demandes/', { signal: controller.signal })
+      .then(res => setDemandes(res.data))
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchDemandes = async () => {
     try { const res = await client.get('/demandes/'); setDemandes(res.data); }
-    catch { setSnack(t('mobile.error_load')); }
+    catch (e) { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError') setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 

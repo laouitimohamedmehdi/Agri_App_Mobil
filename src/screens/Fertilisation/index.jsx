@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { FAB, Portal, Dialog, TextInput, Button, Chip, Snackbar, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -16,6 +17,7 @@ import DatePickerInput from '../../components/DatePickerInput';
 const SCREEN_H = Dimensions.get('window').height;
 
 export default function Fertilisation({ navigation }) {
+  const { t } = useTranslation();
   const { secteurs, parcelles } = useData();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -37,11 +39,18 @@ export default function Fertilisation({ navigation }) {
   const [formParcelle, setFormParcelle] = useState('');
   const [snack, setSnack] = useState('');
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    client.get('/fertilisation/', { signal: controller.signal })
+      .then(res => setItems(res.data))
+      .catch(e => { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError' && e?.name !== 'CanceledError') setSnack(t('mobile.error_load')); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
   const fetchData = async () => {
     try { const res = await client.get('/fertilisation/'); setItems(res.data); }
-    catch { setSnack('Erreur de chargement'); }
+    catch (e) { if (e?.code !== 'ERR_CANCELED' && e?.name !== 'AbortError') setSnack(t('mobile.error_load')); }
     finally { setLoading(false); }
   };
 
