@@ -403,26 +403,26 @@ export default function Recoltes({ navigation }) {
           <Dialog.Title>{editing ? t('recoltes.modal_edit') : t('recoltes.modal_create')}</Dialog.Title>
           <Dialog.Content>
             <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: SCREEN_H * 0.5 }}>
-              <TextInput label={t('mobile.campaign')} value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} />
+              <TextInput label={t('mobile.campaign')} value={form.campagne} onChangeText={v => setForm(f => ({ ...f, campagne: v }))} maxLength={20} style={{ marginBottom: 12 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
               <DatePickerInput label={t('travaux.col_date')} value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} style={{ marginBottom: 12 }} />
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.plot')}</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4, textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.plot')}</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label={t('recoltes.choose_parcelle')} value={formParcelle}
                   onChange={v => { setFormParcelle(v); setForm(f => ({ ...f, secteur_id: '' })); }}
                   options={parcelles.map(p => ({ value: String(p.id_parcelle), label: p.nom }))} />
               </View>
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>{t('mobile.sector')} *</Text>
+              <Text variant="labelMedium" style={{ marginBottom: 4, textAlign: isRTL ? 'right' : 'left' }}>{t('mobile.sector')} *</Text>
               <View style={{ marginBottom: 12 }}>
                 <SelectFilter noAll label={t('recoltes.choose_secteur')} value={form.secteur_id}
                   onChange={v => setForm(f => ({ ...f, secteur_id: v }))}
                   options={secteursForForm.map(s => ({ value: String(s.id_secteur), label: s.nom }))} />
               </View>
-              <TextInput label={t('recoltes.col_production')} value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
+              <TextInput label={t('recoltes.col_production')} value={form.production} onChangeText={v => setForm(f => ({ ...f, production: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
               {isAdmin && (
                 <>
                   <Divider style={{ marginBottom: 12 }} />
-                  <TextInput label={t('recoltes.form_oil')} value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} />
-                  <TextInput label={`Prix (${currencySymbol}/L)`} value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" />
+                  <TextInput label={t('recoltes.form_oil')} value={form.huile} onChangeText={v => setForm(f => ({ ...f, huile: v }))} keyboardType="numeric" style={{ marginBottom: 12 }} contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
+                  <TextInput label={t('recoltes.col_price', { currency: currencySymbol })} value={form.prix} onChangeText={v => setForm(f => ({ ...f, prix: v }))} keyboardType="numeric" contentStyle={isRTL ? { textAlign: 'right' } : undefined} />
                 </>
               )}
             </ScrollView>
